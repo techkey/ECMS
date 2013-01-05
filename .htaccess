@@ -1,0 +1,18 @@
+DirectoryIndex index.php index.html
+
+ErrorDocument 403 /error.php
+ErrorDocument 404 /error.php
+
+<FilesMatch "\.(php|inc|info|yaml|sq3|tpl|twig|inc\.php|class\.php|info\.php)$">
+  Order allow,deny
+</FilesMatch>
+
+<FilesMatch "index\.php|error\.php">
+  allow from all
+</FilesMatch>
+
+RewriteEngine on
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.php [L]
+

@@ -1,0 +1,309 @@
+
+/********************************** debug *************************************/
+
+.region {
+  background: #F8F8FF;
+  position: relative;
+}
+
+span.region-name {
+  background: #223344;
+  color: #8888FF;
+  font-size: 10px;
+  border-radius: 3px;
+  padding: 2px 4px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  opacity: 0.5;
+}
+
+.region:hover span.region-name {
+  opacity: 1;
+}
+
+/*span.region-name:hover {*/
+  /*opacity: 1;*/
+/*}*/
+
+/*.content div {*/
+  /*margin: 20px 0;*/
+/*}*/
+
+/********************************** global ************************************/
+
+a,
+a:active,
+a:visited,
+a:hover {
+  color: #0000FF;
+  text-decoration: none;
+}
+
+input[type=submit] {
+  border: none;
+  background: #888888;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  border: none;
+  background: #333333;
+  color: #CCCCCC;
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #112233;
+  font-size: 12px;
+  font-family: sans-serif;
+  /*color: #FFA500;*/
+}
+
+.region {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.block {
+  margin: 0 0 10px 0;
+}
+
+.block h3 {
+  margin: 0 0 5px 0;
+  padding: 0 0 5px 0;
+  border-bottom: 1px solid #888888;
+}
+
+.error-messages,
+.warning-messages,
+.status-messages {
+  margin: 5px 0;
+  padding: 20px;
+  list-style: none;
+  color: #222222;
+}
+
+.error-messages {
+  border: 1px solid #FF0000;
+  background: #FFCCCC;
+  /*color: #FF0000;*/
+}
+
+.warning-messages {
+  border: 1px solid #AAAA00;
+  background: #FFFFDD;
+  /*color: #AAAA00;*/
+}
+
+.status-messages {
+  border: 1px solid #00AA00;
+  background: #DDFFDD;
+  /*color: #00AA00;*/
+}
+
+/*
+.menu p {
+  margin: 10px 0;
+  padding: 0 0 5px 0;
+  border-bottom: 1px solid #888888;
+}
+*/
+.menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menu ul li {
+  margin: 0;
+}
+
+.menu ul li a {
+  display: block;
+  text-decoration: none;
+  color: #000000;
+  line-height: 20px;
+}
+
+.menu ul li a:hover {
+  background: #DDDDDD;
+}
+
+#block-system-main_menu {
+  display: inline-block;
+  margin: 0 0 0 50px;
+}
+
+.menu.horizontal ul li {
+  display: inline-block;
+}
+
+.menu.horizontal ul li a {
+  display: inline-block;
+  padding: 0 10px;
+  font-size: 16px;
+}
+
+
+
+.form-element {
+  margin: 10px 0;
+  font-size: 12px;
+}
+/*
+.form-element > * {
+  display: block;
+}
+*/
+
+.form-element select,
+.form-element input[type=number],
+.form-element input[type=text],
+.form-element input[type=email],
+.form-element input[type=password],
+.form-element textarea {
+  display: block;
+}
+
+.form-element label.required:after {
+  content: '*';
+}
+
+.form-element span {
+  color: #888888;
+}
+
+.form-error {
+  border-color: #FF0000;
+}
+
+fieldset {
+  border: 1px solid #AAAAAA;
+  margin: 10px 0;
+}
+
+
+.list-table {
+  border: 1px solid #CCCCCC;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+.list-table thead {
+  background: #FFA500;
+}
+
+.list-table th {
+  text-align: left;
+}
+
+.list-table th, .list-table td {
+  padding: 3px 10px 3px 0;
+}
+
+.list-table tbody tr:hover {
+  background: #FFF5A0;
+}
+
+.red { color: #FF0000; }
+.darkgreen { color: #006400; }
+.green { color: #008000; }
+
+.bold {
+  font-weight: bold;
+}
+
+/********************************** layout ************************************/
+
+header {
+  /*padding: 5px 20px;*/
+  height: 32px;
+  background: #FFA500;
+  border-bottom: 1px solid #EE9400;
+}
+
+header div.logo {
+  float: left;
+}
+
+.page {
+  padding: 10px 0;
+  background: #FFFFFF;
+}
+
+.page-title {
+  margin: 0 0 20px 0;
+}
+
+.content {
+  min-height: 400px;
+}
+
+footer {
+  min-height: 100px;
+  background: #FFFFFF;
+  padding: 10px 0;
+  border-top: 1px solid #BACD00;
+}
+
+/************************************ *************************************/
+
+.logo a,
+.logo a:active {
+  text-decoration: none;
+  font-size: 28px;
+  line-height: 32px;
+  font-weight: bold;
+  font-family: Consolas, serif;
+  color: #112233;
+  /*text-shadow: -1px -1px #667788;*/
+}
+
+header img {
+  position: absolute;
+  right: 0;
+  top: 15px;
+}
+
+footer div[class|=footer] {
+  padding: 20px 0;
+}
+
+ul.stats {
+  padding: 0;
+  margin: 0;;
+  list-style: none;
+}
+
+/*********************************** node *************************************/
+
+.node-info,
+.comment-info {
+  font-size: 11px;
+  color: #888888;
+}
+
+.node-info {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.node-info span {
+  font-style: italic;
+}
+
+.node-content {
+  min-height: 200px;
+}
+
+.comment-form {
+  border-top: 1px solid #CCCCCC;
+  margin: 10px 0;
+  padding: 10px 0;
+}
+
