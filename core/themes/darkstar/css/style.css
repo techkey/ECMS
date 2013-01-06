@@ -188,25 +188,30 @@ fieldset {
 
 
 .list-table {
-  border: 1px solid #CCCCCC;
-  border-spacing: 0;
   border-collapse: collapse;
+ 	margin: 0.5em;
 }
 
-.list-table thead {
-  background: #FFA500;
+.list-table thead, .list-table tfoot {
+  background-color: #DDD;
 }
 
 .list-table th {
   text-align: left;
 }
 
-.list-table th, .list-table td {
-  padding: 3px 10px 3px 0;
+.list-table th, .list-table td, .list-table caption {
+  padding: 6px;
+ 	border: 1px solid #CCC;
+ 	height: 1.5em;
 }
 
 .list-table tbody tr:hover {
   background: #FFF5A0;
+}
+
+.list-table tr {
+  height: 1em;
 }
 
 .red { color: #FF0000; }

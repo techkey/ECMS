@@ -21,7 +21,7 @@
 }
 
 .stupidtable td, .stupidtable th, .stupidtable caption {
-	padding: 0.5em;
+	padding: 6px;
 	border: 1px solid #CCC;
 	height: 1.5em;
 }

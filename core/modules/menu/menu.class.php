@@ -212,7 +212,7 @@ class menu extends core_module
         'caption' => count($this->menus) . ' menus',
         'header'  => $header,
         'rows'    => $rows,
-        'attributes' => array('class' => array('stupidtable')),
+        'attributes' => array('class' => array('stupidtable', 'sticky')),
       ),
     );
 
