@@ -22,7 +22,7 @@ $(function () {
 
 //  showDebug();
 
-  // todo: Make this run after stupidtable.
+  // todo: Make this work nice with stupidtable.
   $('table.sticky').each(function () {
     var $sticky = $('<table><thead><tr></tr></thead></table>');
     var $table = $(this);
