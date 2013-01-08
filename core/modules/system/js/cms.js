@@ -48,9 +48,10 @@ $(function () {
     $('tbody', this).prepend($dummy);
 
     var offset = $thead.offset();
+    var sticky;
 
     $(window).scroll(function () {
-      var sticky = ($(document).scrollTop() > offset.top);
+      sticky = ($(document).scrollTop() > offset.top);
       if (sticky) {
         $dummy.css('display', 'table-row');
         $thead.css({
@@ -72,6 +73,11 @@ $(function () {
 //      txt += 'scrollLeft: ' + $(document).scrollLeft() + '<br>';
 //      $('#debug').html(txt);
     });
+
+    $(window).resize(function () {
+      offset = (sticky) ? $dummy.offset() : $thead.offset();
+    });
+
   });
 
 });
