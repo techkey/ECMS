@@ -1,6 +1,8 @@
 .idea
 .objects
+.objects/*
 core/db
+core/db/*
 core/engines/smarty/compile
 core/engines/smarty/Smarty
 core/engines/twig/cache
