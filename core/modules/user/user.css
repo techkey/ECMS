@@ -6,3 +6,9 @@
 #block-user-user {
   float: right;
 }
+
+#block-user-user a,
+#block-user-user a:visited,
+#block-user-user a:hover {
+  color: #CCCCCC;
+}

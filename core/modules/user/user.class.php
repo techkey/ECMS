@@ -307,9 +307,9 @@ class user extends core_module
     $user = $this->get_loggedin_user();
     $content = 'Welcome ' . $user->username;
     if ($user->uid == 0) {
-      $content .= ', ' . l('login', '/user/login') . ' or ' . l('register', '/user/register');
+      $content .= ': ' . l('login', '/user/login') . ' or ' . l('register', '/user/register');
     } else {
-      $content .= ', ' . l('logout', '/user/logout') . ' | ' . l('my account', '/user/edit');
+      $content .= ': ' . l('logout', '/user/logout') . ' | ' . l('my account', '/user/edit');
     }
 
     $block['user'] = array(

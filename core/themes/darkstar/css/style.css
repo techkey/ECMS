@@ -105,6 +105,12 @@ body {
   /*color: #00AA00;*/
 }
 
+/******************************************************************************/
+
+.region.header {
+  margin: 0;
+}
+
 /*
 .menu p {
   margin: 10px 0;
@@ -130,12 +136,23 @@ body {
 }
 
 .menu ul li a:hover {
-  background: #DDDDDD;
+  background: #000000;
+  color: #CCCCCC;
 }
+
 
 #block-system-main_menu {
   display: inline-block;
   margin: 0 0 0 50px;
+}
+
+#block-system-main_menu a {
+  line-height: 32px;
+}
+
+#block-system-main_menu a:hover {
+  color: #000000;
+  background: #CCCCCC;
 }
 
 .menu.horizontal ul li {
@@ -145,7 +162,8 @@ body {
 .menu.horizontal ul li a {
   display: inline-block;
   padding: 0 10px;
-  font-size: 16px;
+  /*font-size: 16px;*/
+  color: #CCCCCC;
 }
 
 
@@ -227,12 +245,18 @@ fieldset {
 header {
   /*padding: 5px 20px;*/
   height: 32px;
-  background: #FFA500;
-  border-bottom: 1px solid #EE9400;
+  background: #000000;
+  color: #CCCCCC;
+  line-height: 32px;
+  font-size: 14px;
 }
 
 header div.logo {
   float: left;
+}
+
+header a {
+  color: #CCCCCC;
 }
 
 .page {
@@ -260,11 +284,11 @@ footer {
 .logo a,
 .logo a:active {
   text-decoration: none;
-  font-size: 28px;
-  line-height: 32px;
-  font-weight: bold;
-  font-family: Consolas, serif;
-  color: #112233;
+  /*font-size: 28px;*/
+  /*line-height: 32px;*/
+  /*font-weight: bold;*/
+  /*font-family: Consolas, serif;*/
+  color: #CCCCCC;
   /*text-shadow: -1px -1px #667788;*/
 }
 

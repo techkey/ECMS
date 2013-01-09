@@ -258,6 +258,7 @@ class log {
         'caption' => $count . ' records',
         'header' => $header,
         'rows' => $rows,
+        'attributes' => array('class' => array('list-table', 'sticky')),
       ),
     );
 
