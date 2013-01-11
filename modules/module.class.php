@@ -10,6 +10,8 @@ abstract class module
 {
 
   /**
+   * Get relative path.
+   *
    * @return string
    */
   public function get_path() {
@@ -18,6 +20,8 @@ abstract class module
   }
 
   /**
+   * Get full path, i.e. http://example.com
+   *
    * @return string
    */
   public function get_base_path() {
