@@ -89,21 +89,21 @@ function get_module_block() {
 }
 
 /**
- * @return \core\modules\comment\comment Returns the object or FALSE.
+ * @return \modules\comment\comment Returns the object or FALSE.
  */
 function get_module_comment() {
   return get_module('comment');
 }
 
 /**
- * @return \core\modules\node\node Returns the object or FALSE.
+ * @return \modules\node\node Returns the object or FALSE.
  */
 function get_module_node() {
   return get_module('node');
 }
 
 /**
- * @return \core\modules\content\content Returns the object or FALSE.
+ * @return \modules\content\content Returns the object or FALSE.
  */
 function get_module_content() {
   return get_module('content');
