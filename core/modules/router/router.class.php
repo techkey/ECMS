@@ -236,7 +236,6 @@ class router
           'path' => $path,
           'access_arguments' => '',
           'menu_name' => 'navigation',
-//          'menu_name' => 'user',
           'type' => MENU_NORMAL_ITEM,
         );
         $a = array();
@@ -317,7 +316,7 @@ class router
         'caption' => count($this->routes) . ' routes',
         'header' => $header,
         'rows'   => $rows,
-        'attributes' => array('class' => array('stupidtable')),
+        'attributes' => array('class' => array('stupidtable', 'sticky')),
       ),
     );
 
