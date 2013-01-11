@@ -67,6 +67,7 @@ class form {
             }
             // Check if we must redirect.
             if (isset($saved_data['#redirect'])) {
+              $_SESSION['keepflashvars'] = true;
               go_to($saved_data['#redirect']);
             }
             // Just go to the same page.
@@ -155,6 +156,9 @@ class form {
         case 'checkbox':
           $str = $this->render_checkbox($name, $field);
           break;
+        case 'checkboxes':
+          $str = $this->render_checkboxes($name, $field);
+          break;
         case 'email':
           $str = $this->render_email($name, $field);
           break;
@@ -169,6 +173,12 @@ class form {
           break;
         case 'password':
           $str = $this->render_password($name, $field);
+          break;
+        case 'radio':
+          $str = $this->render_radio($name, $field);
+          break;
+        case 'radios':
+          $str = $this->render_radios($name, $field);
           break;
         case 'submit':
           $str = $this->render_submit($name, $field);
@@ -250,8 +260,11 @@ class form {
            }
           break;
 
+        case 'checkboxes':
         case 'fieldset':
         case 'markup':
+        case 'radio':
+        case 'radios':
         case 'submit':
         case 'value':
           break;
@@ -334,10 +347,57 @@ class form {
   /**
    * @param string $name
    * @param array $field
+   * @return string
    */
-//  private function render_form($name, array $field) {
-//    $this->form_attributes += $field;
-//  }
+  private function render_checkboxes($name, array $field) {
+    $attributes = (isset($field['#attributes'])) ? $field['#attributes'] : array();
+    $attributes += array(
+      'id' => $name,
+      'name' => $name,
+    );
+
+    $element[] = sprintf('<div id="form-element-%s" class="form-element">', $attributes['id']);
+
+    if (isset($field['#description'])) {
+      $element[] = sprintf('<span>%s</span>', $field['#description']);
+    }
+
+    $group_id = $attributes['id'];
+    $group_name = $attributes['name'];
+
+    foreach ($field['#options'] as $key => $title) {
+      $attributes['id'] = $group_id . '-' . $title;
+      $attributes['name'] = $group_id . '-' . $key;
+      $attributes['value'] = $key;
+//      if ($field['#default_value'] == $key) {
+//        $attributes['checked'] = 'checked';
+//      } else {
+//        unset($attributes['checked']);
+//      };
+
+      $label_attribs['for'] = $attributes['id'];
+
+      if (isset($field['#field_prefix'])) {
+        $element[] = $field['#field_prefix'];
+      }
+
+      if (isset($field['#title_display']) && ($field['#title_display'] == 'before')) {
+        $element[] = sprintf('<label %s>%s</label>', build_attribute_string($label_attribs), $title);
+        $element[] = sprintf('<input type="checkbox" %s>', build_attribute_string($attributes));
+      } else {
+        $element[] = sprintf('<input type="checkbox" %s>', build_attribute_string($attributes));
+        $element[] = sprintf('<label %s>%s</label>', build_attribute_string($label_attribs), $title);
+      }
+
+      if (isset($field['#field_suffix'])) {
+        $element[] = $field['#field_suffix'];
+      }
+    }
+
+    $element[] = '</div>';
+
+    return implode("\n", $element);
+  }
 
   /**
    * @param string $name
@@ -362,6 +422,95 @@ class form {
     $str .= implode('', $str2);
 
     return $str . '</fieldset>';
+  }
+
+  /**
+   * @param string $name
+   * @param array $field
+   * @return string
+   */
+  private function render_radio($name, array $field) {
+    $attributes = (isset($field['#attributes'])) ? $field['#attributes'] : array();
+    $attributes += array(
+      'id' => $name,
+      'name' => $name,
+    );
+
+    $label_attribs['for'] = $attributes['id'];
+
+    if ($field['#default_value']) {
+      $attributes['checked'] = 'checked';
+    }
+
+    if (isset($field['#description'])) {
+      $element[] = sprintf('<span>%s</span>', $field['#description']);
+    }
+
+    $element[] = sprintf('<div id="form-element-%s" class="form-element">', $attributes['id']);
+    if (isset($field['#title_display']) && ($field['#title_display'] == 'before')) {
+      $element[] = sprintf('<label %s>%s</label>', build_attribute_string($label_attribs), $field['#title']);
+      $element[] = sprintf('<input type="radio" %s>', build_attribute_string($attributes));
+    } else {
+      $element[] = sprintf('<input type="radio" %s>', build_attribute_string($attributes));
+      $element[] = sprintf('<label %s>%s</label>', build_attribute_string($label_attribs), $field['#title']);
+    }
+    $element[] = '</div>';
+
+    return implode("\n", $element);
+  }
+
+  /**
+   * @param string $name
+   * @param array $field
+   * @return string
+   */
+  private function render_radios($name, array $field) {
+    $attributes = (isset($field['#attributes'])) ? $field['#attributes'] : array();
+    $attributes += array(
+      'id' => $name,
+      'name' => $name,
+    );
+
+    $element[] = sprintf('<div id="form-element-%s" class="form-element">', $attributes['id']);
+
+    if (isset($field['#description'])) {
+      $element[] = sprintf('<span>%s</span>', $field['#description']);
+    }
+
+    $group_id = $attributes['id'];
+    $group_name = $attributes['name'];
+
+    foreach ($field['#options'] as $key => $title) {
+      $attributes['id'] = $group_id . '-' . $title;
+      $attributes['value'] = $key;
+      if ($field['#default_value'] == $key) {
+        $attributes['checked'] = 'checked';
+      } else {
+        unset($attributes['checked']);
+      };
+
+      $label_attribs['for'] = $attributes['id'];
+
+      if (isset($field['#field_prefix'])) {
+        $element[] = $field['#field_prefix'];
+      }
+
+      if (isset($field['#title_display']) && ($field['#title_display'] == 'before')) {
+        $element[] = sprintf('<label %s>%s</label>', build_attribute_string($label_attribs), $title);
+        $element[] = sprintf('<input type="radio" %s>', build_attribute_string($attributes));
+      } else {
+        $element[] = sprintf('<input type="radio" %s>', build_attribute_string($attributes));
+        $element[] = sprintf('<label %s>%s</label>', build_attribute_string($label_attribs), $title);
+      }
+
+      if (isset($field['#field_suffix'])) {
+        $element[] = $field['#field_suffix'];
+      }
+    }
+
+    $element[] = '</div>';
+
+    return implode("\n", $element);
   }
 
   /**
