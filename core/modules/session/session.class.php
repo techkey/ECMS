@@ -18,13 +18,6 @@ class session
   private $mysession = NULL;
 
   /**
-   * Initialize.
-   */
-  public function __construct() {
-//    $this->install();
-  }
-
-  /**
    * The schema definition.
    */
   public function schema() {

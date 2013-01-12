@@ -30,28 +30,6 @@ class router
   private $basepath = '';
 
   /**
-   * Initialize.
-   */
-  public function __construct() {
-    $config = config::get_all_values();
-    foreach ($config as $key => $route) {
-      if ($key[0] != '#') {
-        continue;
-      }
-      $route += array(
-        'module' => 'config',
-        'access_arguments' => '',
-        'menu_name' => 'navigation',
-        'type' => MENU_NORMAL_ITEM,
-        'comments' => FALSE,
-      );
-      $this->routes[substr($key, 1)] = $route;
-    }
-    $this->basepath = config::get_value('basepath', '');
-
-  }
-
-  /**
    * Add a route.
    *
    * If $route is a array then the following format is expected ($path and $controller are not used):
@@ -226,6 +204,22 @@ class router
    * Hook init();
    */
   public function init() {
+    $config = config::get_all_values();
+    foreach ($config as $key => $route) {
+      if ($key[0] != '#') {
+        continue;
+      }
+      $route += array(
+        'module' => 'config',
+        'access_arguments' => '',
+        'menu_name' => 'navigation',
+        'type' => MENU_NORMAL_ITEM,
+        'comments' => FALSE,
+      );
+      $this->routes[substr($key, 1)] = $route;
+    }
+    $this->basepath = config::get_value('basepath', '');
+
     $results = invoke('menu');
 
     foreach ($results as $module => $menu) {

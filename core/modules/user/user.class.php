@@ -17,13 +17,6 @@ class user extends core_module
   private $user = NULL;
 
   /**
-   * Initialize.
-   */
-  public function __construct() {
-//    $this->install();
-  }
-
-  /**
    * The schema definition.
    */
   public function schema() {

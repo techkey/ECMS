@@ -11,13 +11,6 @@ class library {
   private $libraries = array();
 
   /**
-   * Initialize.
-   */
-  public function __construct() {
-    define('LIBRARY_DIR', BASE_DIR . '/library');
-  }
-
-  /**
    * Search for the version.
    *
    * @param string $name

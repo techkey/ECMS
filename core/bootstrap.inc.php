@@ -2,6 +2,7 @@
 // bootstrap.php
 
 define('BASE_DIR', realpath(__DIR__ . '/../'));
+define('LIBRARY_DIR', BASE_DIR . '/library');
 
 require_once BASE_DIR . '/core/autoloader.inc.php';
 require_once BASE_DIR . '/core/common.inc.php';

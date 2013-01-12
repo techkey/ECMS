@@ -13,13 +13,6 @@ use geoip;
 class log {
 
   /**
-   * Initialize.
-   */
-  public function __construct() {
-//    $this->install();
-  }
-
-  /**
    * The schema definition.
    */
   public function schema() {
