@@ -49,9 +49,8 @@ class module extends core_module {
 
   /**
    * @param string $module
-   * @return string
    */
-  public function module_install($module) {
+  private function _module_install($module) {
     $schema = get_module($module)->schema();
     $table_name = key($schema);
     $b = db_install_schema($schema);
@@ -60,16 +59,56 @@ class module extends core_module {
     } else {
       set_message('Install of ' . $table_name . ' failed.', 'error');
     }
-
-    return $this->modules();
   }
 
   /**
    * @param string $module
    * @return string
    */
+  public function module_install($module) {
+    $data = array(
+      'title' => "Install <em>$module</em>?",
+//      'message' => 'This action cannot be undone!',
+      'button' => 'Install',
+      'cancel' => '/admin/modules',
+      'extra' => array('module' => $module),
+    );
+
+    return get_module_form()->confirm($data);
+  }
+
+  /**
+   * @param array $form
+   * @param array $form_values
+   */
+  public function module_install_submit(array &$form, array $form_values) {
+    $this->_module_install($form_values['extra']['module']);
+
+    $form['#redirect'] = '/admin/modules';
+  }
+
+  /**
+   * @param $module
+   * @return array|string
+   */
   public function module_uninstall($module) {
-    $schema = get_module($module)->schema();
+    $data = array(
+      'title' => "Uninstall <em>$module</em>?",
+      'message' => 'This action cannot be undone!',
+      'button' => 'Uninstall',
+      'cancel' => '/admin/modules',
+      'extra' => array('module' => $module),
+    );
+
+    return get_module_form()->confirm($data);
+  }
+
+  /**
+   * @param array $form
+   * @param array $form_values
+   */
+  public function module_uninstall_submit(array &$form, array $form_values) {
+    $schema = get_module($form_values['extra']['module'])->schema();
     $table_name = key($schema);
     $b = db_query('DROP TABLE ' . $table_name);
     if ($b) {
@@ -78,7 +117,7 @@ class module extends core_module {
       set_message('Uninstall of ' . $table_name . ' failed.', 'error');
     }
 
-    return $this->modules();
+    $form['#redirect'] = '/admin/modules';
   }
 
   /**
@@ -86,11 +125,29 @@ class module extends core_module {
    * @return string
    */
   public function module_reinstall($module) {
-    $schema = get_module($module)->schema();
+    $data = array(
+      'title' => "Re-install <em>$module</em>?",
+      'message' => 'This action cannot be undone!',
+      'button' => 'Re-install',
+      'cancel' => '/admin/modules',
+      'extra' => array('module' => $module),
+    );
+
+    return get_module_form()->confirm($data);
+  }
+
+  /**
+   * @param array $form
+   * @param array $form_values
+   */
+  public function module_reinstall_submit(array &$form, array $form_values) {
+    $schema = get_module($form_values['extra']['module'])->schema();
     $table_name = key($schema);
     db_query('DROP TABLE ' . $table_name);
 
-    return $this->module_install($module);
+    $this->_module_install($form_values['extra']['module']);
+
+    $form['#redirect'] = '/admin/modules';
   }
 
   /**

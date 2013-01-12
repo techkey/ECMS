@@ -46,6 +46,13 @@ class form {
       // The saved form.
       $saved_data = $this->form_info['data'];
 
+      // Merge values of type '#value'.
+      foreach ($saved_data as $key => $data) {
+        if (!isset($this->form_values[$key]) && ($data['#type'] == 'value')) {
+          $this->form_values[$key] = $data['#value'];
+        }
+      }
+
       $this->validate($saved_data);
       if (!$this->form_errors) {
         // Call the validate handler if exists.
@@ -67,7 +74,7 @@ class form {
             }
             // Check if we must redirect.
             if (isset($saved_data['#redirect'])) {
-              $_SESSION['keepflashvars'] = true;
+              $_SESSION['keepflashvars'] = TRUE;
               go_to($saved_data['#redirect']);
             }
             // Just go to the same page.
@@ -86,8 +93,11 @@ class form {
     $fields = $this->render_fields($data);
 
     // Get the caller.
-    $caller = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-    $caller = $caller[1];
+    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+    $caller = $trace[1];
+    if (basename(str_replace('\\', '/', $caller['class'])) == 'form') {
+      $caller = $trace[2];
+    }
 
     // Set the default form attributes if form attributes are not set.
     if (!isset($this->form_attributes['id'])) {
@@ -124,15 +134,66 @@ class form {
   }
 
   /**
+   * Build a confirm form.
+   *
+   * @param array $data Associative array with the following keys:
+   * <pre>
+   *  string title   - The page title
+   *  string message - The message
+   *  string button  - The button text
+   *  string cancel  - The cancel path
+   *  mixed  extra   - Extra data to be put in form_values
+   * </pre>
+   * @return array|string
+   */
+  public function confirm(array $data) {
+    $data += array(
+      'title' => '',
+      'message' => '',
+      'extra' => NULL,
+    );
+
+    if ($data['extra']) {
+      $form['extra'] = array(
+        '#type' => 'value',
+        '#value' => $data['extra'],
+      );
+    }
+    if ($data['message']) {
+      $form['message'] = array(
+        '#value' => '<p>' . $data['message'] . '</p>',
+      );
+    }
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => $data['button'],
+      '#suffix' => '&nbsp;&nbsp;' . l('Cancel', $data['cancel']),
+    );
+
+    $str = $this->build($form);
+
+    if ($data['title']) {
+      $return = array(
+        'page_title' => $data['title'],
+        'content' => $str,
+      );
+    } else {
+      $return = $str;
+    }
+
+    return $return;
+  }
+
+  /**
    * Render the fields recursive.
    *
    * @param array $data The form array.
    * @return array
    */
-  private function render_fields(array $data) {
+  private function render_fields(array &$data) {
     $fields = array();
 
-    foreach ($data as $name => $field) {
+    foreach ($data as $name => &$field) {
       if ($name == '#attributes') {
         $this->form_attributes = $field;
         continue;
@@ -204,12 +265,13 @@ class form {
       // Add prefix and suffix.
       $fields[] = $field['#prefix'] . $str . $field['#suffix'];
     }
+    unset($field);
 
     return $fields;
   }
 
   /**
-   * todo: improve this
+   * todo: improve array_flatten
    *
    * @param array $array
    * @return array
