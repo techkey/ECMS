@@ -75,6 +75,23 @@ class router
   }
 
   /**
+   * @return array|bool
+   */
+  public function get_current_route() {
+    $req_uri = $_SERVER['REQUEST_URI'];
+    $bp = config::get_value('system.basepath', '/');
+    $bp = rtrim($bp, '/');
+    $req_uri = str_replace($bp, '', $req_uri);
+    foreach ($this->routes as $title => $data) {
+      if ($data['path'] == $req_uri) {
+        return $this->routes[$title];
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
    * @internal method to get the number of parts of a request URI.
    *
    * @param string $req_uri
