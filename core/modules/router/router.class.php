@@ -41,8 +41,9 @@ class router
       $route += array(
         'module' => 'config',
         'access_arguments' => '',
-//        'menu_name' => 'user',
-//        'type' => MENU_NORMAL_ITEM,
+        'menu_name' => 'navigation',
+        'type' => MENU_NORMAL_ITEM,
+        'comments' => FALSE,
       );
       $this->routes[substr($key, 1)] = $route;
     }
@@ -64,12 +65,13 @@ class router
    * </pre>
    *
    * @param string|array $route
-   * @param string $path
-   * @param string $controller
-   * @param string $access_arguments
-   * @param int $type
+   * @param string       $path
+   * @param string       $controller
+   * @param string       $access_arguments
+   * @param int          $type
+   * @param bool         $comments
    */
-  public function add_route($route, $path = NULL, $controller = NULL, $access_arguments = NULL, $type = NULL) {
+  public function add_route($route, $path = NULL, $controller = NULL, $access_arguments = NULL, $type = NULL, $comments = NULL) {
     $module = get_called_class();
     if (is_array($route)) {
       $this->routes += $route;
@@ -82,6 +84,7 @@ class router
         'controller'       => $controller,
         'access_arguments' => $access_arguments,
         'type'             => $type,
+        'comments'         => $comments,
       );
     }
   }
@@ -225,24 +228,24 @@ class router
   public function init() {
     $results = invoke('menu');
 
-    foreach ($results as $module => $result) {
-      if (!is_array($result)) {
+    foreach ($results as $module => $menu) {
+      if (!is_array($menu)) {
         set_message($module . '->menu returned not a array!', 'warning');
         continue;
       }
-      foreach ($result as $path => $route) {
+      foreach ($menu as $path => $route) {
         $route += array(
           'module' => $module,
           'path' => $path,
           'access_arguments' => '',
           'menu_name' => 'navigation',
           'type' => MENU_NORMAL_ITEM,
+          'comments' => FALSE,
         );
         $a = array();
         switch ($route['type']) {
           /** @noinspection PhpMissingBreakStatementInspection */
           case MENU_NORMAL_ITEM:
-//            get_module_menu()->add_link($route['menu_name'], $route['title'], $path, $route['access_arguments']);
             get_module_menu()->add_link($route);
             // Fallthrough
           case MENU_CALLBACK:
@@ -252,12 +255,13 @@ class router
             $a['access_arguments'] = $route['access_arguments'];
             $a['type']             = $route['type'];
             $a['menu_name']        = $route['menu_name'];
+            $a['comments']         = $route['comments'];
             break;
-
         }
         $this->routes += array($route['title'] => $a);
       }
     }
+    $br = 0;
   }
 
   /**
@@ -295,6 +299,7 @@ class router
       array('data' => 'Access arguments', 'data-sort' => 'string'),
       array('data' => 'Menu name',        'data-sort' => 'string'),
       array('data' => 'Type',             'data-sort' => 'int'),
+      array('data' => 'Comments',         'data-sort' => 'string'),
     );
 
     $rows = array();
@@ -307,6 +312,7 @@ class router
         $route['access_arguments'],
         (isset($route['menu_name'])) ? $route['menu_name'] : '?',
         (isset($route['type'])) ? $route['type'] : '?',
+        ($route['comments']) ? 'Yes' : '',
       );
     }
 

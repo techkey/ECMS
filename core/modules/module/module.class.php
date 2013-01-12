@@ -104,6 +104,7 @@ class module extends core_module {
 
     $header = array(
       array('data' => 'Name',         'data-sort' => 'string'),
+      array('data' => 'Used Hooks'),
       array('data' => 'Can Install',  'data-sort' => 'string'),
       array('data' => 'Table Name',   'data-sort' => 'string'),
       array('data' => 'Installed',    'data-sort' => 'string'),
@@ -126,9 +127,19 @@ class module extends core_module {
         $table_exists = db_table_exists($table_name) ? 'Yes' : 'No';
       }
 
+      $hooks = array('__construct', 'init', 'page_build', 'page_alter', 'shutdown');
+      $used_hooks = array();
+      foreach ($hooks as $hook) {
+        if (method_exists($module, $hook)) {
+          $used_hooks[] = $hook;
+        }
+      }
+      $used_hooks = implode(', ', $used_hooks);
+
       $count++;
       $rows[] = array(
         get_class($module),
+        $used_hooks,
         ($can_install) ? 'Yes' : 'No',
         $table_name,
         $table_exists,
@@ -142,7 +153,7 @@ class module extends core_module {
       'template' => 'table',
       'vars'     => array(
         'caption'    => $count . ' modules',
-        'attributes' => array('class' => array('stupidtable')),
+        'attributes' => array('class' => array('stupidtable', 'sticky')),
         'header'     => $header,
         'rows'       => $rows,
       ),
