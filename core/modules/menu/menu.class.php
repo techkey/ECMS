@@ -103,10 +103,11 @@ class menu extends core_module
   public function init() {
     // Add menus from the config.
     $config = config::get_all_values();
-    foreach ($config as $key => $route) {
-      if ($key[0] != '#') {
+    foreach ($config as $path => $route) {
+      if ($path[0] != '#') {
         continue;
       }
+      $path = substr($path, 1);
       $route += array(
         'module' => 'config',
       );
@@ -118,12 +119,12 @@ class menu extends core_module
         );
         if (user_has_access($route['menu']['access_arguments'])) {
           $menu_name = (isset($route['menu']['name'])) ? $route['menu']['name'] : 'navigation';
-          if ((substr($route['path'], 0, 7) != 'http://') && (substr($route['path'], 0, 8) != 'https://')) {
-            $route['path'] = BASE_PATH . $route['path'];
+          if ((substr($path, 0, 7) != 'http://') && (substr($path, 0, 8) != 'https://')) {
+            $route['path'] = BASE_PATH . $path;
           }
           $this->menus[$menu_name][] = array(
             'title'            => $route['menu']['title'],
-            'path'             => $route['path'],
+            'path'             => $path,
             'module'           => $route['module'],
             'access_arguments' => $route['menu']['access_arguments'],
           );

@@ -42,23 +42,23 @@ class router
    *  ]
    * </pre>
    *
-   * @param string|array $route
-   * @param string       $path
+   * @param string|array $path
+   * @param string       $title
    * @param string       $controller
    * @param string       $access_arguments
    * @param int          $type
    * @param bool         $comments
    */
-  public function add_route($route, $path = NULL, $controller = NULL, $access_arguments = NULL, $type = NULL, $comments = NULL) {
+  public function add_route($path, $title = NULL, $controller = NULL, $access_arguments = NULL, $type = NULL, $comments = NULL) {
     $module = get_called_class();
-    if (is_array($route)) {
-      $this->routes += $route;
+    if (is_array($path)) {
+      $this->routes += $path;
       $this->routes += array('module' => $module);
     }
     else {
-      $this->routes[$route] = array(
+      $this->routes[$path] = array(
+        'title'            => $title,
         'module'           => $module,
-        'path'             => $path,
         'controller'       => $controller,
         'access_arguments' => $access_arguments,
         'type'             => $type,
@@ -80,11 +80,15 @@ class router
   public function get_current_route() {
     $req_uri = $_SERVER['REQUEST_URI'];
     $bp = config::get_value('system.basepath', '/');
-    $bp = rtrim($bp, '/');
-    $req_uri = str_replace($bp, '', $req_uri);
-    foreach ($this->routes as $title => $data) {
-      if ($data['path'] == $req_uri) {
-        return $this->routes[$title];
+    $len = strlen($bp);
+    if ($len) {
+      if (substr($req_uri, 0, $len) == $bp) {
+        $req_uri = substr($req_uri, $len);
+      }
+    }
+    foreach ($this->routes as $path => $data) {
+      if ($path == $req_uri) {
+        return $this->routes[$path];
       }
     }
 
@@ -142,12 +146,12 @@ class router
 
 //    var_dump($this->routes);
     /** @noinspection PhpUnusedLocalVariableInspection */
-    foreach ($this->routes as $title => $route) {
-      if ($this->get_part_count($req_uri) != $this->get_part_count($this->basepath . $route['path'])) {
+    foreach ($this->routes as $path => $route) {
+      if ($this->get_part_count($req_uri) != $this->get_part_count($this->basepath . $path)) {
         continue;
       }
 //      $path = str_replace('/', '\/', $route['path']);
-      $pattern = preg_replace('#{.+?}#', '(.+)', $this->basepath . $route['path']);
+      $pattern = preg_replace('#{.+?}#', '(.+)', $this->basepath . $path);
 //      var_dump($pattern);
       $match = preg_match_all("#^$pattern$#", $req_uri, $matches, PREG_SET_ORDER);
 //      var_dump($match);
@@ -186,13 +190,13 @@ class router
 
         if (is_string($return) || is_null($return)) {
           return array(
-            'page_title' => $title,
+            'page_title' => $route['title'],
             'content' => $return,
             'status_code' => 200,
           );
         } else {
           $return += array(
-            'page_title' => $title,
+            'page_title' => $route['title'],
             'status_code' => 200,
           );
           return $return;
@@ -250,21 +254,21 @@ class router
       }
       foreach ($menu as $path => $route) {
         $route += array(
-          'module' => $module,
-          'path' => $path,
+          'title'            => $route['title'],
+          'module'           => $module,
           'access_arguments' => '',
-          'menu_name' => 'navigation',
-          'type' => MENU_NORMAL_ITEM,
-          'comments' => FALSE,
+          'menu_name'        => 'navigation',
+          'type'             => MENU_NORMAL_ITEM,
+          'comments'         => FALSE,
         );
         $a = array();
         switch ($route['type']) {
           /** @noinspection PhpMissingBreakStatementInspection */
           case MENU_NORMAL_ITEM:
-            get_module_menu()->add_link($route);
+            get_module_menu()->add_link($route['menu_name'], $route['title'], $path, $route['access_arguments']);
             // Fallthrough
           case MENU_CALLBACK:
-            $a['path']             = $path;
+            $a['title']            = $route['title'];
             $a['module']           = $route['module'];
             $a['controller']       = $route['controller'];
             $a['access_arguments'] = $route['access_arguments'];
@@ -273,7 +277,7 @@ class router
             $a['comments']         = $route['comments'];
             break;
         }
-        $this->routes += array($route['title'] => $a);
+        $this->routes += array($path => $a);
       }
     }
     $br = 0;
@@ -286,10 +290,10 @@ class router
    */
   public function menu() {
     $menu['admin/routes'] = array(
-      'title' => 'Routes',
-      'controller' => 'router:routes',
+      'title'            => 'Routes',
+      'controller'       => 'router:routes',
       'access_arguments' => 'admin',
-      'menu_name' => 'system',
+      'menu_name'        => 'system',
     );
 
     return $menu;
@@ -307,9 +311,9 @@ class router
     add_js('$(function(){$(".stupidtable").stupidtable()});', 'inline');
 
     $header = array(
+      array('data' => 'Path',             'data-sort' => 'string'),
       array('data' => 'Title',            'data-sort' => 'string'),
       array('data' => 'Module',           'data-sort' => 'string'),
-      array('data' => 'Path',             'data-sort' => 'string'),
       array('data' => 'Controller',       'data-sort' => 'string'),
       array('data' => 'Access arguments', 'data-sort' => 'string'),
       array('data' => 'Menu name',        'data-sort' => 'string'),
@@ -318,11 +322,11 @@ class router
     );
 
     $rows = array();
-    foreach ($this->routes as $name => $route) {
+    foreach ($this->routes as $path => $route) {
       $rows[] = array(
-        $name,
+        $path,
+        $route['title'],
         $route['module'],
-        $route['path'],
         $route['controller'],
         $route['access_arguments'],
         (isset($route['menu_name'])) ? $route['menu_name'] : '?',
