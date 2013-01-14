@@ -3,7 +3,8 @@
 
 namespace core\modules\session;
 
-use core\modules\session\mysession;
+use core\modules\session\mysession53;
+use core\modules\session\mysession54;
 
 /**
  * @author Cornelis Brouwers <cornelis_brouwers@hotmail.com>
@@ -14,7 +15,7 @@ class session
   private $forms = NULL;
   private $form_data = array();
   private $form_info = array();
-  /** @var mysession */
+  /** @var object $mysession */
   private $mysession = NULL;
 
   /**
@@ -50,9 +51,19 @@ class session
    */
   public function start() {
     if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-      $this->mysession = new mysession();
+      $this->mysession = new mysession54();
       /** @noinspection PhpParamsInspection */
       session_set_save_handler($this->mysession);
+    } else {
+      $this->mysession = new mysession53();
+      session_set_save_handler(
+        array($this->mysession, 'open'),
+        array($this->mysession, 'close'),
+        array($this->mysession, 'read'),
+        array($this->mysession, 'write'),
+        array($this->mysession, 'destroy'),
+        array($this->mysession, 'gc')
+      );
     }
     session_start();
     if (isset($_SESSION['flashvars'])) {
