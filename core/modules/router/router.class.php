@@ -230,10 +230,11 @@ class router
    */
   public function init() {
     $config = config::get_all_values();
-    foreach ($config as $key => $route) {
-      if ($key[0] != '#') {
+    foreach ($config as $path => $route) {
+      if ($path[0] != '#') {
         continue;
       }
+      $path = substr($path, 1);
       $route += array(
         'module' => 'config',
         'access_arguments' => '',
@@ -241,7 +242,7 @@ class router
         'type' => MENU_NORMAL_ITEM,
         'comments' => FALSE,
       );
-      $this->routes[substr($key, 1)] = $route;
+      $this->routes[$path] = $route;
     }
     $this->basepath = config::get_value('basepath', '');
 

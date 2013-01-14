@@ -17,8 +17,8 @@ use core\modules\config\config;
 
 config::load();
 
-//define('BASE_PATH', config::get_value('basepath', '/'));
-define('BASE_PATH',
+define('BASE_PATH', config::get_value('basepath', '/'));
+define('BASE_URL',
   rtrim(
     strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, strpos($_SERVER['SERVER_PROTOCOL'], '/'))) .
     '://' .

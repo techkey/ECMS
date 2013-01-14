@@ -40,9 +40,9 @@ class menu extends core_module
    */
   public function add_link($menu, $title = '', $path = '', $access_arguments = '') {
     if (is_string($menu)) {
-      if ((substr($path, 0, 7) != 'http://') && (substr($path, 0, 8) != 'https://')) {
-        $path = BASE_PATH . $path;
-      }
+//      if ((substr($path, 0, 7) != 'http://') && (substr($path, 0, 8) != 'https://')) {
+//        $path = BASE_PATH . $path;
+//      }
       $m = array(
         'menu_name'        => $menu,
         'module'           => '',
@@ -51,9 +51,9 @@ class menu extends core_module
         'access_arguments' => $access_arguments,
       );
     } else {
-      if ((substr($menu['path'], 0, 7) != 'http://') && (substr($menu['path'], 0, 8) != 'https://')) {
-        $menu['path'] = BASE_PATH . $menu['path'];
-      }
+//      if ((substr($menu['path'], 0, 7) != 'http://') && (substr($menu['path'], 0, 8) != 'https://')) {
+//        $menu['path'] = BASE_PATH . $menu['path'];
+//      }
       $menu += array(
         'menu_name' => 'navigation',
       );
@@ -202,7 +202,8 @@ class menu extends core_module
           $name,
           $entry['module'],
           $entry['title'],
-          str_replace(BASE_PATH, '', $entry['path']),
+//          str_replace(BASE_PATH, '', $entry['path']),
+          $entry['path'],
         );
       }
     }
