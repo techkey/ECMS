@@ -25,24 +25,35 @@ $(function () {
   $('table.sticky').each(function () {
     var $thead = $('thead', this);
 
-    // Set widths of the th cells and construct a dummy row.
-    var $dummy = $('<tr>');
-    var width, $td;
+    // Set widths of the th cells.
+    var width;
     $('th', $thead).each(function () {
       // Add 1 to the width because of border and bordercollapse.
       width = $(this).width() + 1;
       $(this).width(width);
+    });
+
+    // Construct a dummy row.
+/*
+    var $dummy = $('<tr>');
+    $('tbody tr:eq(0) td', this).each(function () {
+      // Add 1 to the width because of border and bordercollapse.
+      width = $(this).width() + 0;
       $td = $('<td>');
-      $td.css({
+      var o = {
         width: width,
         paddingTop: $(this).css('padding-top'),
         paddingRight: $(this).css('padding-right'),
         paddingBottom: $(this).css('padding-bottom'),
-        paddingLeft: $(this).css('padding-left')
-      });
+        paddingLeft: $(this).css('padding-left'),
+        borderRight: $(this).css('border-right-width'),
+        borderLeft: $(this).css('border-left-width')
+      };
+      $td.css(o);
       $dummy.append($td);
-//      $('#debug').html('padding: ' + $(this).css('padding-right'));
     });
+*/
+    var $dummy = $('tr:eq(0)', this).clone();
 
     $dummy.css('display', 'none');
     $('tbody', this).prepend($dummy);
