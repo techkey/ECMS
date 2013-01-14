@@ -128,7 +128,7 @@ class session
    */
   public function login($uid) {
     $_SESSION['uid'] = $uid;
-    go_to('/');
+    go_to('');
   }
 
   /**
@@ -151,7 +151,7 @@ class session
     // Finally, destroy the session.
     session_destroy();
 
-    go_to('/');
+    go_to('');
   }
 
   /* Hooks ********************************************************************/
@@ -160,7 +160,7 @@ class session
    * @return array
    */
   public function menu() {
-    $menu['/admin/sessions'] = array(
+    $menu['admin/sessions'] = array(
       'title' => 'Sessions',
       'controller' => 'session:sessions',
       'access_arguments' => 'admin',

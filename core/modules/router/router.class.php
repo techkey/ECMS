@@ -14,7 +14,7 @@ class router
    * Associative array keyed by the route name.
    * <pre>
    *  'home' => [                     The name of the route.
-   *    'path' => '/',                The path of the route, can have placeholders like '/account/{{id}'.
+   *    'path' => '',                The path of the route, can have placeholders like 'account/{{id}'.
    *    'controller' => 'teki:home',  The controller in the format class:method.
    *    'menu' => [                   [optional] Menu section is only valid if the path contains <b>NO</b> placeholders.
    *        'name' => 'user',         Name of the menu.
@@ -36,7 +36,7 @@ class router
    * <pre>
    *  'Home' => [                     The title of the route.
    *    'module' => '',               The module that assigned the route.
-   *    'path' => '/',                The path of the route, can have placeholders like '/account/{{id}'.
+   *    'path' => '',                The path of the route, can have placeholders like 'account/{{id}'.
    *    'controller' => 'teki:home',  The controller in the format class:method.
    *    'access_arguments' => ''      The roles that have access.
    *  ]
@@ -120,8 +120,12 @@ class router
     $req_uri = $_SERVER['REQUEST_URI'];
 
     $bp = config::get_value('system.basepath', '/');
-    $bp = rtrim($bp, '/');
-    $req_uri = str_replace($bp, '', $req_uri);
+    $len = strlen($bp);
+    if ($len) {
+      if (substr($req_uri, 0, $len) == $bp) {
+        $req_uri = substr($req_uri, $len);
+      }
+    }
 
     $pos = strpos($req_uri, '?');
     if ($pos !== FALSE) {
@@ -132,7 +136,7 @@ class router
     if ($obj) {
       $nid = $obj->get_node_id_by_route($req_uri);
       if ($nid) {
-        $req_uri = '/node/' . $nid;
+        $req_uri = 'node/' . $nid;
       }
     }
 
@@ -196,7 +200,7 @@ class router
       }
     }
 
-    if (($req_uri == '/') || ($req_uri == '/home')) {
+    if (($req_uri == '') || ($req_uri == 'home')) {
       $return = array(
         'page_title' => 'Welcome',
         'content' => 'No home page is created yet.',
@@ -281,7 +285,7 @@ class router
    * @return array
    */
   public function menu() {
-    $menu['/admin/routes'] = array(
+    $menu['admin/routes'] = array(
       'title' => 'Routes',
       'controller' => 'router:routes',
       'access_arguments' => 'admin',

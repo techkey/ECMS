@@ -20,7 +20,7 @@ class smarty {
     $this->smarty->setCacheDir(__DIR__ . '/cache');
     $this->smarty->setConfigDir(__DIR__ . '/config');
     $this->smarty->setCompileDir(__DIR__ . '/compile');
-    $this->smarty->setTemplateDir(BASE_DIR . '/core/themes/darkstar/templates');
+    $this->smarty->setTemplateDir(BASE_DIR . 'core/themes/darkstar/templates');
 
     $this->smarty->debugging = variable_get('system_debug', FALSE);
 

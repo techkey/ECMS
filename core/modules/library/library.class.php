@@ -20,7 +20,7 @@ class library {
     $version = '-';
     $info = $this->libraries[$name];
     if (isset($info['version_info']['file'])) {
-      $f = fopen(LIBRARY_DIR . '/' . $name . '/' . $info['version_info']['file'], 'r');
+      $f = fopen(LIBRARY_DIR . $name . '/' . $info['version_info']['file'], 'r');
       for ($i = 0; $i < $info['version_info']['num_lines']; $i++) {
         $line = fgets($f, $info['version_info']['num_chars']);
         if ($line === FALSE) {
@@ -99,7 +99,7 @@ class library {
       foreach ($info['file_dependency'] as $type => $value) {
         switch ($type) {
           case 'file':
-            $b = file_exists(BASE_DIR . '/library/' . $name . '/' . $value);
+            $b = file_exists(BASE_DIR . 'library/' . $name . '/' . $value);
             if (!$b) {
               return FALSE;
             }
@@ -122,12 +122,12 @@ class library {
     if (isset($info['css'])) {
       $weight_offset = 0;
       foreach ($info['css'] as $css) {
-        $fname = BASE_DIR . '/library/' . $name . '/' . $css;
+        $fname = BASE_DIR . 'library/' . $name . '/' . $css;
         if (!file_exists($fname)) {
           watchdog_add('error', 'Library: cannot find ' . $fname);
           return FALSE;
         }
-        $fpath = BASE_PATH . '/library/' . $name . '/' . $css;
+        $fpath = BASE_PATH . 'library/' . $name . '/' . $css;
         get_theme()->add_css($fpath, array('weight' => $weight + $weight_offset++));
       }
     }
@@ -136,12 +136,12 @@ class library {
     if (isset($info['js'])) {
       $weight_offset = 0;
       foreach ($info['js'] as $js) {
-        $fname = BASE_DIR . '/library/' . $name . '/' . $js;
+        $fname = BASE_DIR . 'library/' . $name . '/' . $js;
         if (!file_exists($fname)) {
           watchdog_add('error', 'Library: cannot find ' . $fname);
           return FALSE;
         }
-        $fpath = BASE_PATH . '/library/' . $name . '/' . $js;
+        $fpath = BASE_PATH . 'library/' . $name . '/' . $js;
         get_theme()->add_js($fpath, array('weight' => $weight + $weight_offset++));
       }
     }
@@ -149,7 +149,7 @@ class library {
     // Load php files.
     if (isset($info['php'])) {
       foreach ($info['php'] as $php) {
-        $fname = BASE_DIR . '/library/' . $name . '/' . $php;
+        $fname = BASE_DIR . 'library/' . $name . '/' . $php;
         if (!file_exists($fname)) {
           watchdog_add('error', 'Library: cannot find ' . $fname);
           return FALSE;
@@ -185,7 +185,7 @@ class library {
    * @return bool|string Returns the directory of a library or FALSE if the library doesn't exists.
    */
   public function get_dir($name) {
-    $dir = BASE_DIR . '/library/' . $name;
+    $dir = BASE_DIR . 'library/' . $name;
     if (is_dir($dir)) {
       return $dir;
     } else {
@@ -201,7 +201,7 @@ class library {
    */
   public function get_path($name) {
     if (isset($this->libraries[$name])) {
-      $dir = BASE_PATH . '/library/' . $name;
+      $dir = BASE_PATH . 'library/' . $name;
       return $dir;
     } else {
       return FALSE;
@@ -216,7 +216,7 @@ class library {
    * Register libraries.
    */
   public function init() {
-    $libs = glob(LIBRARY_DIR . '/*', GLOB_ONLYDIR);
+    $libs = glob(LIBRARY_DIR . '*', GLOB_ONLYDIR);
     if ($libs) {
       foreach ($libs as $lib) {
         $fname = $lib . '/' . basename($lib) . '.lib.ini';
@@ -234,7 +234,7 @@ class library {
    * @return array
    */
   public function menu() {
-    $menu['/admin/libraries'] = array(
+    $menu['admin/libraries'] = array(
       'title' => 'Libraries',
       'controller' => 'library:libraries',
       'access_arguments' => 'admin',

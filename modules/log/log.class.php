@@ -114,26 +114,26 @@ class log {
   }
 
   public function menu() {
-    $menu['/admin/log'] = array(
+    $menu['admin/log'] = array(
       'title' => 'Log',
       'controller' => 'log:log',
       'access_arguments' => 'admin',
       'menu_name' => 'system',
     );
-    $menu['/admin/log/settings'] = array(
+    $menu['admin/log/settings'] = array(
       'title' => 'Log Settings',
       'controller' => 'log:settings',
       'access_arguments' => 'admin',
       'menu_name' => 'system',
     );
 
-    $menu['/admin/log/download'] = array(
+    $menu['admin/log/download'] = array(
       'title' => 'Download',
       'controller' => 'log:download',
       'access_arguments' => 'admin',
       'type' => MENU_CALLBACK,
     );
-    $menu['/admin/log/view/{lid}'] = array(
+    $menu['admin/log/view/{lid}'] = array(
       'title' => 'View record',
       'controller' => 'log:view_record',
       'access_arguments' => 'admin',
@@ -217,7 +217,7 @@ class log {
   public function log() {
     $out = '';
 
-    $out .= l('download log', '/admin/log/download');
+    $out .= l('download log', 'admin/log/download');
 
     $count = db_query('SELECT COUNT(*) FROM log')->fetchColumn();
     /** @var \LOG[] $results */
@@ -241,7 +241,7 @@ class log {
         $result->lid,
         array('data' => date('H:i:s d-m-Y', $result->response_time), 'style' => 'white-space: nowrap;'),
         $result->entry,
-        l('view', '/admin/log/view/' . $result->lid),
+        l('view', 'admin/log/view/' . $result->lid),
       );
     }
 
@@ -290,7 +290,7 @@ class log {
       ->execute()
       ->fetch(\PDO::FETCH_OBJ);
 
-    $out = vardump($record, TRUE) . '<p>' . l('back', '/admin/log') . '</p>';
+    $out = vardump($record, TRUE) . '<p>' . l('back', 'admin/log') . '</p>';
 
     return $out . phpversion();
   }

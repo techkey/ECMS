@@ -13,12 +13,12 @@ class config
 
   public static function load() {
     if ($_SERVER['REMOTE_ADDR'] == '192.168.1.2') {
-      $name = BASE_DIR . '/config/config.local.ini';
+      $name = BASE_DIR . 'config/config.local.ini';
       if (!file_exists($name)) {
-        $name = BASE_DIR . '/config/config.ini';
+        $name = BASE_DIR . 'config/config.ini';
       }
     } else {
-      $name = BASE_DIR . '/config/config.ini';
+      $name = BASE_DIR . 'config/config.ini';
     }
     self::$config = parse_ini_file($name, TRUE);
   }

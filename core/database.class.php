@@ -25,7 +25,7 @@ class database {
     if (!extension_loaded('PDO')) {
       exit('PDO Extension not found!');
     }
-    $this->name = BASE_DIR . '/' . config::get_value('database.name');
+    $this->name = BASE_DIR . config::get_value('database.name');
     $dsn = 'sqlite:' . $this->name;
     try {
       $this->pdo = new PDO($dsn);

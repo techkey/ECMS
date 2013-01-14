@@ -18,7 +18,7 @@ class menu extends core_module
    *    0 => array(
    *      'module' => 'config',       The module that assigned this link.
    *      'title' => 'Home',          The title of the menu.
-   *      'path' => '/',              The path of the menu, can <b>NOT</b> have placeholders like '/account/{{id}'.
+   *      'path' => '',               The path of the menu, can <b>NOT</b> have placeholders like 'account/{{id}'.
    *      'access_arguments' => '',   Decides who has access.
    *    ]
    *    ...
@@ -139,7 +139,7 @@ class menu extends core_module
    * @return array
    */
   public function menu() {
-    $menu['/admin/menus'] = array(
+    $menu['admin/menus'] = array(
       'title'            => 'Menus',
       'controller'       => 'menu:menus',
       'access_arguments' => 'admin',

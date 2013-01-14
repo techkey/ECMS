@@ -18,14 +18,14 @@ class twig
   public function __construct() {
     require_once __DIR__ . '/Twig/Autoloader.php';
     \Twig_Autoloader::register();
-    $loader = new \Twig_Loader_Filesystem([BASE_DIR . '/core/themes/sunshine/templates', BASE_DIR]);
-    $this->twig = new \Twig_Environment($loader, [
+    $loader = new \Twig_Loader_Filesystem(array(BASE_DIR . 'core/themes/sunshine/templates', BASE_DIR));
+    $this->twig = new \Twig_Environment($loader, array(
       'cache' => __DIR__ . '/cache',
       'debug' => variable_get('system_debug', FALSE),
       'strict_variables' => TRUE,
       'autoescape' => FALSE,
       'auto_reload' => TRUE,
-    ]);
+    ));
     if (variable_get('system_debug', FALSE)) {
       $this->twig->addExtension(new \Twig_Extension_Debug());
     }
@@ -36,7 +36,7 @@ class twig
    * @param array $context
    * @return string
    */
-  public function render($name, $context = []) {
+  public function render($name, $context = array()) {
     return $this->twig->render($name . '.twig', $context);
   }
 

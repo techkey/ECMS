@@ -40,6 +40,10 @@ a:hover {
   text-decoration: none;
 }
 
+image {
+  border: 0;
+}
+
 input[type=submit] {
   border: none;
   background: #888888;

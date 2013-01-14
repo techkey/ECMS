@@ -7,7 +7,7 @@ include 'bootstrap.inc.php';
 
 use core\modules\config\config;
 
-$db_path = BASE_DIR . '/' .  config::get_value('database.name', FALSE);
+$db_path = BASE_DIR . config::get_value('database.name', FALSE);
 if ($db_path) {
   $db_path = dirname($db_path);
 }
@@ -62,7 +62,7 @@ if (isset($_POST['install'])) {
         <?php if ($system_result && $user_result) { ?>
           <p>Modules are installed. Admin login is admin/admin000</p>
           <p>Goto the <a href="<?php echo BASE_PATH; ?>">home</a> page.</p>
-          <p>Goto the <a href="<?php echo BASE_PATH . '/user/login'; ?>">login</a> page.</p>
+          <p>Goto the <a href="<?php echo BASE_PATH . 'user/login'; ?>">login</a> page.</p>
         <?php } else { ?>
           <?php if (!$system_result) { ?>
             <p>Installation of the system module failed.</p>

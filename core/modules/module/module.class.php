@@ -15,26 +15,26 @@ class module extends core_module {
   /* Hooks ********************************************************************/
 
   public function menu() {
-    $menu['/admin/module/install/{module}'] = array(
+    $menu['admin/module/install/{module}'] = array(
       'title' => 'Install Module',
       'controller' => 'module:module_install',
       'access_arguments' => 'admin',
       'type' => MENU_CALLBACK,
     );
-    $menu['/admin/module/reinstall/{module}'] = array(
+    $menu['admin/module/reinstall/{module}'] = array(
       'title' => 'Reinstall Module',
       'controller' => 'module:module_reinstall',
       'access_arguments' => 'admin',
       'type' => MENU_CALLBACK,
     );
-    $menu['/admin/module/uninstall/{module}'] = array(
+    $menu['admin/module/uninstall/{module}'] = array(
       'title' => 'Uninstall Module',
       'controller' => 'module:module_uninstall',
       'access_arguments' => 'admin',
       'type' => MENU_CALLBACK,
     );
 
-    $menu['/admin/modules'] = array(
+    $menu['admin/modules'] = array(
       'title' => 'Modules',
       'controller' => 'module:modules',
       'access_arguments' => 'admin',
@@ -70,7 +70,7 @@ class module extends core_module {
       'title' => "Install <em>$module</em>?",
 //      'message' => 'This action cannot be undone!',
       'button' => 'Install',
-      'cancel' => '/admin/modules',
+      'cancel' => 'admin/modules',
       'extra' => array('module' => $module),
     );
 
@@ -84,7 +84,7 @@ class module extends core_module {
   public function module_install_submit(array &$form, array $form_values) {
     $this->_module_install($form_values['extra']['module']);
 
-    $form['#redirect'] = '/admin/modules';
+    $form['#redirect'] = 'admin/modules';
   }
 
   /**
@@ -96,7 +96,7 @@ class module extends core_module {
       'title' => "Uninstall <em>$module</em>?",
       'message' => 'This action cannot be undone!',
       'button' => 'Uninstall',
-      'cancel' => '/admin/modules',
+      'cancel' => 'admin/modules',
       'extra' => array('module' => $module),
     );
 
@@ -117,7 +117,7 @@ class module extends core_module {
       set_message('Uninstall of ' . $table_name . ' failed.', 'error');
     }
 
-    $form['#redirect'] = '/admin/modules';
+    $form['#redirect'] = 'admin/modules';
   }
 
   /**
@@ -129,7 +129,7 @@ class module extends core_module {
       'title' => "Re-install <em>$module</em>?",
       'message' => 'This action cannot be undone!',
       'button' => 'Re-install',
-      'cancel' => '/admin/modules',
+      'cancel' => 'admin/modules',
       'extra' => array('module' => $module),
     );
 
@@ -147,7 +147,7 @@ class module extends core_module {
 
     $this->_module_install($form_values['extra']['module']);
 
-    $form['#redirect'] = '/admin/modules';
+    $form['#redirect'] = 'admin/modules';
   }
 
   /**
@@ -184,7 +184,7 @@ class module extends core_module {
         $table_exists = db_table_exists($table_name) ? 'Yes' : 'No';
       }
 
-      $hooks = array('__construct', 'init', 'page_build', 'page_alter', 'shutdown');
+      $hooks = array('__construct', 'init', 'menu', 'page_build', 'page_alter', 'shutdown');
       $used_hooks = array();
       foreach ($hooks as $hook) {
         if (method_exists($module, $hook)) {
@@ -200,9 +200,9 @@ class module extends core_module {
         ($can_install) ? 'Yes' : 'No',
         $table_name,
         $table_exists,
-        ($can_install && ($table_exists != 'Yes')) ? l('install', '/admin/module/install/' . $module_name) : '',
-        (($table_exists == 'Yes') && ($module_name != 'user')) ? l('reinstall', '/admin/module/reinstall/' . $module_name) : '',
-        (($table_exists == 'Yes') && ($module_name != 'user')) ? l('uninstall', '/admin/module/uninstall/' . $module_name) : '',
+        ($can_install && ($table_exists != 'Yes')) ? l('install', 'admin/module/install/' . $module_name) : '',
+        (($table_exists == 'Yes') && ($module_name != 'user')) ? l('reinstall', 'admin/module/reinstall/' . $module_name) : '',
+        (($table_exists == 'Yes') && ($module_name != 'user')) ? l('uninstall', 'admin/module/uninstall/' . $module_name) : '',
       );
     }
 

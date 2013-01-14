@@ -14,7 +14,7 @@
     <header>
       <div class="container_15">
         <div class="logo">
-          <a href="{$base_path}/">{$site.name}</a>
+          <a href="{$base_path}">{$site.name}</a>
         </div>{*<img src="{$theme_path}/images/logo.png" height="78" alt="logo">*}
 {if isset($header)}
         <div class="region header">

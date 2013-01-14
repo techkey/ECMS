@@ -1,11 +1,11 @@
 <?php
 // bootstrap.php
 
-define('BASE_DIR', realpath(__DIR__ . '/../'));
-define('LIBRARY_DIR', BASE_DIR . '/library');
+define('BASE_DIR', realpath(__DIR__ . '/../') . '/');
+define('LIBRARY_DIR', BASE_DIR . '/library/');
 
-require_once BASE_DIR . '/core/autoloader.inc.php';
-require_once BASE_DIR . '/core/common.inc.php';
+require_once BASE_DIR . 'core/autoloader.inc.php';
+require_once BASE_DIR . 'core/common.inc.php';
 
 get_loader()->add('core\modules', __DIR__);
 get_loader()->add('core\themes', __DIR__);
@@ -23,7 +23,7 @@ define('BASE_PATH',
     strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, strpos($_SERVER['SERVER_PROTOCOL'], '/'))) .
     '://' .
     $_SERVER['HTTP_HOST'] .
-    config::get_value('system.basepath', '/'), '/')
+    config::get_value('system.basepath', '/'), '/') . '/'
 );
 define('MENU_CALLBACK',               0x0000);
 define('MENU_VISIBLE_IN_TREE',        0x0002);
@@ -42,7 +42,7 @@ define('MENU_NORMAL_ITEM', MENU_VISIBLE_IN_TREE | MENU_VISIBLE_IN_BREADCRUMB);
 //define('MENU_CONTEXT_INLINE',         0x0002);
 
 
-require_once BASE_DIR . '/core/database.class.php';
+require_once BASE_DIR . 'core/database.class.php';
 get_module_session()->start();
 
 //wd_add('test', 'test');
@@ -54,7 +54,7 @@ get_module_session()->start();
  */
 function load_core_modules() {
   $a = array();
-  $core_modules = glob(BASE_DIR . '/core/modules/*', GLOB_ONLYDIR);
+  $core_modules = glob(BASE_DIR . 'core/modules/*', GLOB_ONLYDIR);
   foreach ($core_modules as $core_module) {
     $core_module = basename($core_module);
     if ($core_module == 'config') {
@@ -73,7 +73,7 @@ function load_core_modules() {
  */
 function load_modules() {
   $a = array();
-  $modules = glob(BASE_DIR . '/modules/*', GLOB_ONLYDIR);
+  $modules = glob(BASE_DIR . 'modules/*', GLOB_ONLYDIR);
   foreach ($modules as $module) {
     $module = basename($module);
     $class = "\\modules\\$module\\$module";
@@ -148,7 +148,7 @@ function run() {
   if (variable_get('system_maintenance', TRUE)) {
     $bp = config::get_value('system.basepath', '/');
     $bp = rtrim($bp, '/');
-    if (($_SERVER['REQUEST_URI'] != ($bp . '/user/login')) && (get_user()->uid != 1)) {
+    if (($_SERVER['REQUEST_URI'] != ($bp . 'user/login')) && (get_user()->uid != 1)) {
       $page = array();
 //      invoke_pre_render($vars);
       $page['site']['name'] = variable_get('system_sitename', 'ECMS');

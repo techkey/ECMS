@@ -239,7 +239,7 @@ class user extends core_module
    * hook init()
    */
   public function init() {
-    add_css($this->get_path() . '/user.css', array('weight' => 1));
+    add_css($this->get_path() . 'user.css', array('weight' => 1));
   }
 
   /**
@@ -248,41 +248,41 @@ class user extends core_module
    * @return array
    */
   public function menu() {
-    $menu['/admin/users'] = array(
+    $menu['admin/users'] = array(
       'title'            => 'Users',
       'controller'       => 'user:list_users',
       'access_arguments' => 'admin',
       'type'             => MENU_NORMAL_ITEM,
       'menu_name'        => 'system',
     );
-    $menu['/admin/users/edit/{uid}'] = array(
+    $menu['admin/users/edit/{uid}'] = array(
       'title'            => 'Edit user',
       'controller'       => 'user:edit',
       'access_arguments' => 'admin',
       'type'             => MENU_CALLBACK,
     );
 
-    $menu['/user/login'] = array(
+    $menu['user/login'] = array(
       'title'            => 'Login',
       'controller'       => 'user:login',
       'type'             => MENU_CALLBACK,
     );
-    $menu['/user/logout'] = array(
+    $menu['user/logout'] = array(
       'title'            => 'Logout',
       'controller'       => 'session:logout',
       'type'             => MENU_CALLBACK,
     );
-    $menu['/user/register'] = array(
+    $menu['user/register'] = array(
       'title'            => 'Register',
       'controller'       => 'user:register_user',
       'type'             => MENU_CALLBACK,
     );
-    $menu['/user/edit'] = array(
+    $menu['user/edit'] = array(
       'title'            => ' My account',
       'controller'       => 'user:edit_user',
       'type'             => MENU_CALLBACK,
     );
-    $menu['/user/password_reset'] = array(
+    $menu['user/password_reset'] = array(
       'title'            => 'Password reset',
       'controller'       => 'user:password_reset',
       'type'             => MENU_CALLBACK,
@@ -300,9 +300,9 @@ class user extends core_module
     $user = $this->get_loggedin_user();
     $content = 'Welcome ' . $user->username;
     if ($user->uid == 0) {
-      $content .= ': ' . l('login', '/user/login') . ' or ' . l('register', '/user/register');
+      $content .= ': ' . l('login', 'user/login') . ' or ' . l('register', 'user/register');
     } else {
-      $content .= ': ' . l('logout', '/user/logout') . ' | ' . l('my account', '/user/edit');
+      $content .= ': ' . l('logout', 'user/logout') . ' | ' . l('my account', 'user/edit');
     }
 
     $block['user'] = array(
@@ -347,8 +347,8 @@ class user extends core_module
         $user->last_ip,
         $user->activated,
         $user->role,
-        l('edit', '/admin/users/edit/' . $user->uid),
-        ($user->uid == 1) ? '' : l('delete', '/admin/users/delete/' . $user->uid),
+        l('edit', 'admin/users/edit/' . $user->uid),
+        ($user->uid == 1) ? '' : l('delete', 'admin/users/delete/' . $user->uid),
       );
     }
 
@@ -593,7 +593,7 @@ class user extends core_module
     );
     $data['submit']   = array(
       '#type' => 'submit',
-      '#suffix' => '&nbsp;&nbsp;' . l('Cancel', '/'),
+      '#suffix' => '&nbsp;&nbsp;' . l('Cancel', ''),
     );
 
     return get_module_form()->build($data);
@@ -631,7 +631,7 @@ class user extends core_module
   public function register_user_submit(array &$form, array $form_values) {
     $this->add($form_values['username'], $form_values['password'], $form_values['email']);
     set_message('User registered.');
-    $form['#redirect'] = '/';
+    $form['#redirect'] = '';
   }
 
   /**
@@ -673,7 +673,7 @@ class user extends core_module
     $data['submit'] = array(
       '#type'   => 'submit',
       '#value'  => 'Update',
-      '#suffix' => '&nbsp;&nbsp;' . l('Cancel', '/home'),
+      '#suffix' => '&nbsp;&nbsp;' . l('Cancel', ''),
     );
 
     return array(
@@ -712,7 +712,7 @@ class user extends core_module
     $this->update($form['uid']['#value'], $password, $form_values['email'], $activated, $form_values['role']);
 
     set_message('User record is updated.');
-    $form['#redirect'] = '/home';
+    $form['#redirect'] = '';
   }
 
   /**
@@ -728,7 +728,7 @@ class user extends core_module
       '#required'    => TRUE,
       '#size'        => 32,
     );
-    $forgot = (variable_get('system_maintenance', TRUE)) ? '' : l(' Forgot?', '/user/password_reset');
+    $forgot = (variable_get('system_maintenance', TRUE)) ? '' : l(' Forgot?', 'user/password_reset');
     $data['password'] = array(
       '#type'        => 'password',
       '#title'       => 'Password',
@@ -738,7 +738,7 @@ class user extends core_module
     );
     $data['submit']   = array(
       '#type' => 'submit',
-      '#suffix' => '&nbsp;&nbsp;' . l('Cancel', '/'),
+      '#suffix' => '&nbsp;&nbsp;' . l('Cancel', ''),
     );
 
     return get_module_form()->build($data);
@@ -798,7 +798,7 @@ class user extends core_module
     $data['submit'] = array(
       '#type'   => 'submit',
       '#value'  => 'Submit',
-      '#suffix' => '&nbsp;&nbsp;' . l('Cancel', '/'),
+      '#suffix' => '&nbsp;&nbsp;' . l('Cancel', ''),
     );
 
     return array(

@@ -83,7 +83,7 @@ class block {
    * @return array
    */
   public function menu() {
-    $menu['/admin/blocks'] = array(
+    $menu['admin/blocks'] = array(
       'title'            => 'Blocks',
       'controller'       => 'block:blocks',
       'access_arguments' => 'admin',
