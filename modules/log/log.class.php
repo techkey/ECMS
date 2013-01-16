@@ -155,33 +155,24 @@ class log {
     );
     $form['log']['enable'] = array(
       '#type' => 'checkbox',
-      '#title' => 'Enable',
+      '#title' => 'Enable logging',
       '#default_value' => variable_get('log_enable', FALSE),
     );
-/*
-    $form['log']['routes'] = array(
-      '#type' => 'fieldset',
-      '#title' => 'Include/Exclude Routes',
-    );
-    $form['log']['routes']['include'] = array(
-      '#type' => 'radio',
-      '#title' => 'Include',
-      '#default_value' => variable_get('log_include', TRUE),
-    );
-    $form['log']['routes']['exclude'] = array(
-      '#type' => 'radio',
-      '#title' => 'Exclude',
-      '#default_value' => !variable_get('log_include', TRUE),
-    );
-//*/
     $excludes = variable_get('log_excludes', array());
     $excludes = implode("\n", $excludes);
     $excludes = str_replace('(.*?)', '*', $excludes);
     $form['log']['excludes'] = array(
       '#type' => 'textarea',
-      '#title' => 'Exclude Routes',
+      '#title' => 'Exclude routes',
       '#default_value' => $excludes,
       '#description' => 'One per line, wildcard * allowed.',
+    );
+    $form['log']['rotate'] = array(
+      '#type' => 'radios',
+      '#title' => 'Rotate',
+      '#options' => make_array_assoc(array('never', 'day', 'week', 'month')),
+      '#default_value' => variable_get('log_rotate', 'never'),
+//      '#description' => 'Rotate',
     );
 
     $form['submit'] = array(
@@ -196,11 +187,12 @@ class log {
    * @param array $form
    * @param array $form_values
    */
-  public function settings_submit(array $form, array $form_values) {
+  public function settings_submit(array &$form, array $form_values) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
 
     variable_set('log_enable', $form_values['enable']);
+    variable_set('log_rotate', $form_values['rotate']);
 
     $excludes = str_replace(' ', '', $form_values['excludes']);
     $excludes = str_replace("\r\n", "\n", $excludes);
@@ -209,6 +201,8 @@ class log {
     variable_set('log_excludes', $excludes);
 
     set_message('Log settings saved.');
+
+    $form['#redirect'] = 'admin/log';
   }
 
   /**

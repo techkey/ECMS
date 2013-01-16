@@ -8,7 +8,13 @@
 }
 
 #block-user-user a,
-#block-user-user a:visited,
+#block-user-user a:visited {
+  color: #888888;
+  margin: 0 0 0 20px;
+}
+
 #block-user-user a:hover {
   color: #CCCCCC;
 }
+
+

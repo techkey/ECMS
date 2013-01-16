@@ -1,4 +1,7 @@
 <?php
+/**
+ * @file database.class.php
+ */
 
 use core\modules\config\config;
 

@@ -1,4 +1,7 @@
 <?php
+/**
+ * @file user.class.php
+ */
 
 namespace core\modules\user;
 
@@ -298,11 +301,11 @@ class user extends core_module
    */
   public function block() {
     $user = $this->get_loggedin_user();
-    $content = 'Welcome ' . $user->username;
+    $content = $user->username;
     if ($user->uid == 0) {
-      $content .= ': ' . l('login', 'user/login') . ' or ' . l('register', 'user/register');
+      $content .= ' ' . l('login', 'user/login') . ' ' . l('register', 'user/register');
     } else {
-      $content .= ': ' . l('logout', 'user/logout') . ' | ' . l('my account', 'user/edit');
+      $content .= ' ' . l('logout', 'user/logout') . ' ' . l('my account', 'user/edit');
     }
 
     $block['user'] = array(

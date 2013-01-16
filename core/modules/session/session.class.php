@@ -87,9 +87,9 @@ class session
           set_message(__LINE__ . ': Possible form hijack!', 'error');
         }
         unset($_POST);
-        unset($_SESSION['forms']);
       }
     }
+    unset($_SESSION['forms']);
   }
 
   /**

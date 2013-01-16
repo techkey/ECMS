@@ -466,6 +466,15 @@ class form {
    * @param array $field
    * @return string
    */
+  private function render_email($name, array $field) {
+    return $this->render_textfield($name, $field, 'email');
+  }
+
+  /**
+   * @param string $name
+   * @param array $field
+   * @return string
+   */
   private function render_fieldset($name, array $field) {
     $attributes = (isset($field['#attributes'])) ? $field['#attributes'] : array();
     $attributes += array(
@@ -484,6 +493,24 @@ class form {
     $str .= implode('', $str2);
 
     return $str . '</fieldset>';
+  }
+
+  /**
+   * @param string $name
+   * @param array $field
+   * @return string
+   */
+  private function render_number($name, array $field) {
+    return $this->render_textfield($name, $field, 'number');
+  }
+
+  /**
+   * @param string $name
+   * @param array $field
+   * @return string
+   */
+  private function render_password($name, array $field) {
+    return $this->render_textfield($name, $field, 'password');
   }
 
   /**
@@ -541,6 +568,10 @@ class form {
 
     $group_id = $attributes['id'];
     $group_name = $attributes['name'];
+
+    if ($field['#title']) {
+      $element[] = "<label>{$field['#title']}</label>";
+    }
 
     foreach ($field['#options'] as $key => $title) {
       $attributes['id'] = $group_id . '-' . $title;
@@ -624,6 +655,69 @@ class form {
   /**
    * @param string $name
    * @param array $field
+   * @return string
+   */
+  private function render_submit($name, array $field) {
+    $attributes = (isset($field['#attributes'])) ? $field['#attributes'] : array();
+    $attributes += array(
+      'type' => 'submit',
+      'id' => $name,
+      'name' => $name,
+    );
+    if (isset($field['#value'])) {
+      $attributes += array('value' => $field['#value']);
+    }
+    return sprintf('<input %s>', build_attribute_string($attributes));
+  }
+
+  /**
+   * @param string $name
+   * @param array $field
+   * @return string
+   */
+  private function render_textarea($name, array $field) {
+    $attributes = (isset($field['#attributes'])) ? $field['#attributes'] : array();
+    $attributes += array(
+      'id' => $name,
+      'name' => $name,
+      'cols' => (isset($field['#cols'])) ? $field['#cols'] : 60,
+      'rows' => (isset($field['#rows'])) ? $field['#rows'] : 5,
+    );
+    if (isset($field['#placeholder'])) {
+      $attributes['placeholder'] = $field['#placeholder'];
+    }
+
+    if (isset($this->form_values[$name])) {
+      $value = $this->form_values[$name];
+    } else {
+      $value = (isset($field['#default_value'])) ? $field['#default_value'] : '';
+    }
+
+    if (isset($this->form_errors[$name])) {
+      $attributes['class'][] = 'form-error';
+    }
+
+    $label_attribs['for'] = $attributes['id'];
+
+    if (isset($field['#required']) && $field['#required']) {
+      $attributes += array('required' => 'required');
+      $label_attribs['class'] = 'required';
+    }
+
+    $element[] = sprintf('<div id="form-element-%s" class="form-element">', $attributes['id']);
+    $element[] = sprintf('<label %s>%s</label>', build_attribute_string($label_attribs), $field['#title']);
+    $element[] = sprintf('<textarea %s>%s</textarea>', build_attribute_string($attributes), $value);
+    if (isset($field['#description'])) {
+      $element[] = sprintf('<span>%s</span>', $field['#description']);
+    }
+    $element[] = '</div>';
+
+    return implode("\n", $element);
+  }
+
+  /**
+   * @param string $name
+   * @param array $field
    * @param string $type
    * @return string
    */
@@ -636,6 +730,10 @@ class form {
       'size' => (isset($field['#size'])) ? $field['#size'] : 64,
       'maxlength' => (isset($field['#maxlength'])) ? $field['#maxlength'] : 128,
     );
+    if (isset($field['#placeholder']) && in_array($type, array('password', 'text'))) {
+      $attributes['placeholder'] = $field['#placeholder'];
+    }
+
     if (isset($this->form_values[$name])) {
       $attributes['value'] = $this->form_values[$name];
     } else {
@@ -670,92 +768,6 @@ class form {
     $element[] = '</div>';
 
     return implode("\n", $element);
-  }
-
-  /**
-   * @param string $name
-   * @param array $field
-   * @return string
-   */
-  private function render_textarea($name, array $field) {
-    $attributes = (isset($field['#attributes'])) ? $field['#attributes'] : array();
-    $attributes += array(
-      'id' => $name,
-      'name' => $name,
-      'cols' => (isset($field['#cols'])) ? $field['#cols'] : 60,
-      'rows' => (isset($field['#rows'])) ? $field['#rows'] : 5,
-    );
-    if (isset($this->form_values[$name])) {
-      $value = $this->form_values[$name];
-    } else {
-      $value = (isset($field['#default_value'])) ? $field['#default_value'] : '';
-    }
-
-    if (isset($this->form_errors[$name])) {
-      $attributes['class'][] = 'form-error';
-    }
-
-    $label_attribs['for'] = $attributes['id'];
-
-    if (isset($field['#required']) && $field['#required']) {
-      $attributes += array('required' => 'required');
-      $label_attribs['class'] = 'required';
-    }
-
-    $element[] = sprintf('<div id="form-element-%s" class="form-element">', $attributes['id']);
-    $element[] = sprintf('<label %s>%s</label>', build_attribute_string($label_attribs), $field['#title']);
-    $element[] = sprintf('<textarea %s>%s</textarea>', build_attribute_string($attributes), $value);
-    if (isset($field['#description'])) {
-      $element[] = sprintf('<span>%s</span>', $field['#description']);
-    }
-    $element[] = '</div>';
-
-    return implode("\n", $element);
-  }
-
-  /**
-   * @param string $name
-   * @param array $field
-   * @return string
-   */
-  private function render_password($name, array $field) {
-    return $this->render_textfield($name, $field, 'password');
-  }
-
-  /**
-   * @param string $name
-   * @param array $field
-   * @return string
-   */
-  private function render_email($name, array $field) {
-    return $this->render_textfield($name, $field, 'email');
-  }
-
-  /**
-   * @param string $name
-   * @param array $field
-   * @return string
-   */
-  private function render_number($name, array $field) {
-    return $this->render_textfield($name, $field, 'number');
-  }
-
-  /**
-   * @param string $name
-   * @param array $field
-   * @return string
-   */
-  private function render_submit($name, array $field) {
-    $attributes = (isset($field['#attributes'])) ? $field['#attributes'] : array();
-    $attributes += array(
-      'type' => 'submit',
-      'id' => $name,
-      'name' => $name,
-    );
-    if (isset($field['#value'])) {
-      $attributes += array('value' => $field['#value']);
-    }
-    return sprintf('<input %s>', build_attribute_string($attributes));
   }
 }
 
