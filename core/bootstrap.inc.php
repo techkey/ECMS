@@ -17,7 +17,7 @@ use core\modules\config\config;
 
 config::load();
 
-define('BASE_PATH', config::get_value('basepath', '/'));
+define('BASE_PATH', config::get_value('system.basepath', '/'));
 define('BASE_URL',
   rtrim(
     strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, strpos($_SERVER['SERVER_PROTOCOL'], '/'))) .
@@ -146,9 +146,7 @@ function run() {
   invoke('init');
 
   if (variable_get('system_maintenance', TRUE)) {
-    $bp = config::get_value('system.basepath', '/');
-    $bp = rtrim($bp, '/');
-    if (($_SERVER['REQUEST_URI'] != ($bp . 'user/login')) && (get_user()->uid != 1)) {
+    if ((request_path() != 'user/login') && (get_user()->uid != 1)) {
       $page = array();
 //      invoke_pre_render($vars);
       $page['site']['name'] = variable_get('system_sitename', 'ECMS');

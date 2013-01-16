@@ -33,27 +33,22 @@ class menu extends core_module
    * Add a menu link.
    * If menu exists the link will be added otherewise a new menu will be created for the link.
    *
-   * @param $menu
-   * @param $title
-   * @param $path
+   * @param mixed  $menu
+   * @param string $module
+   * @param string $title
+   * @param string $path
    * @param string $access_arguments
    */
-  public function add_link($menu, $title = '', $path = '', $access_arguments = '') {
+  public function add_link($menu, $module = '', $title = '', $path = '', $access_arguments = '') {
     if (is_string($menu)) {
-//      if ((substr($path, 0, 7) != 'http://') && (substr($path, 0, 8) != 'https://')) {
-//        $path = BASE_PATH . $path;
-//      }
       $m = array(
         'menu_name'        => $menu,
-        'module'           => '',
+        'module'           => $module,
         'title'            => $title,
         'path'             => $path,
         'access_arguments' => $access_arguments,
       );
     } else {
-//      if ((substr($menu['path'], 0, 7) != 'http://') && (substr($menu['path'], 0, 8) != 'https://')) {
-//        $menu['path'] = BASE_PATH . $menu['path'];
-//      }
       $menu += array(
         'menu_name' => 'navigation',
       );
@@ -189,21 +184,20 @@ class menu extends core_module
     add_js('$(function(){$(".stupidtable").stupidtable()});', 'inline');
 
     $header = array(
-      array('data' => 'Name',   'data-sort' => 'string'),
-      array('data' => 'Module', 'data-sort' => 'string'),
       array('data' => 'Title',  'data-sort' => 'string'),
       array('data' => 'Path',   'data-sort' => 'string'),
+      array('data' => 'Name',   'data-sort' => 'string'),
+      array('data' => 'Module', 'data-sort' => 'string'),
     );
 
     $rows = array();
     foreach ($this->menus as $name => $menu) {
       foreach ($menu as $entry) {
         $rows[] = array(
+          $entry['title'],
+          $entry['path'],
           $name,
           $entry['module'],
-          $entry['title'],
-//          str_replace(BASE_PATH, '', $entry['path']),
-          $entry['path'],
         );
       }
     }

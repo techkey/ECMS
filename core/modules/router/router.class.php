@@ -266,7 +266,12 @@ class router
         switch ($route['type']) {
           /** @noinspection PhpMissingBreakStatementInspection */
           case MENU_NORMAL_ITEM:
-            get_module_menu()->add_link($route['menu_name'], $route['title'], $path, $route['access_arguments']);
+            get_module_menu()->add_link(
+              $route['menu_name'],
+              $route['module'],
+              $route['title'],
+              $path, $route['access_arguments']
+            );
             // Fallthrough
           case MENU_CALLBACK:
             $a['title']            = $route['title'];

@@ -50,20 +50,22 @@ class session
    *
    */
   public function start() {
-    if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-      $this->mysession = new mysession54();
-      /** @noinspection PhpParamsInspection */
-      session_set_save_handler($this->mysession);
-    } else {
-      $this->mysession = new mysession53();
-      session_set_save_handler(
-        array($this->mysession, 'open'),
-        array($this->mysession, 'close'),
-        array($this->mysession, 'read'),
-        array($this->mysession, 'write'),
-        array($this->mysession, 'destroy'),
-        array($this->mysession, 'gc')
-      );
+    if (db_table_exists('session')) {
+      if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
+        $this->mysession = new mysession54();
+        /** @noinspection PhpParamsInspection */
+        session_set_save_handler($this->mysession);
+      } else {
+        $this->mysession = new mysession53();
+        session_set_save_handler(
+          array($this->mysession, 'open'),
+          array($this->mysession, 'close'),
+          array($this->mysession, 'read'),
+          array($this->mysession, 'write'),
+          array($this->mysession, 'destroy'),
+          array($this->mysession, 'gc')
+        );
+      }
     }
     session_start();
     if (isset($_SESSION['flashvars'])) {
