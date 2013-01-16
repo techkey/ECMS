@@ -94,6 +94,10 @@
       // ==================================================== //
       // Do sorting when THs are clicked
       $table.on("click", "th", function () {
+        var $dummy = null;
+        if ($('tbody tr:eq(0)', $table).hasClass('dummy')) {
+          $dummy = $('tbody tr:eq(0)', $table).detach();
+        }
         var trs = $table.children("tbody").children("tr");
         var $this = $(this);
         var th_index = 0;
@@ -154,7 +158,9 @@
           // conveniently!) enough, .append accomplishes this for us.
           var sortedTRs = $(apply_sort_map(trs, theMap));
           $table.children("tbody").append(sortedTRs);
-
+          if ($dummy) {
+            $table.children("tbody").prepend($dummy);
+          }
           // Trigger `aftertablesort` event. Similar to `beforetablesort`
           $table.trigger("aftertablesort", {column: th_index, direction: sort_dir});
 

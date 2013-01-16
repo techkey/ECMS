@@ -281,13 +281,24 @@ function check_plain($text) {
 /**
  * @param string $text
  * @param string $path
+ * @param array  $options
  * @return string
  */
-function l($text, $path) {
+function l($text, $path, array $options = array()) {
+  $options += array('attributes' => array());
+  $attributes = $options['attributes'];
+
   if ((substr($path, 0, 7) != 'http://') && (substr($path, 0, 8) != 'https://')) {
+    if ($path == request_path()) {
+      $attributes += array('class' => array('active'));
+    }
     $path = BASE_PATH . $path;
   }
-  return '<' . "a href='$path'>$text</a>";
+
+  $attributes['href'] = $path;
+  $attributes = build_attribute_string($attributes);
+
+  return '<' . "a $attributes>$text</a>";
 }
 
 /**
@@ -520,17 +531,43 @@ function generate_password() {
 }
 
 /**
+ * Returns the requested URL path of the page being viewed.
+ *
+ * <br><br>Examples:
+ * <ul>
+ *  <li>http://example.com/node/306 returns "node/306".</li>
+ *  <li>http://example.com/ecmsfolder/node/306 returns "node/306" while base_path() returns "/ecmsfolder/".</li>
+ *  <li>http://example.com/path/alias (which is a path alias for node/306) returns "path/alias" as opposed to the internal path.</li>
+ *  <li>http://example.com/index.php returns an empty string (meaning: front page).</li>
+ *  <li>http://example.com/index.php?page=1 returns an empty string.</li>
+ * </ul>
+ *
+ * @return string The requested ECMS URL path.
+ */
+function request_path() {
+  static $path;
+
+  if (isset($path)) {
+    return $path;
+  }
+  $len = strlen(BASE_PATH);
+  $path = substr($_SERVER['REQUEST_URI'], $len);
+
+  return $path;
+}
+
+/**
  * @return bool
  */
 function is_node_page() {
-  return (substr($_SERVER['REQUEST_URI'], 0, 5) == '/node');
+  return (substr(request_path(), 0, 5) == 'node/');
 }
 
 /**
  * @return bool
  */
 function is_admin_page() {
-  return (substr($_SERVER['REQUEST_URI'], 0, 6) == '/admin');
+  return (substr(request_path(), 0, 6) == 'admin/');
 }
 
 /**

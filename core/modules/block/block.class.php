@@ -201,7 +201,7 @@ class block {
       'vars'     => array(
         'caption'    => $count . ' blocks',
 //        'attributes' => array('class' => array('list-table blocks', 'stupidtable')),
-        'attributes' => array('class' => array('stupidtable')),
+        'attributes' => array('class' => array('stupidtable', 'sticky')),
         'header'     => $header,
         'rows'       => $rows,
       ),

@@ -157,7 +157,9 @@ body {
   color: #CCCCCC;
 }
 
-
+/**
+ * Main menu.
+ */
 #block-system-main_menu {
   display: inline-block;
   margin: 0 0 0 50px;
@@ -165,6 +167,12 @@ body {
 
 #block-system-main_menu a {
   line-height: 32px;
+}
+
+#block-system-main_menu a.active {
+  line-height: 24px;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid green;
 }
 
 #block-system-main_menu a:hover {
@@ -235,7 +243,15 @@ fieldset {
   text-align: left;
 }
 
-.list-table th, .list-table td, .list-table caption {
+.list-table caption {
+  padding: 6px;
+ 	border-top: 1px solid #CCC;
+ 	border-right: 1px solid #CCC;
+ 	border-left: 1px solid #CCC;
+ 	height: 1.5em;
+}
+
+.list-table th, .list-table td {
   padding: 6px;
  	border: 1px solid #CCC;
  	height: 1.5em;

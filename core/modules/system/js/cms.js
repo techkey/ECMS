@@ -34,29 +34,12 @@ $(function () {
     });
 
     // Construct a dummy row.
-/*
-    var $dummy = $('<tr>');
-    $('tbody tr:eq(0) td', this).each(function () {
-      // Add 1 to the width because of border and bordercollapse.
-      width = $(this).width() + 0;
-      $td = $('<td>');
-      var o = {
-        width: width,
-        paddingTop: $(this).css('padding-top'),
-        paddingRight: $(this).css('padding-right'),
-        paddingBottom: $(this).css('padding-bottom'),
-        paddingLeft: $(this).css('padding-left'),
-        borderRight: $(this).css('border-right-width'),
-        borderLeft: $(this).css('border-left-width')
-      };
-      $td.css(o);
-      $dummy.append($td);
-    });
-*/
     var $dummy = $('tr:eq(0)', this).clone();
-
+    $dummy.addClass('dummy');
     $dummy.css('display', 'none');
     $('tbody', this).prepend($dummy);
+
+    $thead.width($dummy.width());
 
     var offset = $thead.offset();
     var sticky;

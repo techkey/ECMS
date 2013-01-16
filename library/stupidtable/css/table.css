@@ -20,7 +20,19 @@
 	margin: 0.5em;
 }
 
-.stupidtable td, .stupidtable th, .stupidtable caption {
+.stupidtable caption {
+	padding: 6px;
+	border-top: 1px solid #CCC;
+	border-right: 1px solid #CCC;
+	border-left: 1px solid #CCC;
+	height: 1.5em;
+}
+
+.stupidtable th {
+  text-align: left;
+}
+
+.stupidtable td, .stupidtable th {
 	padding: 6px;
 	border: 1px solid #CCC;
 	height: 1.5em;
