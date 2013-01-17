@@ -216,7 +216,7 @@ body {
   content: '*';
 }
 
-.form-element span {
+.form-element > span {
   color: #888888;
 }
 
