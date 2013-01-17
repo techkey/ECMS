@@ -66,14 +66,14 @@ class darkstar extends theme
   public function render($name, $context = array()) {
 
 //    $context['uid'] = get_user()->uid;
-    $context['theme_path'] = $this->get_base_path() . 'core/themes/darkstar';
+    $context['theme_path'] = $this->get_path() . 'core/themes/darkstar';
 
 //    $this->add_js('core/themes/darkstar/js/jquery-1.8.3.js', ['weight' => -10]);
 //    $this->add_js(get_module_library()->get('jquery')['fpath'], ['weight' => -10]);
     library_load('jquery', -10);
-    $this->add_js($this->get_base_path() . 'js/main.js');
-    $this->add_css($this->get_base_path() . 'css/1200_15-20_col.css', array('weight' => -10));
-    $this->add_css($this->get_base_path() . 'css/style.css');
+    $this->add_js($this->get_path() . 'js/main.js');
+    $this->add_css($this->get_path() . 'css/1200_15-20_col.css', array('weight' => -10));
+    $this->add_css($this->get_path() . 'css/style.css');
 
     // Add scripts to the page.
     // Add css.
