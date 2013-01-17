@@ -218,7 +218,7 @@ class log {
     $results = db_select('log')
       ->field('*')
       ->pager(50)
-//      ->orderby('response_time', 'DESC')
+      ->orderby('response_time', 'DESC')
       ->execute()
       ->fetchAll(\PDO::FETCH_OBJ);
 
