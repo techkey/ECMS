@@ -302,6 +302,58 @@ function l($text, $path, array $options = array()) {
 }
 
 /**
+ * Constructs a image link.
+ *
+ * @param string $src     Path to the image. May be absolute or relative.
+ * @param string $path    Path to go to. May be absolute or relative.
+ * @param array  $options [optional] A associative array that may have the
+ * following keys:
+ * <pre>
+ *  src:
+ *    attributes: associative array
+ *  path:
+ *    attributes: associative array
+ * </pre>
+ * @return string Returns a string.
+ */
+function il($src, $path, array $options = array()) {
+  $options += array('src' => array());
+  $options['src'] += array('attributes' => array());
+  $src_attributes = $options['src']['attributes'];
+
+  if ((substr($src, 0, 7) != 'http://') && (substr($src, 0, 8) != 'https://')) {
+    if ($path == request_path()) {
+      $src_attributes += array('class' => array('active'));
+    }
+    $src = BASE_PATH . $src;
+  }
+
+  $src_attributes['src'] = $src;
+  $src_attributes['alt'] = '';
+  $src_attributes = build_attribute_string($src_attributes);
+
+  $options += array('path' => array());
+  $options['path'] += array('attributes' => array());
+  $path_attributes = $options['path']['attributes'];
+
+  if ((substr($path, 0, 7) != 'http://') && (substr($path, 0, 8) != 'https://')) {
+    if ($path == request_path()) {
+      $path_attributes += array('class' => array('active'));
+    }
+    $path = BASE_PATH . $path;
+  }
+
+  $path_attributes['href'] = $path;
+  $path_attributes = build_attribute_string($path_attributes);
+
+  $il  = '<' . "a $path_attributes>";
+  $il .= '<' . "img $src_attributes>";
+  $il .= '</a>';
+
+  return $il;
+}
+
+/**
  * @param string $path
  */
 function go_to($path) {
