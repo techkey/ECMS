@@ -552,6 +552,7 @@ function request_path() {
   }
   $len = strlen(BASE_PATH);
   $path = substr($_SERVER['REQUEST_URI'], $len);
+  $path = strtok($path, '?');
 
   return $path;
 }
