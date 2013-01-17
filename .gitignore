@@ -1,6 +1,7 @@
 .idea
 .objects
 .objects/*
+config/config.local.ini
 core/db
 core/db/*
 core/engines/smarty/compile
@@ -25,6 +26,8 @@ modules/menu2
 modules/menu2/*
 modules/node
 modules/node/*
+modules/projects
+modules/projects/*
 modules/stats
 modules/stats/*
 modules/swf
