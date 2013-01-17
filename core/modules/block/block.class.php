@@ -50,20 +50,32 @@ class block {
           'roles'    => array(),
         );
         if (!$block['roles'] || in_array(get_user()->role, $block['roles'])) {
-          $a[$block['region']][] = array(
+          if (!isset($a[$block['region']])) {
+            $a[$block['region']] = array();
+          };
+          $b = array(
             'name'     => $name,
             'module'   => $module,
             'title'    => $block['title'],
             'content'  => $block['content'],
-            'weight'   => $block['weight'],
+            'weight'   => $block['weight'] + (count($a[$block['region']]) / 1000),
             'template' => $block['template'],
             'vars'     => $block['vars'],
           );
+          $a[$block['region']][] = $b;
         }
       }
     }
 
-    //
+    foreach ($a as &$blocks) {
+      usort($blocks, function ($a, $b) {
+        if ($a['weight'] == $b['weight']) {
+            return 0;
+        }
+        return ($a['weight'] < $b['weight']) ? -1 : 1;
+      });
+    }
+    unset($blocks);
 
     $this->blocks = $a;
   }
