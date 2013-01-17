@@ -352,10 +352,28 @@ ul.stats {
  *
  * @section node
  */
+.comment {
+  padding-top: 3px;
+  border-top: 1px solid #CCCCCC;
+}
+
 .node-info,
 .comment-info {
   font-size: 11px;
   color: #888888;
+}
+
+.comment-info span:last-child {
+  position: absolute;
+  right: 0;
+}
+
+.imagelink {
+  opacity: 0.5;
+}
+
+.imagelink:hover {
+  opacity: 1;
 }
 
 .node-info {
