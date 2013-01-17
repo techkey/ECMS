@@ -12,6 +12,8 @@ core/engines/twig/cache
 core/engines/twig/cache/*
 core/engines/twig/Twig
 core/engines/twig/Twig/*
+core/misc
+core/misc/*
 core/themes/sunshine
 core/themes/sunshine/*
 files/*
