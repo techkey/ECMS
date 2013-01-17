@@ -317,6 +317,7 @@ function l($text, $path, array $options = array()) {
  * @return string Returns a string.
  */
 function il($src, $path, array $options = array()) {
+  // Process image source path.
   $options += array('src' => array());
   $options['src'] += array('attributes' => array());
   $src_attributes = $options['src']['attributes'];
@@ -332,18 +333,21 @@ function il($src, $path, array $options = array()) {
   $src_attributes['alt'] = '';
   $src_attributes = build_attribute_string($src_attributes);
 
+  // Process link href path.
   $options += array('path' => array());
   $options['path'] += array('attributes' => array());
   $path_attributes = $options['path']['attributes'];
+  $path_attributes += array('class' => array());
 
   if ((substr($path, 0, 7) != 'http://') && (substr($path, 0, 8) != 'https://')) {
     if ($path == request_path()) {
-      $path_attributes += array('class' => array('active'));
+      $path_attributes['class'][] = 'active';
     }
     $path = BASE_PATH . $path;
   }
 
   $path_attributes['href'] = $path;
+  $path_attributes['class'][] = 'imagelink';
   $path_attributes = build_attribute_string($path_attributes);
 
   $il  = '<' . "a $path_attributes>";
