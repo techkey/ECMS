@@ -121,19 +121,9 @@ class router
    * </ul>
    */
   public function route() {
-    $req_uri = $_SERVER['REQUEST_URI'];
-
-    $bp = config::get_value('system.basepath', '/');
-    $len = strlen($bp);
-    if ($len) {
-      if (substr($req_uri, 0, $len) == $bp) {
-        $req_uri = substr($req_uri, $len);
-      }
-    }
-
-    $pos = strpos($req_uri, '?');
-    if ($pos !== FALSE) {
-      $req_uri = substr($req_uri, 0, $pos);
+    $req_uri = request_path();
+    if ($req_uri == '') {
+      $req_uri = 'home';
     }
 
     $obj = get_module_node();
@@ -204,7 +194,7 @@ class router
       }
     }
 
-    if (($req_uri == '') || ($req_uri == 'home')) {
+    if ($req_uri == 'home') {
       $return = array(
         'page_title' => 'Welcome',
         'content' => 'No home page is created yet.',
