@@ -88,6 +88,23 @@ class menu extends core_module
     return $menu;
   }
 
+  /**
+   * Get menu links, sorted.
+   *
+   * @param string $name
+   * @return array Returns the sorted links.
+   */
+  public function get_menu_links($name) {
+    $links = array();
+    if (isset($this->menus[$name])) {
+      $menu = $this->get_menu($name);
+      foreach ($menu as $data) {
+        $links[] = l($data['title'], $data['path']);
+      }
+    }
+    return $links;
+  }
+
 /* Hooks **********************************************************************/
 
   /**
