@@ -8,7 +8,7 @@ namespace modules\log;
 use geoip;
 
 /**
- *
+ * Most used on shared servers when there is no access to the web access logs.
  */
 class log {
 
