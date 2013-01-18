@@ -121,6 +121,11 @@ body {
   /*color: #00AA00;*/
 }
 
+div.cke_dialog_background_cover {
+  background-color: black !important;
+  opacity: 0.7 !important;
+}
+
 /**
  *******************************************************************************
  */
