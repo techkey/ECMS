@@ -102,14 +102,9 @@ class ckeditor extends module {
    * @return string
    */
   public function ckfinder() {
+    add_js($this->get_path() . 'ckfinder_functions.js');
     library_load('ckfinder');
-    require_once BASE_DIR . 'library/ckfinder/core/ckfinder_php5.php';
 
-    $finder = new \CKFinder() ;
-    $finder->BasePath = BASE_PATH . 'library/ckfinder/' ;	// The path for the installation of CKFinder (default = "/ckfinder/").
-//    $finder->SelectFunction = 'ShowFileInfo' ;
-    // The default height is 400.
-    $finder->Height = 600;
-    return $finder->CreateHtml() ;
+    return '<div id="myfinder"></div>';
   }
 }
