@@ -201,8 +201,8 @@ class library {
    */
   public function get_path($name) {
     if (isset($this->libraries[$name])) {
-      $dir = BASE_PATH . 'library/' . $name;
-      return $dir;
+      $path = BASE_PATH . 'library/' . $name . '/';
+      return $path;
     } else {
       return FALSE;
     }
