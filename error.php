@@ -1,6 +1,7 @@
 <?php
-echo '<pre>' . print_r(headers_list(), TRUE) . '</pre>';
-echo '<pre>' . print_r($_SERVER, TRUE) . '</pre>';
+/**
+ * @file error.php
+ */
 
 $status_code = isset($_SERVER['REDIRECT_STATUS']) ? $_SERVER['REDIRECT_STATUS'] : 0;
 
