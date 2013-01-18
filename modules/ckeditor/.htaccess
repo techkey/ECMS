@@ -1,0 +1,3 @@
+<FilesMatch ajax.php>
+  Allow from all
+</FilesMatch>
