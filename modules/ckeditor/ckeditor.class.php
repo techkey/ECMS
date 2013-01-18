@@ -39,6 +39,12 @@ class ckeditor extends module {
       'access_arguments' => 'admin',
       'menu_name' => 'system'
     );
+    $menu['admin/ckfinder'] = array(
+      'title' => 'CKFinder',
+      'controller' => 'ckeditor:ckfinder',
+      'access_arguments' => 'admin',
+      'menu_name' => 'system'
+    );
 
     return $menu;
   }
@@ -90,5 +96,20 @@ class ckeditor extends module {
 //    $enter_mode = $enter_modes[$form_values['enter_mode']];
     variable_set('ckeditor_enter_mode', $form_values['enter_mode']);
     set_message('Settings saved.');
+  }
+
+  /**
+   * @return string
+   */
+  public function ckfinder() {
+    library_load('ckfinder');
+    require_once BASE_DIR . 'library/ckfinder/core/ckfinder_php5.php';
+
+    $finder = new \CKFinder() ;
+    $finder->BasePath = BASE_PATH . 'library/ckfinder/' ;	// The path for the installation of CKFinder (default = "/ckfinder/").
+//    $finder->SelectFunction = 'ShowFileInfo' ;
+    // The default height is 400.
+    $finder->Height = 600;
+    return $finder->CreateHtml() ;
   }
 }
