@@ -19,11 +19,10 @@ config::load();
 
 define('BASE_PATH', config::get_value('system.basepath', '/'));
 define('BASE_URL',
-  rtrim(
     strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, strpos($_SERVER['SERVER_PROTOCOL'], '/'))) .
     '://' .
     $_SERVER['HTTP_HOST'] .
-    config::get_value('system.basepath', '/'), '/') . '/'
+    ((strlen(BASE_PATH) == 1) ? '/' : rtrim(BASE_PATH, '/'))
 );
 define('MENU_CALLBACK',               0x0000);
 define('MENU_VISIBLE_IN_TREE',        0x0002);
