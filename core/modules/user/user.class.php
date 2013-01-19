@@ -781,6 +781,8 @@ class user extends core_module
       ->condition('uid', $form['uid']['#value'])
       ->execute();
     get_module_session()->login($form['uid']['#value']);
+
+    $form['#redirect'] = '';
   }
 
   /**
