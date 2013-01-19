@@ -283,7 +283,7 @@ class database {
     /** @var PDOStatement $st */
     $st = $this->pdo->query("PRAGMA table_info($table)");
     if ($st === FALSE) {
-      $error_info = $st->errorInfo();
+      $error_info = $this->pdo->errorInfo();
 //      wd_add('error', $error_info);
       throw new DBException(print_r($error_info, TRUE));
 //      return FALSE;
