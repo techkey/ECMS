@@ -22,8 +22,8 @@ modules/comment
 modules/comment/*
 modules/content
 modules/content/*
-#modules/log
-#modules/log/*
+modules/log
+modules/log/*
 modules/menu2
 modules/menu2/*
 modules/node
