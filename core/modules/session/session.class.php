@@ -141,7 +141,6 @@ class session
    */
   public function login($uid) {
     $_SESSION['uid'] = $uid;
-    go_to('');
   }
 
   /**
