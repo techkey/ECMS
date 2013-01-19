@@ -11,12 +11,12 @@ use core\modules\session\mysession54;
  */
 class session
 {
-  private $flashvars = array();
-  private $forms = NULL;
-  private $form_data = array();
-  private $form_info = array();
+  private static $flashvars = array();
+  private static $forms = NULL;
+  private static $form_data = array();
+  private static $form_info = array();
   /** @var object $mysession */
-  private $mysession = NULL;
+  private static $mysession = NULL;
 
   /**
    * The schema definition.
@@ -49,27 +49,27 @@ class session
   /**
    *
    */
-  public function start() {
+  public static function start() {
     if (db_table_exists('session')) {
       if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
-        $this->mysession = new mysession54();
+        self::$mysession = new mysession54();
         /** @noinspection PhpParamsInspection */
-        session_set_save_handler($this->mysession);
+        session_set_save_handler(self::$mysession);
       } else {
-        $this->mysession = new mysession53();
+        self::$mysession = new mysession53();
         session_set_save_handler(
-          array($this->mysession, 'open'),
-          array($this->mysession, 'close'),
-          array($this->mysession, 'read'),
-          array($this->mysession, 'write'),
-          array($this->mysession, 'destroy'),
-          array($this->mysession, 'gc')
+          array(self::$mysession, 'open'),
+          array(self::$mysession, 'close'),
+          array(self::$mysession, 'read'),
+          array(self::$mysession, 'write'),
+          array(self::$mysession, 'destroy'),
+          array(self::$mysession, 'gc')
         );
       }
     }
     session_start();
     if (isset($_SESSION['flashvars'])) {
-      $this->flashvars = $_SESSION['flashvars'];
+      self::$flashvars = $_SESSION['flashvars'];
       if (isset($_SESSION['keepflashvars'])) {
         unset($_SESSION['keepflashvars']);
       } else {
@@ -81,9 +81,9 @@ class session
       if (isset($_SESSION['forms'])) {
         if (isset($_POST['form_id']) && isset($_POST['form_key']) &&
            ($_SESSION['forms'][$_POST['form_id']]['key'] == $_POST['form_key'])) {
-          $this->forms = $_SESSION['forms'];
-          $this->form_data = $_POST;
-          $this->form_info = $_SESSION['forms'][$_POST['form_id']];
+          self::$forms = $_SESSION['forms'];
+          self::$form_data = $_POST;
+          self::$form_info = $_SESSION['forms'][$_POST['form_id']];
         }
         else {
           set_message(__LINE__ . ': Possible form hijack!', 'error');
@@ -126,14 +126,14 @@ class session
    * @return array
    */
   public function get_form_data() {
-    return $this->form_data;
+    return self::$form_data;
   }
 
   /**
    * @return array
    */
   public function get_form_info() {
-    return $this->form_info;
+    return self::$form_info;
   }
 
   /**

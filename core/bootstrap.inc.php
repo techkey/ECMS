@@ -14,6 +14,7 @@ get_loader()->add('modules', __DIR__ . '/../');
 //var_dump(get_loader());
 
 use core\modules\config\config;
+use core\modules\session\session;
 
 config::load();
 
@@ -42,7 +43,7 @@ define('MENU_NORMAL_ITEM', MENU_VISIBLE_IN_TREE | MENU_VISIBLE_IN_BREADCRUMB);
 
 
 require_once BASE_DIR . 'core/database.class.php';
-get_module_session()->start();
+session::start();
 
 //wd_add('test', 'test');
 
@@ -90,13 +91,13 @@ function load_modules() {
 function get_module($module = NULL) {
   static $modules = array();
 
-  if ($module == NULL) {
-    return $modules;
-  }
-
   if (!$modules) {
     $modules += load_core_modules();
     $modules += load_modules();
+  }
+
+  if ($module == NULL) {
+    return $modules;
   }
 
   return (isset($modules[$module])) ? $modules[$module] : FALSE;
@@ -142,6 +143,9 @@ function invoke($method, &$args = NULL) {
  *
  */
 function run() {
+
+  // Instantiate all modules.
+  get_module();
 
   // Run hook init().
   invoke('init');
