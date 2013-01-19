@@ -74,9 +74,11 @@ function load_modules() {
   $a = array();
   $modules = glob(BASE_DIR . 'modules/*', GLOB_ONLYDIR);
   foreach ($modules as $module) {
-    $module = basename($module);
-    $class = "\\modules\\$module\\$module";
-    $a[$module] = new $class();
+    $name = basename($module);
+    if (file_exists($module . '/' . $name . '.ini')) {
+      $class = "\\modules\\$name\\$name";
+      $a[$name] = new $class();
+    }
   }
   return $a;
 }
