@@ -231,10 +231,33 @@ body {
 }
 
 fieldset {
-  border: 1px solid #AAAAAA;
-  margin: 10px 0;
+  border: 1px solid #CCCCCC;
+  margin: 15px 0;
+  position: relative;
+  padding: 30px 0 0 0;
 }
 
+.fieldset-wrapper {
+  padding: 0 10px;
+}
+
+legend {
+  background-color: #DDDDDD;
+  height: 30px;
+  line-height: 30px;
+  width: 100%;
+  padding: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-weight: bold;
+  text-indent: 10px;
+}
+
+fieldset.collapsible > legend .fieldset-legend {
+  padding-left: 15px;
+  display: block;
+}
 
 .list-table {
   border-collapse: collapse;
