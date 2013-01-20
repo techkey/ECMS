@@ -274,7 +274,7 @@ class form {
   }
 
   /**
-   * todo: improve array_flatten
+   * Flattens a array.
    *
    * @param array $array
    * @return array
@@ -282,6 +282,7 @@ class form {
   private function array_flatten(array $array) {
     $a = array();
 
+    $more = FALSE;
     foreach ($array as $key => $value) {
       if (is_array($value)) {
         $value += array('#type' => 'markup');
@@ -289,6 +290,10 @@ class form {
           foreach ($value as $k => $v) {
             if (is_array($v)) {
               $a[$k] = $v;
+              $v += array('#type' => 'markup');
+              if ($v['#type'] == 'fieldset') {
+                $more = TRUE;
+              }
             }
           }
         } else {
@@ -297,6 +302,10 @@ class form {
       } else {
         $a[$key] = $value;
       }
+    }
+
+    if ($more) {
+      $a = $this->array_flatten($a);
     }
 
     return $a;
