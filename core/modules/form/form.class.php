@@ -492,17 +492,24 @@ class form {
     $attributes += array(
       'id' => $name,
       'name' => $name,
+      'class' => array(),
     );
+
+    if (isset($field['#collapsible']) && $field['#collapsible']) {
+      $attributes['class'][] = 'collapsible';
+    }
 
     $str = sprintf('<fieldset %s>', build_attribute_string($attributes));
     if (isset($field['#title'])) {
-      $str .= '<legend>' . $field['#title'] . '</legend>';
+      $str .= '<legend><span class="fieldset-legend">' . $field['#title'] . '</span></legend>';
     }
+    $str .= '<div class="fieldset-wrapper">';
     if (isset($field['#description'])) {
       $str .= '<div class="form-fieldset-description">' . $field['#description'] . '</div>';
     }
     $str2 = $this->render_fields($field);
     $str .= implode('', $str2);
+    $str .= '</div>';
 
     return $str . '</fieldset>';
   }
