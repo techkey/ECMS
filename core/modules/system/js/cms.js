@@ -71,7 +71,28 @@ $(function () {
     $(window).resize(function () {
       offset = (sticky) ? $dummy.offset() : $thead.offset();
     });
+  });
 
+  /**
+   * Collapsible fieldsets.
+   *
+   * todo: improve collapsible fieldsets
+   */
+  $('fieldset.collapsible').each(function () {
+    var $fs = $(this);
+    var $fw = $('.fieldset-wrapper', this);
+    $('.fieldset-legend', this).click(function () {
+      $fw.toggle();
+      if ($fw.attr('display') === 'block') {
+        $(this).css({
+          background: 'url(/core/misc/menu-expanded.png) no-repeat 10px 11px'
+        });
+      } else {
+        $(this).css({
+          background: 'url(/core/misc/menu-collapsed.png) no-repeat 10px 11px'
+        });
+      }
+    });
   });
 
 });
