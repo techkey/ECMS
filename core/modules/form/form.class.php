@@ -47,12 +47,12 @@ class form {
       $saved_data = $this->form_info['data'];
 
       // Merge values of type '#value'.
-      foreach ($saved_data as $key => $data) {
+      foreach ($saved_data as $key => $fields) {
         if ($key[0] == '#') {
           continue;
         }
-        if (!isset($this->form_values[$key]) && ($data['#type'] == 'value')) {
-          $this->form_values[$key] = $data['#value'];
+        if (!isset($this->form_values[$key]) && ($fields['#type'] == 'value')) {
+          $this->form_values[$key] = $fields['#value'];
         }
       }
 
