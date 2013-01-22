@@ -448,6 +448,13 @@ JS;
       '#title' => 'Maintenance',
       '#default_value' => variable_get('system_maintenance', TRUE),
     );
+    $form['system']['maintainer_ip'] = array(
+      '#type' => 'textfield',
+      '#title' => 'Maintainer IP',
+      '#default_value' => variable_get('system_maintainer_ip', ''),
+      '#description' => 'This IP overrides maintanance mode. Current IP is: <em>' . $_SERVER['REMOTE_ADDR'] . '</em>',
+    );
+
     $form['system']['debug'] = array(
       '#type' => 'checkbox',
       '#title' => 'Debug',
@@ -483,6 +490,7 @@ JS;
       '#type' => 'fieldset',
       '#title' => 'Site Settings',
       '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
     );
     $form['site']['name'] = array(
       '#type' => 'textfield',
@@ -509,6 +517,7 @@ JS;
       '#type' => 'fieldset',
       '#title' => 'Mail Settings',
       '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
     );
     $form['mail']['mailer'] = array(
       '#type' => 'select',
@@ -521,6 +530,7 @@ JS;
       '#type' => 'fieldset',
       '#title' => 'SMTP Settings',
       '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
     );
     $form['mail']['smtp']['smtpauth'] = array(
       '#type' => 'checkbox',
@@ -579,6 +589,12 @@ JS;
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
 
+    if ($form_values['maintainer_ip'] != '') {
+      if (!filter_var($form_values['maintainer_ip'], FILTER_VALIDATE_IP)) {
+        $form_errors['maintainer_ip'] = 'Maintainer IP must be a valid IP or empty.';
+      }
+    }
+
     if (($form_values['mailer'] == 'smtp') && $form_values['smtpauth']) {
       $options = array(
         'options' => array(
@@ -609,8 +625,9 @@ JS;
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
 
-    variable_set('system_maintenance', $form_values['maintenance']);
-    variable_set('system_debug',       $form_values['debug']);
+    variable_set('system_maintenance',   $form_values['maintenance']);
+    variable_set('system_maintainer_ip', $form_values['maintainer_ip']);
+    variable_set('system_debug',         $form_values['debug']);
 
     variable_set('system_password_crypt',     $form_values['password_crypt']);
     variable_set('system_password_minlength', $form_values['password_minlength']);
