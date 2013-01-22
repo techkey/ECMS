@@ -498,6 +498,9 @@ class form {
     if (isset($field['#collapsible']) && $field['#collapsible']) {
       $attributes['class'][] = 'collapsible';
     }
+    if (isset($field['#collapsed']) && $field['#collapsed']) {
+      $attributes['class'][] = 'collapsed';
+    }
 
     $str = sprintf('<fieldset %s>', build_attribute_string($attributes));
     if (isset($field['#title'])) {
