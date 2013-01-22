@@ -93,6 +93,9 @@ $(function () {
         });
       }
     });
+    if ($fs.hasClass('collapsed')) {
+      $('.fieldset-legend', this).click();
+    }
   });
 
 });
