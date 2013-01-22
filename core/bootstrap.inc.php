@@ -151,7 +151,10 @@ function run() {
   invoke('init');
 
   if (variable_get('system_maintenance', TRUE)) {
-    if ((request_path() != 'user/login') && (get_user()->uid != 1)) {
+    if ((request_path() != 'user/login') &&
+        (get_user()->uid != 1) &&
+        (variable_get('system_maintainer_ip') != $_SERVER['REMOTE_ADDR'])) {
+
       $page = array();
 //      invoke_pre_render($vars);
       $page['site']['name'] = variable_get('system_sitename', 'ECMS');
@@ -176,7 +179,10 @@ function run() {
   $content = get_module_router()->route();
   $page += $content;
 
-  if (!variable_get('system_maintenance', TRUE) || (get_user()->uid == 1)) {
+  if (!variable_get('system_maintenance', TRUE) ||
+      (get_user()->uid == 1) ||
+      (variable_get('system_maintainer_ip') == $_SERVER['REMOTE_ADDR'])) {
+
     // Run hook page_build().
     invoke('page_build', $page);
     // Run hook page_alter().
