@@ -4,12 +4,22 @@ DirectoryIndex index.php index.html
   Order allow,deny
 </FilesMatch>
 
-<FilesMatch "index\.php|error\.php">
-  allow from all
+<FilesMatch "index\.php">
+  Allow from all
 </FilesMatch>
 
-RewriteEngine on
-RewriteBase /
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^ index.php [L]
+<IfModule mod_rewrite.c>
+  RewriteEngine on
 
+  RewriteRule "(^|/)\." - [F]
+
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ http://%1%{REQUEST_URI} [L,R=301]
+
+  RewriteBase /
+
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_URI} !=/favicon.ico
+  RewriteRule ^ index.php [L]
+</IfModule>
