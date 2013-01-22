@@ -68,6 +68,12 @@ class session
       }
     }
     session_start();
+
+    // Check if it's a AJAX call.
+    if ($_SERVER['SCRIPT_NAME'] != '/index.php') {
+      return;
+    }
+
     if (isset($_SESSION['flashvars'])) {
       self::$flashvars = $_SESSION['flashvars'];
       if (isset($_SESSION['keepflashvars'])) {
