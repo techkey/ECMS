@@ -614,6 +614,17 @@ function request_path() {
 }
 
 /**
+ * Get the path the router took without variables and trailing slash.
+ *
+ * E.g. my/path/{id} returns my/path
+ *
+ * @return string
+ */
+function router_path() {
+  return get_module_router()->router_path;
+}
+
+/**
  * @return bool
  */
 function is_node_page() {
