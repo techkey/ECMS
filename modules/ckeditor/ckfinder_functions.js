@@ -38,7 +38,7 @@ $(function () {
   var myfinder = new CKFinder();
   myfinder.basePath = '/library/ckfinder/';
   myfinder.appendTo('myfinder', {
-    height: 400,
+    height: 600,
     callback: init
   });
 
