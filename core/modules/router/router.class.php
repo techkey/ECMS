@@ -29,6 +29,8 @@ class router
 
   private $basepath = '';
 
+  public $router_path = '';
+
   /**
    * Add a route.
    *
@@ -173,6 +175,8 @@ class router
         if (!method_exists($instance, $method)) {
           exit("Method '$method' not found in controller '$class'.");
         }
+
+        $this->router_path = rtrim(str_replace('(.+)', '', $pattern), '/');
 
         $args = $matches[0];
         array_shift($args);
