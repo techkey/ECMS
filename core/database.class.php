@@ -258,6 +258,10 @@ class database {
     if ($b) {
       switch ($this->mode) {
 
+        case 'insert':
+          return $this->pdo->lastInsertId();
+          break;
+
         case 'update':
           return $pdo->rowCount();
           break;
