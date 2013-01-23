@@ -10,7 +10,7 @@
  * @section debug
  */
 .region {
-  background: #F8F8FF;
+  /*background: #F8F8FF;*/
   position: relative;
 }
 
@@ -159,8 +159,9 @@ body {
 }
 
 .menu ul li a:hover {
-  background: #000000;
-  color: #CCCCCC;
+  /*background: #000000;*/
+  /*color: #CCCCCC;*/
+  background: #CCCCCC;
 }
 
 /**
@@ -311,7 +312,7 @@ fieldset.collapsible > legend .fieldset-legend {
 header {
   /*padding: 5px 20px;*/
   height: 32px;
-  background: #000000;
+  background: #222222;
   color: #CCCCCC;
   line-height: 32px;
   font-size: 14px;
