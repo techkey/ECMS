@@ -18,7 +18,7 @@ class system extends core_module {
   private $variables = array();
 
   /**
-   *
+   * Cache all variables.
    */
   public function __construct() {
     if (!db_table_exists('variable')) {
@@ -134,15 +134,15 @@ class system extends core_module {
       $mailer->action_function = $mail['action_function'];
     }
 
-    if (substr($mail['to'], strpos($mail['to'], '@') + 1) != 'localmail.com') {
-      $mailer->Mailer = '';
-      $mailer->SMTPAuth = TRUE;
-      $mailer->SMTPSecure = '';
-//      $mailer->SMTPDebug = TRUE;
-      $mailer->Port = 0;
-      $mailer->Host = '';
-      $mailer->Username = '';
-      $mailer->Password = '';
+//    $mailer->SMTPDebug = TRUE;
+    $mailer->Mailer = variable_get('system_mail_mailer', '');
+    if ($mailer->Mailer == 'smtp') {
+      $mailer->SMTPAuth = variable_get('system_mail_smtpauth', FALSE);
+      $mailer->SMTPSecure = variable_get('system_mail_smtpsecure', FALSE);
+      $mailer->Port = variable_get('system_mail_port', '');
+      $mailer->Host = variable_get('system_mail_host', '');
+      $mailer->Username = variable_get('system_mail_username', '');
+      $mailer->Password = variable_get('system_mail_password', '');
     }
 
     $mailer->From = $mail['from'];
@@ -165,9 +165,35 @@ class system extends core_module {
     $body = file_get_contents($this->get_dir() . 'mails/password_reset.html');
     $body = str_replace('[PASSWORD]', generate_password(), $body);
 
+    $from = variable_get('system_email');
+
     $mail += array(
-      'from' => variable_get('system_email', 'mail@example.com'),
+      'from' => $from,
       'subject' => 'Password reset',
+      'body' => $body,
+    );
+
+    return $this->mail_send($mail);
+  }
+
+  /**
+   * @param array  $mail
+   * @param string $code
+   * @return bool
+   */
+  public function mail_email_confirm(array $mail, $code) {
+    $body = file_get_contents($this->get_dir() . 'mails/email_confirm.html');
+
+    $link = BASE_URL . '/user/email_confirm/' . base64_encode($code);
+    $link = l($link, $link);
+
+    $body = str_replace('[LINK]', $link, $body);
+
+    $from = variable_get('system_email');
+
+    $mail += array(
+      'from' => $from,
+      'subject' => 'Email confirm',
       'body' => $body,
     );
 
