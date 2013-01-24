@@ -346,6 +346,13 @@ footer {
   border-top: 1px solid #BACD00;
 }
 
+#footer-left {
+  float: left;
+}
+#footer-right {
+  float: right;
+}
+
 /**
  *******************************************************************************
  */
