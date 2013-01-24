@@ -60,6 +60,10 @@ function install($module = FALSE) {
 
   foreach($modules as $name => $data) {
     if ($module == $name) {
+      if ($name == 'user') {
+        db_query('DROP TABLE IF EXISTS users');
+      }
+
       /** @noinspection PhpUndefinedMethodInspection */
       db_install_schema($data['class']->schema());
       if ($name == 'user') {
