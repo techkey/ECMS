@@ -337,17 +337,12 @@ class system extends core_module {
   }
 
   /**
-   * Hook pre_render().
+   * Hook page_alter().
    *
-   * @return array
+   * @param array $page The final render array.
    */
-  public function pre_render2() {
-    $render_array[] = array(
-      'region' => 'footer_bottom',
-      'content' => '&copy;2012 3dflat, all rights reserved.',
-    );
-
-    return $render_array;
+  public function page_alter(array &$page) {
+    $page['footer_bottom'] = '<span id="footer-left">&copy;2013 3dflat, all rights reserved.</span><span id="footer-right">&#097;&#100;&#109;&#105;&#110;&#064;&#051;&#100;&#102;&#108;&#097;&#116;&#046;&#116;&#107;</span>';
   }
 
   /* Pivate routes ************************************************************/
