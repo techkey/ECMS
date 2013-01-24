@@ -70,6 +70,10 @@ class form {
           if (method_exists($class, $method)) {
             // Call the submit handler.
             $return = $class->$method($saved_data, $this->form_values);
+            // Check if we have a message for the user.
+            if ($return) {
+              return $return;
+            }
             // Check if a destination is set.
             if (isset($_GET['destination'])) {
               $_SESSION['keepflashvars'] = TRUE;
@@ -79,10 +83,6 @@ class form {
             if (isset($saved_data['#redirect'])) {
               $_SESSION['keepflashvars'] = TRUE;
               go_to($saved_data['#redirect']);
-            }
-            // Check if we have a message for the user.
-            if ($return) {
-              return $return;
             }
             // Just go to the same page.
 
