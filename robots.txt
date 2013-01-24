@@ -17,7 +17,8 @@
 # http://www.sxw.org.uk/computing/robots/check.html
 
 User-agent: *
-Crawl-delay: 10
+#Crawl-delay: 10
+
 # Directories
 Disallow: /config/
 Disallow: /core/
@@ -25,10 +26,16 @@ Disallow: /files/
 Disallow: /library/
 Disallow: /modules/
 Disallow: /test2/
+
 # Virtual Directories
 Disallow: /admin/
+Disallow: /node/add/
+Disallow: /node/edit/
+Disallow: /node/delete/
 Disallow: /user/
+
 # Files
-Disallow: /README.txt
+Disallow: /README.md
+
 # Paths (clean URLs)
 # Paths (no clean URLs)
