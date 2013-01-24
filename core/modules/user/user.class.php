@@ -69,6 +69,10 @@ class user extends core_module
           'type'     => 'tinyint',
           'not null' => TRUE,
         ),
+        'blocked'    => array(
+          'type'     => 'tinyint',
+          'not null' => TRUE,
+        ),
         'role'      => array(
           'type'     => 'varchar',
           'length'   => 255,
@@ -109,12 +113,13 @@ class user extends core_module
    * @param string $email
    * @param int $activated [optional]
    * @param string $role [optional]
+   * @return bool|int
    */
   private function add($username, $password, $email, $activated = 0, $role = 'member') {
     if (variable_get('system_password_crypt', TRUE)) {
       $password = crypt($password);
     }
-    db_insert('users')->fields(array(
+    $id = db_insert('users')->fields(array(
       'username'  => $username,
       'password'  => $password,
       'email'     => $email,
@@ -122,20 +127,24 @@ class user extends core_module
       'ip'        => $_SERVER['REMOTE_ADDR'],
       'last_ip'   => $_SERVER['REMOTE_ADDR'],
       'activated' => $activated,
+      'blocked'   => 0,
       'role'      => $role,
     ))->execute();
+
+    return $id;
   }
 
   /**
    * Update a user account.
    *
-   * @param int $uid
+   * @param int    $uid
    * @param string $password
    * @param string $email
-   * @param int $activated
+   * @param int    $activated
+   * @param null   $blocked
    * @param string $role
    */
-  private function update($uid, $password = NULL, $email = NULL, $activated = NULL, $role = NULL) {
+  private function update($uid, $password = NULL, $email = NULL, $activated = NULL, $blocked = NULL, $role = NULL) {
 
     $db = db_update('users');
     if ($password  !== NULL) {
@@ -147,6 +156,7 @@ class user extends core_module
     }
     if ($email     !== NULL) $db->fields(array('email'     => $email));
     if ($activated !== NULL) $db->fields(array('activated' => $activated));
+    if ($blocked   !== NULL) $db->fields(array('blocked'   => $blocked));
     if ($role      !== NULL) $db->fields(array('role'      => $role));
     $db->condition('uid', $uid)->execute();
   }
@@ -154,6 +164,7 @@ class user extends core_module
   /**
    * Get all users.
    *
+   * @return array
    * @return \USER[] Returns a array of user objects.
    */
   private function get_all_users() {
@@ -235,6 +246,57 @@ class user extends core_module
     return FALSE;
   }
 
+  /**
+   * Activate or deactivate a account.
+   *
+   * @param int  $uid
+   * @param bool $activate
+   */
+  private function activate($uid, $activate = TRUE) {
+    $this->update($uid, NULL, NULL, $activate);
+  }
+
+  /**
+   * Check if a account is activated.
+   *
+   * @param int $uid
+   * @return bool
+   */
+  private function is_activated($uid) {
+    $a = db_select('users')
+      ->field('activated')
+      ->condition('uid', $uid)
+      ->execute()
+      ->fetchColumn();
+
+    return (bool)$a;
+  }
+
+  /**
+   * Block or unblock a account.
+   *
+   * @param int  $uid
+   * @param bool $block
+   */
+  private function block_account($uid, $block = TRUE) {
+    $this->update($uid, NULL, NULL, NULL, $block);
+  }
+
+  /**
+   * Check if a account is blocked.
+   *
+   * @param int $uid
+   * @return bool
+   */
+  private function is_blocked($uid) {
+    $a = db_select('users')
+      ->field('blocked')
+      ->condition('uid', $uid)
+      ->execute()
+      ->fetchColumn();
+
+    return (bool)$a;
+  }
 
 /* Hooks **********************************************************************/
 
@@ -264,6 +326,12 @@ class user extends core_module
       'access_arguments' => 'admin',
       'type'             => MENU_CALLBACK,
     );
+    $menu['admin/users/delete/{uid}'] = array(
+      'title'            => 'Delete user',
+      'controller'       => 'user:delete',
+      'access_arguments' => 'admin',
+      'type'             => MENU_CALLBACK,
+    );
 
     $menu['user/login'] = array(
       'title'            => 'Login',
@@ -281,13 +349,18 @@ class user extends core_module
       'type'             => MENU_CALLBACK,
     );
     $menu['user/edit'] = array(
-      'title'            => ' My account',
+      'title'            => ' My Account',
       'controller'       => 'user:edit_user',
       'type'             => MENU_CALLBACK,
     );
     $menu['user/password_reset'] = array(
-      'title'            => 'Password reset',
+      'title'            => 'Password Reset',
       'controller'       => 'user:password_reset',
+      'type'             => MENU_CALLBACK,
+    );
+    $menu['user/email_confirm/{code}'] = array(
+      'title'            => 'Email Confirmation',
+      'controller'       => 'user:email_confirm',
       'type'             => MENU_CALLBACK,
     );
 
@@ -304,7 +377,12 @@ class user extends core_module
     $content = $user->username;
     if ($user->uid == 0) {
       $dest = request_path();
-      $content .= ' ' . l('login', 'user/login?destination=' . $dest) . ' ' . l('register', 'user/register');
+      if ($dest && (strpos($dest, 'user/email_') === FALSE)) {
+        $dest = '?destination=' . $dest;
+      } else {
+        $dest = '';
+      }
+      $content .= ' ' . l('login', 'user/login' . $dest) . ' ' . l('register', 'user/register');
     } else {
       $content .= ' ' . l('logout', 'user/logout') . ' ' . l('my account', 'user/edit');
     }
@@ -312,6 +390,8 @@ class user extends core_module
     $block['user'] = array(
       'region' => 'header',
       'content' => $content,
+      'visibility' => BLOCK_VISIBILITY_NOTLISTED,
+      'pages' => array('user/login', 'user/register'),
     );
 
     return $block;
@@ -337,6 +417,7 @@ class user extends core_module
       array('data' => 'Last Login',   'data-sort' => 'int'),
       array('data' => 'Last IP',      'data-sort' => 'string'),
       array('data' => 'Activated',    'data-sort' => 'int'),
+      array('data' => 'Blocked',      'data-sort' => 'int'),
       array('data' => 'Role',         'data-sort' => 'string'),
       array('data' => 'actions',      'colspan' => 2),
     );
@@ -350,6 +431,7 @@ class user extends core_module
         ($user->last_login) ? date('H:i:s d-m-Y', $user->last_login) : '-',
         $user->last_ip,
         $user->activated,
+        $user->blocked,
         $user->role,
         l('edit', 'admin/users/edit/' . $user->uid),
         ($user->uid == 1) ? '' : l('delete', 'admin/users/delete/' . $user->uid),
@@ -559,8 +641,37 @@ class user extends core_module
     $form['#redirect'] = 'admin/users';
   }
 
+  /**
+   * Delete a user.
+   *
+   * @param $uid
+   * @return string
+   */
+  public function delete($uid) {
+    $data = array(
+      'title' => 'Delete user ' . $uid,
+      'message' => 'This action can not be undone! Are you sure?',
+      'button' => 'Delete',
+      'cancel' => 'admin/users',
+      'extra' => $uid,
+    );
 
+    return get_module_form()->confirm($data);
+  }
 
+  /**
+   * @param array $form
+   * @param array $form_values
+   */
+  public function delete_submit(array &$form, array $form_values) {
+    db_delete('users')
+      ->condition('uid', $form_values['extra']['uid'])
+      ->execute();
+
+    set_message('User ' . $form_values['extra']['uid'] . ' deleted.');
+
+    $form['#redirect'] = 'admin/users';
+  }
 
 /* Public route controllers ***************************************************/
 
@@ -570,12 +681,19 @@ class user extends core_module
    * @return string
    */
   public function register_user() {
+    if (get_user()->uid > 0) {
+      return 'Please logout first.';
+    }
+
+    $data['#attributes'] = array('autocomplete' => 'off');
+    $data['#description'] = 'After submitting we send you a email with a confirmation link.';
     $data['username'] = array(
       '#type'        => 'textfield',
       '#title'       => 'Username',
       '#description' => 'Your <em>username</em>.',
       '#required'    => TRUE,
       '#size'        => 32,
+      '#attributes'  => array('autocomplete' => 'on'),
     );
     $minlength = variable_get('system_password_minlength', 8);
     $maxlength = variable_get('system_password_maxlength', 32);
@@ -594,6 +712,7 @@ class user extends core_module
       '#description' => 'Your <em>email address</em>.',
       '#required'    => TRUE,
       '#size'        => 32,
+      '#attributes'  => array('autocomplete' => 'on'),
     );
     $data['submit']   = array(
       '#type' => 'submit',
@@ -616,11 +735,11 @@ class user extends core_module
     if (!$form_errors) {
       $user = $this->get_user_by_username($form_values['username']);
       if ($user) {
-        $form_errors['username'] = 'Username is already registered.';
+        $form_errors['username'] = 'Username is not available. Please choose another one.';
       }
       $user = $this->get_user_by_email($form_values['email']);
       if ($user) {
-        $form_errors['email'] = 'Address is already registered.';
+        $form_errors['email'] = 'Email address is already registered. Please use another one.';
       }
       if ($form_values['password'] == $form_values['username']) {
         $form_errors['email'] = 'Password cannot be the same as username.';
@@ -631,11 +750,55 @@ class user extends core_module
   /**
    * @param array $form
    * @param array $form_values
+   * @return string
    */
-  public function register_user_submit(array &$form, array $form_values) {
-    $this->add($form_values['username'], $form_values['password'], $form_values['email']);
-    set_message('User registered.');
-    $form['#redirect'] = '';
+  public function register_user_submit(array $form, array $form_values) {
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form;
+
+    $id = $this->add($form_values['username'], $form_values['password'], $form_values['email']);
+    $mail = array(
+      'to' => $form_values['email'],
+    );
+    $code = 'uid=' . $id . '&email=' . $form_values['email'];
+    get_module_system()->mail_email_confirm($mail, $code);
+
+    return 'A request for confirmation is sent, please check your email.';
+  }
+
+  /**
+   * @param $code
+   * @return null|string
+   */
+  public function email_confirm($code) {
+    $code = base64_decode($code);
+    if ($code !== FALSE) {
+      parse_str($code, $tmp);
+      if (isset($tmp['uid']) && isset($tmp['email'])) {
+        if (filter_var($tmp['email'], FILTER_VALIDATE_EMAIL)) {
+          /** @var \USER $user */
+          $user = $this->get_user_by_uid((int)$tmp['uid']);
+          if ($user) {
+            if ($user->email == $tmp['email']) {
+              if ($user->activated) {
+                return array(
+                  'page_title' => 'Activated',
+                  'content' => 'This account was already activated. You can disregard the activation link and may login. Thank you.',
+                );
+              } else {
+                $this->activate((int)$tmp['uid']);
+                return array(
+                  'page_title' => 'Activated',
+                  'content' => 'This account is now activated, you may login. Thank you.',
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return 'The confirmation code does not match, please try again.';
   }
 
   /**
@@ -695,10 +858,10 @@ class user extends core_module
     $this->validate_email($form_values, $form_errors);
     if (!$form_errors) {
       $user = $this->get_user_by_email($form_values['email']);
-      if ($user && ($user['username'] != $form['username']['#value'])) {
+      if ($user && ($user->username != $form['username']['#value'])) {
         $form_errors['email'] = 'Email address is already registered.';
       }
-      if ($form_values['password'] && ($form_values['password'] == $user['username'])) {
+      if ($form_values['password'] && ($form_values['password'] == $user->username)) {
         $form_errors['email'] = 'Password cannot be the same as username.';
       }
     }
@@ -712,8 +875,8 @@ class user extends core_module
    */
   public function edit_user_submit(array &$form, array $form_values) {
     $password = ($form_values['password']) ? $form_values['password'] : NULL;
-    $activated = (isset($form_values['activated'])) ? 1 : 0;
-    $this->update($form['uid']['#value'], $password, $form_values['email'], $activated, $form_values['role']);
+//    $activated = (isset($form_values['activated'])) ? 1 : 0;
+    $this->update($form['uid']['#value'], $password, $form_values['email']);
 
     set_message('User record is updated.');
     $form['#redirect'] = '';
@@ -725,6 +888,10 @@ class user extends core_module
    * @return string
    */
   public function login() {
+    if (get_user()->uid > 0) {
+      return 'Please logout first.';
+    }
+
     $data['username'] = array(
       '#type'        => 'textfield',
       '#title'       => 'Username',
@@ -758,8 +925,7 @@ class user extends core_module
       $uid = $this->is_login_valid($form_values['username'], $form_values['password']);
       if (!$uid) {
         $form_errors['username'] = 'Login failed. Please check your username and password.';
-      }
-      else {
+      } else {
         $form['uid'] = array('#type' => 'value', '#value' => $uid);
       }
     }
@@ -768,10 +934,25 @@ class user extends core_module
   /**
    * @param array $form
    * @param array $form_values
+   * @return string
    */
   public function login_submit(array &$form, array $form_values) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form_values;
+
+    if (!$this->is_activated($form['uid']['#value'])) {
+      return array(
+        'page_title' => 'Not Activated',
+        'content' => 'This account is not activated because the email address is not confirmed, please check your email for a email confirmation link.',
+      );
+    }
+
+    if ($this->is_blocked($form['uid']['#value'])) {
+      return array(
+        'page_title' => 'Blocked',
+        'content' => 'This account is blocked, please contact the admin.',
+      );
+    }
 
     db_update('users')
       ->fields(array(
@@ -783,6 +964,8 @@ class user extends core_module
     get_module_session()->login($form['uid']['#value']);
 
     $form['#redirect'] = '';
+
+    return NULL;
   }
 
   /**
@@ -842,5 +1025,6 @@ class user extends core_module
     get_module_system()->mail_password_reset(array('to' => $form_values['email']));
     set_message('Email has been send.');
   }
+
 }
 
