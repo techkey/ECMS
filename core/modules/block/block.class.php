@@ -24,6 +24,26 @@ class block {
   private $blocks = array();
 
   /**
+   * Define constants.
+   */
+  public function __construct() {
+    /**
+     * Shows this block on every page except the listed pages.
+     */
+    define('BLOCK_VISIBILITY_NOTLISTED', 0);
+
+    /**
+     * Shows this block on only the listed pages.
+     */
+    define('BLOCK_VISIBILITY_LISTED', 1);
+
+    /**
+     * Shows this block if the associated PHP code returns TRUE.
+     */
+    define('BLOCK_VISIBILITY_PHP', 2);
+  }
+
+  /**
    * Block structure:
    *  [name]
    *    [title]    => string
@@ -42,28 +62,44 @@ class block {
     foreach ($results as $module => $blocks) {
       foreach ($blocks as $name => $block) {
         $block += array(
-          'content'  => '',
-          'weight'   => 0,
-          'template' => '',
-          'vars'     => array(),
-          'title'    => '',
-          'roles'    => array(),
+          'content'    => '',
+          'weight'     => 0,
+          'template'   => '',
+          'vars'       => array(),
+          'title'      => '',
+          'roles'      => array(),
+          'visibility' => BLOCK_VISIBILITY_NOTLISTED,
+          'pages'      => array(),
         );
-        if (!$block['roles'] || in_array(get_user()->role, $block['roles'])) {
-          if (!isset($a[$block['region']])) {
-            $a[$block['region']] = array();
-          };
-          $b = array(
-            'name'     => $name,
-            'module'   => $module,
-            'title'    => $block['title'],
-            'content'  => $block['content'],
-            'weight'   => $block['weight'] + (count($a[$block['region']]) / 1000),
-            'template' => $block['template'],
-            'vars'     => $block['vars'],
-          );
-          $a[$block['region']][] = $b;
+
+        if ($block['roles'] && !in_array(get_user()->role, $block['roles'])) {
+          continue;
         }
+
+        $request_path = request_path();
+        if ($block['visibility'] == BLOCK_VISIBILITY_NOTLISTED) {
+          foreach ($block['pages'] as $page) {
+            $pattern = str_replace('#', '\#', $page);
+            $pattern = '#' . str_replace('*', '(.*)', $pattern) . '#';
+            if (preg_match($pattern, $request_path)) {
+              continue 2;
+            }
+          }
+        }
+
+        if (!isset($a[$block['region']])) {
+          $a[$block['region']] = array();
+        };
+        $b = array(
+          'name'     => $name,
+          'module'   => $module,
+          'title'    => $block['title'],
+          'content'  => $block['content'],
+          'weight'   => $block['weight'] + (count($a[$block['region']]) / 1000),
+          'template' => $block['template'],
+          'vars'     => $block['vars'],
+        );
+        $a[$block['region']][] = $b;
       }
     }
 
