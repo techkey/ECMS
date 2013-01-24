@@ -161,6 +161,7 @@ class module extends core_module {
 
     $header = array(
       array('data' => 'Name',         'data-sort' => 'string'),
+      array('data' => 'Namespace',    'data-sort' => 'string'),
       array('data' => 'Used Hooks'),
       array('data' => 'Can Install',  'data-sort' => 'string'),
       array('data' => 'Table Name',   'data-sort' => 'string'),
@@ -169,6 +170,8 @@ class module extends core_module {
 //      array('data' => 'Template', 'data-sort' => 'string'),
       array('data' => 'Actions',      'colspan' => 3),
     );
+
+    $skip_modules = array('system', 'user');
 
     $count = 0;
     $rows = array();
@@ -193,16 +196,19 @@ class module extends core_module {
       }
       $used_hooks = implode(', ', $used_hooks);
 
+      $fqn = get_class($module);
+
       $count++;
       $rows[] = array(
-        get_class($module),
+        $module_name,
+        substr($fqn, 0, strrpos($fqn, '\\')),
         $used_hooks,
-        ($can_install) ? 'Yes' : 'No',
+        ($can_install) ? 'Yes' : '',
         $table_name,
         $table_exists,
         ($can_install && ($table_exists != 'Yes')) ? l('install', 'admin/module/install/' . $module_name) : '',
-        (($table_exists == 'Yes') && ($module_name != 'user')) ? l('reinstall', 'admin/module/reinstall/' . $module_name) : '',
-        (($table_exists == 'Yes') && ($module_name != 'user')) ? l('uninstall', 'admin/module/uninstall/' . $module_name) : '',
+        (($table_exists == 'Yes') && !in_array($module_name, $skip_modules)) ? l('reinstall', 'admin/module/reinstall/' . $module_name) : '',
+        (($table_exists == 'Yes') && !in_array($module_name, $skip_modules)) ? l('uninstall', 'admin/module/uninstall/' . $module_name) : '',
       );
     }
 
