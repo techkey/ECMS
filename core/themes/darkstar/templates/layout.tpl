@@ -34,34 +34,53 @@
         </div>
       </div>
 {/if}
-      <div class="container_15">
-{if isset($sidebar_first) or isset($sidebar_second)}
-        <div class="grid_3">
-{if isset($sidebar_first)}
-          <div class="region sidebar-first">
-            {$sidebar_first}
-          </div>
-{/if}
-{if isset($sidebar_second)}
-          <div class="region sidebar-second">
-            {$sidebar_second|strip}
-          </div>
-{/if}
-        </div>
-          {$content_grid = 'grid_12'}
-{else}
-          {$content_grid = 'grid_15'}
-{/if}
 
-        <div class="region content {$content_grid}">
-{if isset($page_title) and $page_title != ''}
-            <h1 class="page-title">{$page_title}</h1>
-{/if}
-{if isset($content)}
-            {$content}
-{/if}
-        </div>
+      <div class="container_15">
+        {if isset($sidebar_first) or isset($sidebar_second)}
+          {$content_grid = 'grid_12'}
+        {else}
+          {$content_grid = 'grid_15'}
+        {/if}
+
+        {if isset($region_left)}
+          <div class="region content {$content_grid}">
+            {if isset($page_title) and $page_title != ''}
+              <h1 class="page-title">{$page_title}</h1>
+            {/if}
+            {if isset($content)}
+              {$content}
+            {/if}
+          </div>
+        {/if}
+
+        {if isset($sidebar_first) or isset($sidebar_second)}
+          <div class="grid_3">
+            {if isset($sidebar_first)}
+              <div class="region sidebar-first">
+                {$sidebar_first}
+              </div>
+            {/if}
+            {if isset($sidebar_second)}
+              <div class="region sidebar-second">
+                {$sidebar_second|strip}
+              </div>
+            {/if}
+          </div>
+        {/if}
+
+        {if !isset($region_left)}
+          <div class="region content {$content_grid}">
+            {if isset($page_title) and $page_title != ''}
+              <h1 class="page-title">{$page_title}</h1>
+            {/if}
+            {if isset($content)}
+              {$content}
+            {/if}
+          </div>
+        {/if}
+
       </div>
+
 {if isset($triptych_first) or isset($triptych_middle) or isset($triptych_last)}
       <div class="container_15">
 {if isset($triptych_first)}
@@ -87,31 +106,34 @@
 {if isset($footer_top)}
       <div class="region footer-top grid_15">{block 'footer_top'}{$footer_top}{/block}</div>
 {/if}
+
+{if isset($footer_firstcolumn) or isset($footer_secondcolumn) or isset($footer_thirdcolumn) or isset($footer_fourthcolumn) or isset($footer_fifthcolumn)}
       <div class="region footer-firstcolumn grid_3">
-{if isset($footer_firstcolumn)}
+      {if isset($footer_firstcolumn)}
         {$footer_firstcolumn|strip}
-{/if}
+      {/if}
       </div>
       <div class="region footer-secondcolumn grid_3">
-{if isset($footer_secondcolumn)}
+      {if isset($footer_secondcolumn)}
         {$footer_secondcolumn|strip}
-{/if}
+      {/if}
       </div>
       <div class="region footer-thirdcolumn grid_3">
-{if isset($footer_thirdcolumn)}
+      {if isset($footer_thirdcolumn)}
         {$footer_thirdcolumn|strip}
-{/if}
+      {/if}
       </div>
       <div class="region footer-fourthcolumn grid_3">
-{if isset($footer_fourthcolumn)}
+      {if isset($footer_fourthcolumn)}
         {$footer_fourthcolumn|strip}
-{/if}
+      {/if}
       </div>
       <div class="region footer-fifthcolumn grid_3">
-{if isset($footer_fifthcolumn)}
+      {if isset($footer_fifthcolumn)}
         {$footer_fifthcolumn|strip}
-{/if}
+      {/if}
       </div>
+{/if}
 {if isset($footer_bottom)}
       <div class="region footer-bottom grid_15">{block 'footer_bottom'}{$footer_bottom}{/block}</div>
 {/if}
