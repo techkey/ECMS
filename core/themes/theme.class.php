@@ -108,8 +108,7 @@ class theme
         $this->inline_js[] = array($options['weight'] => $data);
         break;
       case 'setting':
-        reset($data);
-        $this->settings[key($data)] = current($data);
+        $this->settings += $data;
         break;
     }
   }
