@@ -209,6 +209,7 @@ class system extends core_module {
     library_load('jquery', -10);
     add_js(array(
       'basePath' => BASE_PATH,
+      'libraryPath' => LIBRARY_PATH,
     ), 'setting');
     add_js($this->get_path() . 'js/cms.js');
   }
