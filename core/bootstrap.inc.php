@@ -26,6 +26,8 @@ define('BASE_URL',
 //    ((strlen(BASE_PATH) == 1) ? '/' : rtrim(BASE_PATH, '/'))
     rtrim(BASE_PATH, '/')
 );
+define('LIBRARY_PATH', BASE_PATH . 'library/');
+
 define('MENU_CALLBACK',               0x0000);
 define('MENU_VISIBLE_IN_TREE',        0x0002);
 define('MENU_VISIBLE_IN_BREADCRUMB',  0x0004);
