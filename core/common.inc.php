@@ -135,8 +135,12 @@ function library_get_dir($name) {
 }
 
 /**
- * @param string $name
- * @return string|bool
+ * Get library path.
+ *
+ * Gets the library path with a trailing slash.
+ *
+ * @param string $name The library name.
+ * @return string|bool Returns the path or FALSE if the library doesn't exists.
  */
 function library_get_path($name) {
   return get_module_library()->get_path($name);

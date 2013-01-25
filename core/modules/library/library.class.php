@@ -194,10 +194,12 @@ class library {
   }
 
   /**
-   * Get the path of a library.
+   * Get library path.
    *
-   * @param string $name
-   * @return bool|string Returns the path of a library or FALSE if the library doesn't exists.
+   * Gets the library path with a trailing slash.
+   *
+   * @param string $name The library name.
+   * @return string|bool Returns the path or FALSE if the library doesn't exists.
    */
   public function get_path($name) {
     if (isset($this->libraries[$name])) {
