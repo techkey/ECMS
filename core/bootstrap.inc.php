@@ -249,7 +249,7 @@ function run() {
   $page['base_path'] = BASE_PATH;
 
   // Use the theme layout if no other layout is assigned.
-  $layout = isset($page['layout']) ? $page['layout'] : 'layout';
+  $layout = isset($page['template']) ? $page['template'] : 'layout';
 
   // Render and display the page.
   $echo = get_theme()->render($layout, $page);
