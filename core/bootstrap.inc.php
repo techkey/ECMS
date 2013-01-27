@@ -143,7 +143,7 @@ function invoke($method, &$args = NULL) {
 }
 
 /**
- *
+ * Run the application.
  */
 function run() {
 
@@ -153,18 +153,27 @@ function run() {
   // Run hook init().
   invoke('init');
 
+  /**
+   * A array of render arrays keyed by region name and other page info.
+   */
+  $page = array();
+
+  /**
+   * Only show the maintenance page if IN maintenance AND the path is NOT the
+   * login form AND the current user is NOT the super user AND user is NOT
+   * connected with maintainer IP.
+   */
   if (variable_get('system_maintenance', TRUE)) {
     if ((request_path() != 'user/login') &&
         (get_user()->uid != 1) &&
         (variable_get('system_maintainer_ip') != $_SERVER['REMOTE_ADDR'])) {
 
-      $page = array();
-//      invoke_pre_render($vars);
       $page['site']['name'] = variable_get('system_sitename', 'ECMS');
       $page['base_path'] = BASE_PATH;
       $page['content'] = get_theme()->fetch('maintenance');
       $echo = get_theme()->render('layout', $page);
       echo $echo;
+
       // Run hook shutdown().
       $array = array(
         'status_code' => 200,
@@ -175,23 +184,47 @@ function run() {
     }
   }
 
-  // A array of render arrays keyed by region name.
-  $page = array();
-
-  // Add content and the page title.
+  /**
+   * Add content, page title, status code and template from the routed
+   * controller if any is available.
+   *
+   * [content]     => string
+   * [page_title]  => string
+   * [status_code] => int
+   * [template]    => string
+   */
   $content = get_module_router()->route();
   $page += $content;
 
+  /**
+   * Only build and render the page if NOT in maintenance OR the current user is
+   * super admin OR user is connected with the maintainer IP.
+   */
   if (!variable_get('system_maintenance', TRUE) ||
       (get_user()->uid == 1) ||
       (variable_get('system_maintainer_ip') == $_SERVER['REMOTE_ADDR'])) {
 
-    // Run hook page_build().
+    /**
+     * Run hook page_build().
+     *
+     * Fill the page array with regions.
+     *
+     * [region name] => render array or string
+     * ...
+     * [region name] => render array or string
+     */
     invoke('page_build', $page);
-    // Run hook page_alter().
+
+    /**
+     * Run hook page_alter().
+     *
+     * Give modules a chance to alter the page.
+     */
     invoke('page_alter', $page);
 
-    // Render the regions.
+    /**
+     * Render the regions if needed.
+     */
     foreach ($page as $region => $ras) {
       if (is_array($ras)) {
         $page[$region] = '';
@@ -205,8 +238,6 @@ function run() {
         }
       }
     }
-
-//    invoke('pre_render', $vars);
   }
 
   // Add site info to the vars.
@@ -217,16 +248,15 @@ function run() {
 
   $page['base_path'] = BASE_PATH;
 
+  // Use the theme layout if no other layout is assigned.
+  $layout = isset($page['layout']) ? $page['layout'] : 'layout';
+
   // Render and display the page.
-  $echo = get_theme()->render('layout', $page);
+  $echo = get_theme()->render($layout, $page);
   echo $echo;
 
   // Run hook shutdown().
-  $array = array(
-     'status_code' => $page['status_code'],
-     'content_length' => strlen($echo),
-   );
-   invoke('shutdown', $array);
+   invoke('shutdown', $page);
 
 }
 
