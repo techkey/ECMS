@@ -51,12 +51,12 @@ a:hover {
   color: #0000FF;
   text-decoration: none;
 }
-
+/* todo Find a better way to add a icon to outgoing links (links with _blank).
 a[target=_blank] {
   padding: 0 12px 0 0;
   background: url(../../../misc/external_link.png) no-repeat right;
 }
-
+*/
 image {
   border: 0;
 }
