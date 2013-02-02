@@ -12,6 +12,7 @@ core/engines/twig/cache
 core/engines/twig/cache/*
 core/engines/twig/Twig
 core/engines/twig/Twig/*
+core/install/error.log
 core/misc
 core/misc/*
 core/themes/sunshine
@@ -45,3 +46,4 @@ modules/watchdog/*
 test2
 test2/*
 .htfreewha
+googlef826e0eb7a7ff468.html
