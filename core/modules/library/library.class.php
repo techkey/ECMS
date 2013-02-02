@@ -63,8 +63,8 @@ class library {
 
     $info += array(
       'weight' => 0,
-      'home_url' => '-',
-      'download_url' => '-',
+      'home_url' => '',
+      'download_url' => '',
     );
 
     $this->libraries[$name] = $info;
@@ -261,13 +261,19 @@ class library {
       'Home URL',
       'Download URL');
 
+    $extern = array(
+      'attributes' => array(
+        'class' => array('external'),
+        'target' => '_blank',
+      ),
+    );
     $rows = array();
     foreach ($this->libraries as $name => $library) {
       $rows[] = array(
         $name,
         $library['version'],
-        l($library['home_url'], $library['home_url']),
-        l($library['download_url'], $library['download_url']),
+        ($library['home_url']) ? l($library['home_url'], $library['home_url'], $extern) : '',
+        ($library['download_url']) ? l($library['download_url'], $library['download_url'], $extern) : '',
       );
     }
 
