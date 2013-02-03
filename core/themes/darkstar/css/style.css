@@ -372,12 +372,6 @@ footer {
   /*text-shadow: -1px -1px #667788;*/
 }
 
-header img {
-  position: absolute;
-  right: 0;
-  top: 15px;
-}
-
 footer div[class|=footer] {
   padding: 20px 0;
 }
