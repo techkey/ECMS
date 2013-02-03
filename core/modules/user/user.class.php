@@ -374,7 +374,9 @@ class user extends core_module
    */
   public function block() {
     $user = $this->get_loggedin_user();
-    $content = $user->username;
+    $src = BASE_PATH . 'core/misc/user_icon16.png';
+    $content = '<' . "img src='$src' style='margin-right: 5px; vertical-align: middle;' alt='' />";
+    $content .= $user->username;
     if ($user->uid == 0) {
       $dest = request_path();
       if ($dest && (strpos($dest, 'user/email_') === FALSE)) {
