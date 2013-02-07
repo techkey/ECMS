@@ -66,6 +66,7 @@ input[type=submit] {
   background: #888888;
   padding: 5px 10px;
   cursor: pointer;
+  margin: 0;
 }
 
 input[type=submit]:hover {
@@ -78,7 +79,7 @@ input[type=submit]:hover {
 body {
   margin: 0;
   padding: 0;
-  background: #112233;
+  /*background: #112233;*/
   font-size: 12px;
   font-family: sans-serif;
   /*color: #FFA500;*/
@@ -102,27 +103,36 @@ body {
 .error-messages,
 .warning-messages,
 .status-messages {
-  margin: 5px 0;
-  padding: 20px;
+  /*margin: 5px 0;*/
+  padding: 10px 10px 10px 40px;
   list-style: none;
   color: #222222;
+  background: no-repeat 14px 10px;
 }
 
+.error-messages li,
+.warning-messages li,
+.status-messages li {
+  line-height: 18px;
+}
 .error-messages {
   border: 1px solid #FF0000;
-  background: #FFCCCC;
+  background-image: url(../../../misc/dialog-error-3.ico);
+  background-color: #FFCCCC;
   /*color: #FF0000;*/
 }
 
 .warning-messages {
   border: 1px solid #AAAA00;
-  background: #FFFFDD;
+  background-image: url(../../../misc/dialog-warning-3.ico);
+  background-color: #FFFFDD;
   /*color: #AAAA00;*/
 }
 
 .status-messages {
   border: 1px solid #00AA00;
-  background: #DDFFDD;
+  background-image: url(../../../misc/dialog-information-3.ico);
+  background-color: #DDFFDD;
   /*color: #00AA00;*/
 }
 
@@ -130,6 +140,18 @@ body {
 .cke_dialog_background_cover {
   background-color: black !important;
   opacity: 0.7 !important;
+}
+
+#unauthorized {
+  height: 28px;
+  padding: 100px 0 0 130px;
+  background: url(../../../misc/document-encrypt.png) no-repeat;
+}
+
+#not_found {
+  height: 28px;
+  padding: 100px 0 0 130px;
+  background: url(../../../misc/help-faq.png) no-repeat;
 }
 
 /**
@@ -156,19 +178,22 @@ body {
   margin: 0;
 }
 
+.menu ul li:hover {
+  margin: 0;
+  background: #CCCCCC;
+}
+
 .menu ul li a {
   display: block;
   text-decoration: none;
   color: #000000;
   line-height: 20px;
 }
-
+/*
 .menu ul li a:hover {
-  /*background: #000000;*/
-  /*color: #CCCCCC;*/
   background: #CCCCCC;
 }
-
+*/
 /**
  * Main menu.
  */
@@ -209,11 +234,6 @@ body {
   margin: 10px 0;
   font-size: 12px;
 }
-/*
-.form-element > * {
-  display: block;
-}
-*/
 
 .form-element select,
 .form-element input[type=number],
@@ -222,18 +242,36 @@ body {
 .form-element input[type=password],
 .form-element textarea {
   display: block;
+  border: 1px solid #AAAAAA;
+  padding: 3px 5px;
+  margin: 4px 0;
 }
 
+.form-element label {
+  font-weight: bold;
+}
+
+/*.form-element label:after {*/
+  /*content: ':';*/
+/*}*/
+
 .form-element label.required:after {
-  content: '*';
+  font-weight: bold;
+  color: #FF0000;
+  content: ' *';
 }
 
 .form-element > span {
-  color: #888888;
+  /*color: #888888;*/
 }
 
 .form-error {
-  border-color: #FF0000;
+  border-color: #FF0000 !important;
+  background-color: #FFCCCC;
+}
+
+form .cancel-submit {
+  margin-left: 10px;
 }
 
 fieldset {
@@ -244,7 +282,7 @@ fieldset {
 }
 
 .fieldset-wrapper {
-  padding: 0 10px;
+  margin: 10px;
 }
 
 legend {
@@ -336,7 +374,7 @@ header a {
   background: #FFFFFF;
 }
 
-.page-title {
+.content-title {
   margin: 0 0 20px 0;
 }
 
@@ -350,12 +388,34 @@ footer {
   padding: 10px 0;
   border-top: 1px solid #BACD00;
 }
-
+/*
 #footer-left {
   float: left;
 }
+#footer-center {
+  text-align: center;
+}
 #footer-right {
   float: right;
+}
+*/
+.footer-bottom span {
+  display: inline-block;
+  width: 33.33%;
+}
+#footer-left {
+  text-align: left;
+}
+#footer-center {
+  text-align: center;
+  color: #AAAAAA;
+  font-size: 10px;
+}
+#footer-center:hover {
+  color: #000000;
+}
+#footer-right {
+  text-align: right;
 }
 
 /**
@@ -364,12 +424,7 @@ footer {
 .logo a,
 .logo a:active {
   text-decoration: none;
-  /*font-size: 28px;*/
-  /*line-height: 32px;*/
-  /*font-weight: bold;*/
-  /*font-family: Consolas, serif;*/
   color: #CCCCCC;
-  /*text-shadow: -1px -1px #667788;*/
 }
 
 footer div[class|=footer] {
