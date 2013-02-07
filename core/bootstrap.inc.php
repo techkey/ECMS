@@ -1,5 +1,7 @@
 <?php
-// bootstrap.php
+/**
+ * @file bootstrap.php
+ */
 
 define('BASE_DIR', realpath(__DIR__ . '/../') . '/');
 define('LIBRARY_DIR', BASE_DIR . '/library/');
@@ -11,7 +13,6 @@ get_loader()->add('core\modules', __DIR__);
 get_loader()->add('core\themes', __DIR__);
 get_loader()->add('core\engines', __DIR__);
 get_loader()->add('modules', __DIR__ . '/../');
-//var_dump(get_loader());
 
 use core\modules\config\config;
 use core\modules\session\session;
@@ -23,7 +24,6 @@ define('BASE_URL',
     strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, strpos($_SERVER['SERVER_PROTOCOL'], '/'))) .
     '://' .
     $_SERVER['HTTP_HOST'] .
-//    ((strlen(BASE_PATH) == 1) ? '/' : rtrim(BASE_PATH, '/'))
     rtrim(BASE_PATH, '/')
 );
 define('LIBRARY_PATH', BASE_PATH . 'library/');
@@ -46,42 +46,60 @@ define('MENU_NORMAL_ITEM', MENU_VISIBLE_IN_TREE | MENU_VISIBLE_IN_BREADCRUMB);
 
 
 require_once BASE_DIR . 'core/database.class.php';
+// Check if install module is enabled.
+if (!file_exists('/core/modules/install/install.ini')) {
+  get_dbase()->connect();
+}
+
 session::start();
 
 //wd_add('test', 'test');
 
 /**
- * Load all core modules
+ * Load and get all core modules
  *
  * @return array
  */
 function load_core_modules() {
-  $a = array();
+  static $a = array();
+
+  if ($a) {
+    return $a;
+  }
+
   $core_modules = glob(BASE_DIR . 'core/modules/*', GLOB_ONLYDIR);
   foreach ($core_modules as $core_module) {
-    $core_module = basename($core_module);
-    if ($core_module == 'config') {
-      continue;
+    $name = basename($core_module);
+    if (file_exists($core_module . '/' . $name . '.ini')) {
+      $class = "\\core\\modules\\$name\\$name";
+      if (class_exists($class)) {
+        $a[$name] = new $class();
+      }
     }
-    $class = "\\core\\modules\\$core_module\\$core_module";
-    $a[$core_module] = new $class();
   }
   return $a;
 }
 
 /**
- * Load all user modules.
+ * Load and get all user modules.
  *
  * @return array
  */
 function load_modules() {
-  $a = array();
+  static $a = array();
+
+  if ($a) {
+    return $a;
+  }
+
   $modules = glob(BASE_DIR . 'modules/*', GLOB_ONLYDIR);
   foreach ($modules as $module) {
     $name = basename($module);
     if (file_exists($module . '/' . $name . '.ini')) {
       $class = "\\modules\\$name\\$name";
-      $a[$name] = new $class();
+      if (class_exists($class)) {
+        $a[$name] = new $class();
+      }
     }
   }
   return $a;
@@ -89,9 +107,10 @@ function load_modules() {
 
 /**
  * @param string $module
+ * @param bool   $add
  * @return bool|object Returns the object or FALSE.
  */
-function get_module($module = NULL) {
+function get_module($module = NULL, $add = FALSE) {
   static $modules = array();
 
   if (!$modules) {
@@ -103,11 +122,16 @@ function get_module($module = NULL) {
     return $modules;
   }
 
+  if ($add) {
+    $modules += $module;
+    return TRUE;
+  }
+
   return (isset($modules[$module])) ? $modules[$module] : FALSE;
 }
 
 /**
- * @return \core\themes\sunshine\sunshine
+ * @return \core\themes\darkstar\darkstar
  */
 function get_theme() {
   static $theme = NULL;
@@ -166,7 +190,8 @@ function run() {
   if (variable_get('system_maintenance', TRUE)) {
     if ((request_path() != 'user/login') &&
         (get_user()->uid != 1) &&
-        (variable_get('system_maintainer_ip') != $_SERVER['REMOTE_ADDR'])) {
+        (variable_get('system_maintainer_ip') != $_SERVER['REMOTE_ADDR']) &&
+        (!defined('INSTALL'))) {
 
       $page['site']['name'] = variable_get('system_sitename', 'ECMS');
       $page['base_path'] = BASE_PATH;
@@ -202,7 +227,8 @@ function run() {
    */
   if (!variable_get('system_maintenance', TRUE) ||
       (get_user()->uid == 1) ||
-      (variable_get('system_maintainer_ip') == $_SERVER['REMOTE_ADDR'])) {
+      (variable_get('system_maintainer_ip') == $_SERVER['REMOTE_ADDR']) ||
+      (defined('INSTALL'))) {
 
     /**
      * Run hook page_build().
@@ -239,6 +265,8 @@ function run() {
       }
     }
   }
+
+  invoke('page_render', $page);
 
   // Add site info to the vars.
   $site_vars['site'] = array(
