@@ -28,8 +28,6 @@ class user extends core_module
       'fields'      => array(
         'uid'        => array(
           'type'     => 'serial',
-          'unsigned' => TRUE,
-          'not null' => TRUE
         ),
         'username'   => array(
           'type'     => 'varchar',
@@ -79,24 +77,37 @@ class user extends core_module
           'not null' => TRUE
         ),
       ),
-//        'primary key' => array('uid'),
+      'primary key' => array('uid'),
+      'indexes' => array(
+        'username' => array('username'),
+        'email' => array('email'),
+        'created' => array('created'),
+      ),
     );
-// todo: move to install
-// $this->add('admin', 'admin000', 'admin@localmail.com', 1, 'admin');
 
     return $schema;
   }
 
   /**
+   * Hook install().
+   */
+  private function install() {
+    db_install_schema($this->schema());
+  }
+
+  /**
    * Get the current logged in user or the guest account.
    *
-   * @return \USER Returns the current loggedin user object or the guest account.
+   * @return \USER Returns the current logged in user object or the guest account.
    */
   public function get_loggedin_user() {
-    if (isset($_SESSION['uid'])) {
-      $this->user = $this->get_user_by_uid($_SESSION['uid']);
+    if ($this->user) {
+      return $this->user;
     }
-    else {
+
+    if (db_is_active() && isset($_SESSION['uid']) && db_table_exists('users')) {
+      $this->user = $this->get_user_by_uid($_SESSION['uid']);
+    } else {
       $this->user = new stdClass();
       $this->user->uid = 0;
       $this->user->username = 'guest';
@@ -140,8 +151,8 @@ class user extends core_module
    * @param int    $uid
    * @param string $password
    * @param string $email
-   * @param int    $activated
-   * @param null   $blocked
+   * @param bool   $activated
+   * @param bool   $blocked
    * @param string $role
    */
   private function update($uid, $password = NULL, $email = NULL, $activated = NULL, $blocked = NULL, $role = NULL) {
@@ -155,8 +166,8 @@ class user extends core_module
       }
     }
     if ($email     !== NULL) $db->fields(array('email'     => $email));
-    if ($activated !== NULL) $db->fields(array('activated' => $activated));
-    if ($blocked   !== NULL) $db->fields(array('blocked'   => $blocked));
+    if ($activated !== NULL) $db->fields(array('activated' => (int)$activated));
+    if ($blocked   !== NULL) $db->fields(array('blocked'   => (int)$blocked));
     if ($role      !== NULL) $db->fields(array('role'      => $role));
     $db->condition('uid', $uid)->execute();
   }
@@ -171,6 +182,10 @@ class user extends core_module
     $users = db_select('users')->field('*')->execute()
       ->fetchAll(\PDO::FETCH_OBJ);
 
+    foreach ($users as &$user) {
+      unset($user->password);
+    }
+
     return $users;
   }
 
@@ -179,8 +194,11 @@ class user extends core_module
    * @return \USER|bool Returns a user object or FALSE if username doesn't exists.
    */
   private function get_user_by_uid($uid) {
+    /** @var \USER $user */
     $user = db_select('users')->field('*')->condition('uid', $uid)->execute()
       ->fetch(\PDO::FETCH_OBJ);
+
+    unset($user->password);
 
     return $user;
   }
@@ -193,6 +211,8 @@ class user extends core_module
     $user = db_select('users')->field('*')->condition('email', $email)->execute()
       ->fetch(\PDO::FETCH_OBJ);
 
+    unset($user->password);
+
     return $user;
   }
 
@@ -203,6 +223,8 @@ class user extends core_module
   private function get_user_by_username($username) {
     $user = db_select('users')->field('*')->condition('username', $username)->execute()
       ->fetch(\PDO::FETCH_OBJ);
+
+    unset($user->password);
 
     return $user;
   }
@@ -230,7 +252,13 @@ class user extends core_module
    * @return int|bool Returns the user id (uid) or FALSE if login is not valid.
    */
   private function is_login_valid($username, $password) {
-    $user = $this->get_user_by_username($username);
+    /** @var \USER $user */
+    $user = db_select('users')
+      ->field('*')
+      ->condition('username', $username)
+      ->execute()
+      ->fetchObject();
+
     if ($user) {
       if (variable_get('system_password_crypt', TRUE)) {
         if (crypt($password, $user->password) == $user->password) {
@@ -305,6 +333,7 @@ class user extends core_module
    */
   public function init() {
     add_css($this->get_path() . 'user.css', array('weight' => 1));
+    add_css($this->get_path() . 'css/style.css', array('pages' => array('user/*', 'admin/user/*')));
   }
 
   /**
@@ -313,6 +342,10 @@ class user extends core_module
    * @return array
    */
   public function menu() {
+    if (defined('INSTALL')) {
+      return array();
+    }
+
     $menu['admin/users'] = array(
       'title'            => 'Users',
       'controller'       => 'user:list_users',
@@ -320,14 +353,14 @@ class user extends core_module
       'type'             => MENU_NORMAL_ITEM,
       'menu_name'        => 'system',
     );
-    $menu['admin/users/edit/{uid}'] = array(
-      'title'            => 'Edit user',
+    $menu['admin/user/edit/{uid}'] = array(
+      'title'            => 'Edit User',
       'controller'       => 'user:edit',
       'access_arguments' => 'admin',
       'type'             => MENU_CALLBACK,
     );
-    $menu['admin/users/delete/{uid}'] = array(
-      'title'            => 'Delete user',
+    $menu['admin/user/delete/{uid}'] = array(
+      'title'            => 'Delete User',
       'controller'       => 'user:delete',
       'access_arguments' => 'admin',
       'type'             => MENU_CALLBACK,
@@ -373,6 +406,10 @@ class user extends core_module
    * @return array
    */
   public function block() {
+    if (defined('INSTALL')) {
+      return array();
+    }
+
     $user = $this->get_loggedin_user();
     $src = BASE_PATH . 'core/misc/user_icon16.png';
     $content = '<' . "img src='$src' style='margin-right: 5px; vertical-align: middle;' alt='' />";
@@ -435,8 +472,8 @@ class user extends core_module
         $user->activated,
         $user->blocked,
         $user->role,
-        l('edit', 'admin/users/edit/' . $user->uid),
-        ($user->uid == 1) ? '' : l('delete', 'admin/users/delete/' . $user->uid),
+        l('edit', 'admin/user/edit/' . $user->uid),
+        ($user->uid == 1) ? '' : l('delete', 'admin/user/delete/' . $user->uid),
       );
     }
 
@@ -454,12 +491,19 @@ class user extends core_module
   }
 
   /**
-   * Route controller to add (register) a user.
-   *
    * @return string
    */
   public function add_user() {
-    $data['username'] = array(
+    return get_module_form()->build('add_user_form');
+  }
+
+  /**
+   * Route controller to add (register) a user.
+   *
+   * @return array
+   */
+  public function add_user_form() {
+    $form['username'] = array(
       '#type'        => 'textfield',
       '#title'       => 'Username',
       '#description' => 'Your <em>username</em>.',
@@ -468,7 +512,7 @@ class user extends core_module
     );
     $minlength = variable_get('system_password_minlength', 8);
     $maxlength = variable_get('system_password_maxlength', 32);
-    $data['password'] = array(
+    $form['password'] = array(
       '#type'        => 'password',
       '#title'       => 'Password',
       '#description' => "Your <em>password</em>.<br />Must be between $minlength and $maxlength characters.",
@@ -477,14 +521,14 @@ class user extends core_module
       '#minlength'   => $minlength,
       '#maxlength'   => $maxlength,
     );
-    $data['email']    = array(
+    $form['email']    = array(
       '#type'        => 'email',
       '#title'       => 'Email',
       '#description' => 'Your <em>email address</em>.',
       '#required'    => TRUE,
       '#size'        => 32,
     );
-    $data['role'] = array(
+    $form['role'] = array(
       '#type'          => 'select',
       '#title'         => 'Role',
 //      '#default_value' => $user['role'],
@@ -492,17 +536,17 @@ class user extends core_module
       '#description'   => 'The assigned <em>role</em> of the user.',
       '#required'      => TRUE,
     );
-    $data['activated'] = array(
+    $form['activated'] = array(
       '#type'          => 'checkbox',
       '#title'         => 'Activated',
       '#default_value' => 0,
 //      '#description'   => 'The assigned <em>role</em> of the user.',
     );
-    $data['submit']   = array(
+    $form['submit']   = array(
       '#type' => 'submit',
     );
 
-    return get_module_form()->build($data);
+    return $form;
   }
 
   /**
@@ -510,7 +554,7 @@ class user extends core_module
    * @param array $form_values
    * @param array $form_errors
    */
-  public function add_user_validate(array &$form, array $form_values, array &$form_errors) {
+  public function add_user_form_validate(array &$form, array $form_values, array &$form_errors) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
 
@@ -534,50 +578,69 @@ class user extends core_module
    * @param array $form
    * @param array $form_values
    */
-  public function add_user_submit(array &$form, array $form_values) {
+  public function add_user_form_submit(array &$form, array $form_values) {
     $this->add($form_values['username'], $form_values['password'], $form_values['email']);
     set_message('User registered.');
     $form['#redirect'] = 'admin/users';
   }
 
   /**
-   * Route controller to edit a user.
-   *
-   * @param int $uid
-   * @return string
+   * @param $uid
+   * @return array
    */
   public function edit($uid) {
-    $user = $this->get_user_by_uid($uid);
-    /*
-        $data['username'] = array(
-          '#type' => 'textfield',
-          '#title' => 'Username',
-          '#default_value' => $user['username'],
-    //      '#description' => 'Your <em>username</em>.',
-          '#required' => TRUE,
-          '#size' => 32,
-        ];
-    //*/
-    $data['uid'] = array(
-      '#type'  => 'value',
-      '#value' => $uid,
+    add_css($this->get_path() . 'css/edit.css');
+    $username = $this->get_user_by_uid($uid)->username;
+
+    return array(
+      'content_title' => "Edit user <em>$username</em>",
+      'content' =>  get_module_form()->build('edit_form', $uid),
     );
-    $data['username'] = array(
+  }
+
+  /**
+   * Route controller to edit a user.
+   *
+   * @param array $form
+   * @param array $form_values
+   * @param array $form_errors
+   * @param int   $uid
+   * @return array
+   */
+  public function edit_form(array $form, array $form_values, array $form_errors, $uid) {
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form;
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_values;
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_errors;
+
+    $user = $this->get_user_by_uid($uid);
+
+    $form = array(
+//      '#attributes' => array('novalidate' => 'novalidate'),
+    );
+
+    $form['fs'] = array(
+      '#type' => 'fieldset',
+      '#title' => 'Edit User',
+    );
+    $form['fs']['username'] = array(
       '#type'  => 'value',
       '#value' => $user->username,
     );
     $minlength = variable_get('system_password_minlength', 8);
     $maxlength = variable_get('system_password_maxlength', 32);
-    $data['password'] = array(
+    $form['fs']['password'] = array(
       '#type'          => 'password',
       '#title'         => 'Password',
-      '#default_value' => $user->password,
+      '#default_value' => '',
       '#description'   => "Must be between $minlength and $maxlength characters.<br />Leave empty to keep the same password.",
       '#size'          => 32,
       '#minlength'     => $minlength,
       '#maxlength'     => $maxlength,
     );
-    $data['email'] = array(
+    $form['fs']['email'] = array(
       '#type'          => 'textfield',
       '#title'         => 'Email',
       '#default_value' => $user->email,
@@ -586,91 +649,136 @@ class user extends core_module
       '#required'      => TRUE,
       '#attributes'    => array('type' => 'email'),
     );
-    $data['role'] = array(
-      '#type'          => 'select',
-      '#title'         => 'Role',
-      '#default_value' => $user->role,
-      '#options'       => make_array_assoc(array('admin', 'member')),
-      '#description'   => 'The assigned <em>role</em> of the user.',
-      '#required'      => TRUE,
-    );
-    $data['activated'] = array(
-      '#type'          => 'checkbox',
-      '#title'         => 'Activated',
-      '#default_value' => $user->activated,
-//      '#description'   => 'The assigned <em>role</em> of the user.',
-    );
-    $data['submit'] = array(
+
+    if ($uid != 1) {
+      $form['fs']['role'] = array(
+        '#type'          => 'select',
+        '#title'         => 'Role',
+        '#default_value' => $user->role,
+        '#options'       => make_array_assoc(array('admin', 'member')),
+        '#description'   => 'The assigned <em>role</em> of the user.',
+        '#required'      => TRUE,
+      );
+      $form['fs']['activated'] = array(
+        '#type'          => 'checkbox',
+        '#title'         => 'Activated',
+        '#default_value' => $user->activated,
+      );
+      $form['fs']['blocked'] = array(
+        '#type'          => 'checkbox',
+        '#title'         => 'Blocked',
+        '#default_value' => $user->blocked,
+      );
+    }
+
+    $form['submit'] = array(
       '#type'   => 'submit',
       '#value'  => 'Update',
-      '#suffix' => '&nbsp;&nbsp;' . l('Cancel', 'admin/users'),
+      '#suffix' => '<span class="cancel-submit">' . l('Cancel', 'admin/users') . '</span>',
     );
 
-    return array(
-      'page_title' => "Edit user <em>{$user->username}</em>",
-      'content' => get_module_form()->build($data),
-    );
+    return $form;
   }
 
   /**
    * @param array $form
    * @param array $form_values
    * @param array $form_errors
+   * @param int   $uid
    */
-  public function edit_validate(array &$form, array $form_values, array &$form_errors) {
-    $this->validate_email($form_values, $form_errors);
-    if (!$form_errors) {
-      $user = $this->get_user_by_email($form_values['email']);
-      if ($user && ($user->username != $form['username']['#value'])) {
-        $form_errors['email'] = 'Email address is already registered.';
-      }
-      if ($form_values['password'] && ($form_values['password'] == $user->username)) {
-        $form_errors['email'] = 'Password cannot be the same as username.';
-      }
+  public function edit_form_validate(array &$form, array $form_values, array &$form_errors, $uid) {
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form;
+
+    $user = $this->get_user_by_uid($uid);
+
+    if ($form_values['password'] && ($form_values['password'] == $user->username)) {
+      $form_errors['email'] = 'Password cannot be the same as username.';
+    }
+
+    if ($form_values['email'] != $user->email) {
+      $this->validate_email($form_values, $form_errors);
     }
   }
 
   /**
    * @param array $form
    * @param array $form_values
+   * @param int   $uid
    */
-  public function edit_submit(array &$form, array $form_values) {
+  public function edit_form_submit(array &$form, array $form_values, $uid) {
     $password = ($form_values['password']) ? $form_values['password'] : NULL;
-    $activated = (isset($form_values['activated'])) ? 1 : 0;
-    $this->update($form['uid']['#value'], $password, $form_values['email'], $activated, $form_values['role']);
-
-    set_message('User record is updated.');
+    if ($uid != 1) {
+      $activated = $form_values['activated'];
+      $blocked = $form_values['blocked'];
+      $this->update($uid, $password, $form_values['email'], $activated, $blocked, $form_values['role']);
+    } else {
+      $this->update($uid, $password, $form_values['email']);
+    }
+    $name = $this->get_user_by_uid($uid)->username;
+    set_message('User record for <em>' . $name . '</em> is updated.');
     $form['#redirect'] = 'admin/users';
+  }
+
+  /**
+   * @param $uid
+   * @return string
+   */
+  public function delete($uid) {
+    $username = $this->get_user_by_uid($uid)->username;
+
+    return array(
+      'content_title' => "Delete user <em>$username</em>",
+      'content' => get_module_form()->build('delete_form', $uid),
+    );
   }
 
   /**
    * Delete a user.
    *
-   * @param $uid
-   * @return string
+   * @param array $form
+   * @param array $form_values
+   * @param array $form_errors
+   * @param       $uid
+   * @return array
    */
-  public function delete($uid) {
-    $data = array(
-      'title' => 'Delete user ' . $uid,
-      'message' => 'This action can not be undone! Are you sure?',
-      'button' => 'Delete',
-      'cancel' => 'admin/users',
-      'extra' => $uid,
+  public function delete_form(array $form, array $form_values, array $form_errors, $uid) {
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form;
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_values;
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_errors;
+
+    $form = array();
+
+    $name = $this->get_user_by_uid($uid)->username;
+    $form['message'] = array(
+      '#value' => '<p>This action can not be undone! Are you sure you want to delete user <em>' . $name . '</em>?</p>'
+    );
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => 'Delete',
+      '#suffix' => '<span class="cancel-submit">' . l('Cancel', 'admin/users') . '</span>',
     );
 
-    return get_module_form()->confirm($data);
+    return $form;
   }
 
   /**
-   * @param array $form
-   * @param array $form_values
+   * @param array  $form
+   * @param array  $form_values
+   * @param string $uid
    */
-  public function delete_submit(array &$form, array $form_values) {
+  public function delete_form_submit(array &$form, array $form_values, $uid) {
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_values;
+
     db_delete('users')
-      ->condition('uid', $form_values['extra']['uid'])
+      ->condition('uid', $uid)
       ->execute();
 
-    set_message('User ' . $form_values['extra']['uid'] . ' deleted.');
+    set_message('User ' . $uid . ' is deleted.');
 
     $form['#redirect'] = 'admin/users';
   }
@@ -678,18 +786,32 @@ class user extends core_module
 /* Public route controllers ***************************************************/
 
   /**
+   * @return int
+   */
+  public function register_user() {
+    if (get_user()->uid > 0) {
+      return 'Please ' . l('logout', 'user/logout') . ' first.';
+    }
+
+    add_css($this->get_path() . 'css/register.css');
+    return get_module_form()->build('register_user_form');
+  }
+
+  /**
    * Route controller for the user to register himself.
    *
    * @return string
    */
-  public function register_user() {
-    if (get_user()->uid > 0) {
-      return 'Please logout first.';
-    }
+  public function register_user_form() {
 
-    $data['#attributes'] = array('autocomplete' => 'off');
-    $data['#description'] = 'After submitting we send you a email with a confirmation link.';
-    $data['username'] = array(
+    $form['#attributes'] = array('autocomplete' => 'off');
+
+    $form['fs'] = array(
+      '#type'        => 'fieldset',
+      '#title'       => 'Register',
+      '#description' => 'After submitting we send you a email with a confirmation link that you can use to activate your account.',
+    );
+    $form['fs']['username'] = array(
       '#type'        => 'textfield',
       '#title'       => 'Username',
       '#description' => 'Your <em>username</em>.',
@@ -697,9 +819,10 @@ class user extends core_module
       '#size'        => 32,
       '#attributes'  => array('autocomplete' => 'on'),
     );
+
     $minlength = variable_get('system_password_minlength', 8);
     $maxlength = variable_get('system_password_maxlength', 32);
-    $data['password'] = array(
+    $form['fs']['password'] = array(
       '#type'        => 'password',
       '#title'       => 'Password',
       '#description' => "Your <em>password</em>.<br />Must be between $minlength and $maxlength characters.",
@@ -708,7 +831,7 @@ class user extends core_module
       '#minlength'   => $minlength,
       '#maxlength'   => $maxlength,
     );
-    $data['email']    = array(
+    $form['fs']['email']    = array(
       '#type'        => 'email',
       '#title'       => 'Email',
       '#description' => 'Your <em>email address</em>.',
@@ -716,12 +839,14 @@ class user extends core_module
       '#size'        => 32,
       '#attributes'  => array('autocomplete' => 'on'),
     );
-    $data['submit']   = array(
+
+    $form['submit']   = array(
       '#type' => 'submit',
-      '#suffix' => '&nbsp;&nbsp;' . l('Cancel', ''),
+      '#value' => 'Register',
+      '#suffix' => '<span class="cancel-submit">' . l('Cancel', '') . '</span>',
     );
 
-    return get_module_form()->build($data);
+    return $form;
   }
 
   /**
@@ -729,7 +854,7 @@ class user extends core_module
    * @param array $form_values
    * @param array $form_errors
    */
-  public function register_user_validate(array &$form, array $form_values, array &$form_errors) {
+  public function register_user_form_validate(array &$form, array $form_values, array &$form_errors) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
 
@@ -754,7 +879,7 @@ class user extends core_module
    * @param array $form_values
    * @return string
    */
-  public function register_user_submit(array $form, array $form_values) {
+  public function register_user_form_submit(array $form, array $form_values) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
 
@@ -770,7 +895,7 @@ class user extends core_module
 
   /**
    * @param $code
-   * @return null|string
+   * @return array|string
    */
   public function email_confirm($code) {
     $code = base64_decode($code);
@@ -804,33 +929,51 @@ class user extends core_module
   }
 
   /**
-   * Route controller for the user to edit his registration info.
-   *
-   * @return string
+   * @return int
    */
   public function edit_user() {
+    add_css($this->get_path() . 'css/edit.css');
+
+    return array(
+      'page_title' => 'View/edit your account',
+      'content' => get_module_form()->build('edit_user_form')
+    );
+  }
+
+  /**
+   * Route controller for the user to edit his registration info.
+   *
+   * @return array
+   */
+  public function edit_user_form() {
     $user = $this->get_loggedin_user();
 
-    $data['uid'] = array(
+    $form['uid'] = array(
       '#type'  => 'value',
       '#value' => $user->uid,
     );
-    $data['username'] = array(
+    $form['username'] = array(
       '#type'  => 'value',
       '#value' => $user->username,
     );
+
+    $form['fs'] = array(
+      '#type'        => 'fieldset',
+      '#title'       => 'Your Account',
+    );
+
     $minlength = variable_get('system_password_minlength', 8);
     $maxlength = variable_get('system_password_maxlength', 32);
-    $data['password'] = array(
+    $form['fs']['password'] = array(
       '#type'          => 'password',
       '#title'         => 'Password',
-      '#default_value' => $user->password,
       '#description'   => "Must be between $minlength and $maxlength characters.<br />Leave empty to keep the same password.",
       '#size'          => 32,
       '#minlength'     => $minlength,
       '#maxlength'     => $maxlength,
     );
-    $data['email'] = array(
+/*
+    $form['fs']['email'] = array(
       '#type'          => 'textfield',
       '#title'         => 'Email',
       '#default_value' => $user->email,
@@ -839,16 +982,14 @@ class user extends core_module
       '#required'      => TRUE,
       '#attributes'    => array('type' => 'email'),
     );
-    $data['submit'] = array(
+*/
+    $form['submit'] = array(
       '#type'   => 'submit',
       '#value'  => 'Update',
-      '#suffix' => '&nbsp;&nbsp;' . l('Cancel', ''),
+      '#suffix' => '<span class="cancel-submit">' . l('Cancel', '') . '</span>',
     );
 
-    return array(
-      'page_title' => 'View/edit your account',
-      'content' => get_module_form()->build($data)
-    );
+    return $form;
   }
 
   /**
@@ -856,16 +997,9 @@ class user extends core_module
    * @param array $form_values
    * @param array $form_errors
    */
-  public function edit_user_validate(array &$form, array $form_values, array &$form_errors) {
-    $this->validate_email($form_values, $form_errors);
-    if (!$form_errors) {
-      $user = $this->get_user_by_email($form_values['email']);
-      if ($user && ($user->username != $form['username']['#value'])) {
-        $form_errors['email'] = 'Email address is already registered.';
-      }
-      if ($form_values['password'] && ($form_values['password'] == $user->username)) {
-        $form_errors['email'] = 'Password cannot be the same as username.';
-      }
+  public function edit_user_form_validate(array &$form, array $form_values, array &$form_errors) {
+    if ($form_values['password'] && ($form_values['password'] == $form['username']['#value'])) {
+      $form_errors['email'] = 'Password cannot be the same as username.';
     }
   }
 
@@ -875,13 +1009,27 @@ class user extends core_module
    * @param array $form
    * @param array $form_values
    */
-  public function edit_user_submit(array &$form, array $form_values) {
+  public function edit_user_form_submit(array &$form, array $form_values) {
     $password = ($form_values['password']) ? $form_values['password'] : NULL;
-//    $activated = (isset($form_values['activated'])) ? 1 : 0;
-    $this->update($form['uid']['#value'], $password, $form_values['email']);
-
-    set_message('User record is updated.');
+    if ($password) {
+      $this->update($form['uid']['#value'], $password);
+      set_message('Your account is updated.');
+    } else {
+      set_message('There was nothing that needed a update.');
+    }
     $form['#redirect'] = '';
+  }
+
+  /**
+   * @return string
+   */
+  public function login() {
+    if (get_user()->uid > 0) {
+      return 'Please ' . l('logout', 'user/logout') . ' first.';
+    } else {
+      add_css($this->get_path() . 'css/login.css');
+      return get_module_form()->build('login_form');
+    }
   }
 
   /**
@@ -889,32 +1037,40 @@ class user extends core_module
    *
    * @return string
    */
-  public function login() {
-    if (get_user()->uid > 0) {
-      return 'Please logout first.';
-    }
+  public function login_form() {
 
-    $data['username'] = array(
+    $form = array(
+//      '#attributes' => array('autocomplete' => 'off'),
+    );
+
+    $form['fs'] = array(
+      '#type'  => 'fieldset',
+      '#title' => 'Login',
+    );
+    $form['fs']['username'] = array(
       '#type'        => 'textfield',
       '#title'       => 'Username',
       '#description' => 'Your <em>username</em>.',
       '#required'    => TRUE,
       '#size'        => 32,
     );
+
     $forgot = (variable_get('system_maintenance', TRUE)) ? '' : l(' Forgot?', 'user/password_reset');
-    $data['password'] = array(
+    $form['fs']['password'] = array(
       '#type'        => 'password',
       '#title'       => 'Password',
       '#description' => 'Your <em>password</em>.' . $forgot,
       '#required'    => TRUE,
       '#size'        => 32,
     );
-    $data['submit']   = array(
-      '#type' => 'submit',
-      '#suffix' => '&nbsp;&nbsp;' . l('Cancel', ''),
+
+    $form['submit']   = array(
+      '#type'   => 'submit',
+      '#value'  => 'Login',
+      '#suffix' => '<span class="cancel-submit">' . l('Cancel', '') . ' or ' . l('register', 'user/register') . '</span>',
     );
 
-    return get_module_form()->build($data);
+    return $form;
   }
 
   /**
@@ -922,7 +1078,7 @@ class user extends core_module
    * @param array $form_values
    * @param array $form_errors
    */
-  public function login_validate(array &$form, array $form_values, array &$form_errors) {
+  public function login_form_validate(array &$form, array $form_values, array &$form_errors) {
     if (!$form_errors) {
       $uid = $this->is_login_valid($form_values['username'], $form_values['password']);
       if (!$uid) {
@@ -936,9 +1092,9 @@ class user extends core_module
   /**
    * @param array $form
    * @param array $form_values
-   * @return string
+   * @return array|null
    */
-  public function login_submit(array &$form, array $form_values) {
+  public function login_form_submit(array &$form, array $form_values) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form_values;
 
@@ -971,31 +1127,40 @@ class user extends core_module
   }
 
   /**
-   * @return array
+   *
    */
   public function password_reset() {
-    $data['description'] = array(
-      '#value' => 'After submitting the form we send you a new password.',
+    return array(
+      'page_title' => 'Password reset',
+      'content' => get_module_form()->build('password_reset_form')
     );
-    $data['email'] = array(
+  }
+
+  /**
+   * @return array
+   */
+  public function password_reset_form() {
+
+    $form['fs'] = array(
+      '#type'        => 'fieldset',
+      '#title'       => 'Login',
+      '#description' => 'After submitting the form we send you a new password.',
+    );
+    $form['fs']['email'] = array(
       '#type'          => 'email',
       '#title'         => 'Email',
-//      '#default_value' => '',
       '#description'   => 'Your <em>email address</em>.',
       '#size'          => 32,
       '#required'      => TRUE,
-//      '#attributes'    => array('type' => 'email'],
     );
-    $data['submit'] = array(
+
+    $form['submit'] = array(
       '#type'   => 'submit',
-      '#value'  => 'Submit',
+      '#value'  => 'Reset Password',
       '#suffix' => '&nbsp;&nbsp;' . l('Cancel', ''),
     );
 
-    return array(
-      'page_title' => 'Password reset',
-      'content' => get_module_form()->build($data)
-    );
+    return $form;
   }
 
   /**
@@ -1003,7 +1168,7 @@ class user extends core_module
    * @param array $form_values
    * @param array $form_errors
    */
-  public function password_reset_validate(array &$form, array $form_values, array &$form_errors) {
+  public function password_reset_form_validate(array &$form, array $form_values, array &$form_errors) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
 
@@ -1020,12 +1185,21 @@ class user extends core_module
    * @param array $form
    * @param array $form_values
    */
-  public function password_reset_submit(array &$form, array $form_values) {
+  public function password_reset_form_submit(array &$form, array $form_values) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
 
-    get_module_system()->mail_password_reset(array('to' => $form_values['email']));
-    set_message('Email has been send.');
+    $email = $form_values['email'];
+    $password = generate_password();
+
+    // Update the user record with a new password.
+    $this->update($this->get_user_by_email($email)->uid, $password);
+
+    // Send email with the new password to the user.
+    get_module_system()->mail_password_reset(array('to' => $email), $password);
+    set_message('Email has been send, please check your email and use your new password to login.');
+
+    $form['#redirect'] = 'user/login';
   }
 
 }
