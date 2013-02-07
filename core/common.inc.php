@@ -147,6 +147,8 @@ function library_get_path($name) {
 }
 
 /**
+ * Load a library.
+ *
  * @param string $name
  * @param int $weight
  * @return array|bool
@@ -512,13 +514,14 @@ function vardump($var, $return = FALSE, $pre = TRUE, $font_size = '') {
           $type[] = 'public';
         }
         if ($prop->isStatic()) {
-          $type = 'static';
+          $type[] = 'static';
         }
         $type = '<i>' . implode('</i> <i>', $type) . '</i>';
         $name = $prop->name;
         if (is_string($name)) $name = "'$name'";
         $out .= "$t$type {$name} <span style='color: #888a85'>=&gt;</span> ";
         $fn = __FUNCTION__;
+        $prop->setAccessible(TRUE);
         $fn($prop->getValue($var));
       }
     } else {
@@ -596,7 +599,7 @@ function generate_password() {
  * <br><br>Examples:
  * <ul>
  *  <li>http://example.com/node/306 returns "node/306".</li>
- *  <li>http://example.com/ecmsfolder/node/306 returns "node/306" while base_path() returns "/ecmsfolder/".</li>
+ *  <li>http://example.com/ecms/node/306 returns "node/306" while base_path() returns "/ecms/".</li>
  *  <li>http://example.com/path/alias (which is a path alias for node/306) returns "path/alias" as opposed to the internal path.</li>
  *  <li>http://example.com/index.php returns an empty string (meaning: front page).</li>
  *  <li>http://example.com/index.php?page=1 returns an empty string.</li>
@@ -610,9 +613,13 @@ function request_path() {
   if (isset($path)) {
     return $path;
   }
+
+  $path = strtok($_SERVER['REQUEST_URI'], '?');
   $len = strlen(BASE_PATH);
-  $path = substr($_SERVER['REQUEST_URI'], $len);
-  $path = strtok($path, '?');
+  if (substr($path, 0, $len) == BASE_PATH) {
+    $path = substr($path, $len);
+  }
+  $path = ($path) ? $path : '';
 
   return $path;
 }
