@@ -27,8 +27,6 @@ class router
    */
   private $routes = array();
 
-  private $basepath = '';
-
   public $router_path = '';
 
   /**
@@ -128,35 +126,34 @@ class router
       $req_uri = 'home';
     }
 
+    // todo Move aliasing node routes to the node module
     $obj = get_module_node();
     if ($obj) {
+      /** @noinspection PhpUndefinedMethodInspection */
       $nid = $obj->get_node_id_by_route($req_uri);
       if ($nid) {
         $req_uri = 'node/' . $nid;
       }
     }
 
-//    var_dump($this->routes);
     /** @noinspection PhpUnusedLocalVariableInspection */
     foreach ($this->routes as $path => $route) {
-      if ($this->get_part_count($req_uri) != $this->get_part_count($this->basepath . $path)) {
+      if ($this->get_part_count($req_uri) != $this->get_part_count($path)) {
         continue;
       }
-//      $path = str_replace('/', '\/', $route['path']);
-      $pattern = preg_replace('#{.+?}#', '(.+)', $this->basepath . $path);
-//      var_dump($pattern);
+      $pattern = preg_replace('#{.+?}#', '(.+)', $path);
       $match = preg_match_all("#^$pattern$#", $req_uri, $matches, PREG_SET_ORDER);
-//      var_dump($match);
       if ($match) {
 
         // Check access.
         if (!user_has_access($route['access_arguments'])) {
           header('HTTP/1.1 403 Forbidden');
-          set_message('Unauthorized!', 'error');
+//          set_message('Unauthorized!', 'error');
           return array(
-            'page_title' => 'Unauthorized',
-            'content' => 'You don\'t have access to view this page.',
-            'status_code' => 403,
+            'page_title'    => 'Unauthorized',
+            'content_title' => 'Unauthorized',
+            'content'       => '<h2 id="unauthorized">Access to this part of the site is restricted.</h2>',
+            'status_code'   => 403,
           );
         }
 
@@ -184,15 +181,18 @@ class router
 
         if (is_string($return) || is_null($return)) {
           return array(
-            'page_title' => $route['title'],
-            'content' => $return,
-            'status_code' => 200,
+            'page_title'    => $route['title'],
+            'content_title' => $route['title'],
+            'content'       => $return,
+            'status_code'   => 200,
           );
         } else {
           $return += array(
-            'page_title' => $route['title'],
-            'status_code' => 200,
+            'page_title'    => $route['title'],
+            'content_title' => $route['title'],
+            'status_code'   => 200,
           );
+
           return $return;
         }
       }
@@ -206,10 +206,10 @@ class router
       );
     } else {
       header('HTTP/1.1 404 Not Found');
-      set_message("Route '$req_uri' not found.", 'error');
+//      set_message("Route '$req_uri' not found.", 'error');
       $return = array(
         'page_title' => 'Not Found',
-        'content' => 'The page you were looking for doesn\'t exist.',
+        'content' => '<h2 id="not_found">Sorry, we couldn\'t find the page you requested.</h2>',
         'status_code' => 404,
       );
     }
@@ -238,7 +238,6 @@ class router
       );
       $this->routes[$path] = $route;
     }
-    $this->basepath = config::get_value('basepath', '');
 
     $results = invoke('menu');
 
@@ -266,7 +265,7 @@ class router
               $route['title'],
               $path, $route['access_arguments']
             );
-            // Fallthrough
+            // Fall through
           case MENU_CALLBACK:
             $a['title']            = $route['title'];
             $a['module']           = $route['module'];
@@ -280,7 +279,6 @@ class router
         $this->routes += array($path => $a);
       }
     }
-    $br = 0;
   }
 
   /**
