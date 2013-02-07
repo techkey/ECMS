@@ -1,7 +1,7 @@
 .idea
 .objects
 .objects/*
-config/config.local.ini
+config/config.ini
 core/db
 core/db/*
 core/engines/smarty/compile
