@@ -48,8 +48,8 @@ class library {
    *  version_num_chars: maximum characters per line to scan for version
    *
    * Filled in by the class:
-   * fname: full directory + filename of the file to be included (usefull for .php files)
-   * fpath: full path + filename of the file to be included (usefull for .js files)
+   * fname: full directory + filename of the file to be included (useful for .php files)
+   * fpath: full path + filename of the file to be included (useful for .js files)
    * loaded: TRUE if loaded, else FALSE
    * </pre>
    * @param string $name
@@ -246,7 +246,7 @@ class library {
     return $menu;
   }
 
-  /* Private routings *********************************************************/
+  /* Private routing's *********************************************************/
 
   /**
    * @return string
