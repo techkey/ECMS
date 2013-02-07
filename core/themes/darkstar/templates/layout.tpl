@@ -14,7 +14,11 @@
     <header>
       <div class="container_15">
         <div class="logo">
+{if $system.install}
+          <span>{$site.name}</span>
+{else}
           <a href="{$base_path}">{$site.name}</a>
+{/if}
         </div>{*<img src="{$theme_path}/images/logo.png" height="78" alt="logo">*}
 {if isset($header)}
         <div class="region header">
@@ -25,7 +29,9 @@
     </header>
     <div class="page container_15">
 {if isset($messages.error) or isset($messages.warning) or isset($messages.status)}
+      <div class="region messages grid_15">
         {include 'messages.tpl'}
+      </div>
 {/if}
 {if isset($page_top)}
       <div class="container_15">
@@ -44,8 +50,8 @@
 
         {if isset($region_left)}
           <div class="region content {$content_grid}">
-            {if isset($page_title) and $page_title != ''}
-              <h1 class="page-title">{$page_title}</h1>
+            {if isset($content_title) and $content_title != ''}
+              <h1 class="content-title">{$content_title}</h1>
             {/if}
             {if isset($content)}
               {$content}
@@ -70,8 +76,8 @@
 
         {if !isset($region_left)}
           <div class="region content {$content_grid}">
-            {if isset($page_title) and $page_title != ''}
-              <h1 class="page-title">{$page_title}</h1>
+            {if isset($content_title) and $content_title != ''}
+              <h1 class="content-title">{$content_title}</h1>
             {/if}
             {if isset($content)}
               {$content}
