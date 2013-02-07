@@ -21,13 +21,12 @@ class session
   /**
    * The schema definition.
    */
-  public function schema() {
+  private function schema() {
     $schema['session'] = array(
       'fields' => array(
         'sid' => array(
           'type' => 'varchar',
           'length' => 255,
-          'unique' => TRUE,
           'not null' => TRUE,
         ),
         'created' => array(
@@ -41,16 +40,26 @@ class session
         ),
       ),
       'primary key' => array('sid'),
+      'unique keys' => array(
+        'sid' => array('sid'),
+      ),
     );
 
     return $schema;
   }
 
   /**
+   * Hook install().
+   */
+  private function install() {
+    db_install_schema($this->schema());
+  }
+
+  /**
    *
    */
   public static function start() {
-    if (db_table_exists('session')) {
+    if (db_is_active() && db_table_exists('session')) {
       if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
         self::$mysession = new mysession54();
         /** @noinspection PhpParamsInspection */
@@ -70,7 +79,7 @@ class session
     session_start();
 
     // Check if it's a AJAX call.
-    if ($_SERVER['SCRIPT_NAME'] != '/index.php') {
+    if ($_SERVER['SCRIPT_NAME'] != BASE_PATH . 'index.php') {
       return;
     }
 
@@ -110,14 +119,19 @@ class session
 
   /**
    * @param string $status [optional]
-   * @return array|null
+   * @param bool   $clear Flag to clear the flashvars, default is TRUE.
+   * @return array
    */
-  public function get_messages($status = NULL) {
+  public function get_messages($status = NULL, $clear = TRUE) {
+    $flashvars = isset($_SESSION['flashvars']) ? $_SESSION['flashvars'] : array();
+    if ($flashvars && $clear) {
+      unset($_SESSION['flashvars']);
+    }
     if (!$status) {
-      return (isset($_SESSION['flashvars'])) ? $_SESSION['flashvars'] : NULL;
+      return $flashvars;
     }
     else {
-      return (isset($_SESSION['flashvars'][$status])) ? $_SESSION['flashvars'][$status] : NULL;
+      return ($flashvars[$status]) ? $flashvars[$status] : array();
     }
   }
 
