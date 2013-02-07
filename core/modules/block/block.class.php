@@ -120,12 +120,6 @@ class block {
 /* Hooks **********************************************************************/
 
   /**
-   * Hook init();
-   */
-  public function init() {
-  }
-
-  /**
    * Hook menu().
    *
    * @return array
