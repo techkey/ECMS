@@ -1,0 +1,3 @@
+<FilesMatch "install\.php">
+  Allow from all
+</FilesMatch>

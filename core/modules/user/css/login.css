@@ -1,0 +1,13 @@
+/*
+h1.page-title {
+  padding-left: 30px;
+  background: url(../ico/document-decrypt.ico) no-repeat;
+}
+*/
+
+#form-user-login_form input[name=submit] {
+  padding-left: 30px;
+  background-repeat: no-repeat;
+  background-position: 8px;
+  background-image: url(../ico/user-go.ico);
+}

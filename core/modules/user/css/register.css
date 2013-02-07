@@ -1,0 +1,13 @@
+/*
+h1.page-title {
+  padding-left: 30px;
+  background: url(../ico/contact-new-24.ico) no-repeat;
+}
+*/
+
+#form-user-register_user_form input[name=submit] {
+  padding-left: 30px;
+  background-repeat: no-repeat;
+  background-position: 8px;
+  background-image: url(../ico/contact-new.ico);
+}

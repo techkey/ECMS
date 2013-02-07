@@ -1,0 +1,25 @@
+form[id^="form-user-"] input[name=username] {
+  padding-right: 20px;
+  background-repeat: no-repeat;
+  background-position: 99%;
+  background-image: url(../ico/user.ico);
+}
+
+form[id^="form-user-"] input[name=password] {
+  padding-right: 20px;
+  background-repeat: no-repeat;
+  background-position: 99%;
+  background-image: url(../ico/key.ico);
+}
+
+form[id^="form-user-"] input[name=email] {
+  padding-right: 20px;
+  background-repeat: no-repeat;
+  background-position: 99%;
+  background-image: url(../ico/mail-generic-2.ico);
+}
+
+form[id^="form-user-"] input[name=submit] {
+  margin-left: 12px;
+}
+
