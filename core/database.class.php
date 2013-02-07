@@ -10,8 +10,10 @@ use core\modules\config\config;
  */
 class database {
 
+  /** @var PDO */
   private $pdo = NULL;
-  private $name = '';
+  /** @var string $type The database type (sqlite3 or mysql). */
+  private $type = '';
   private $mode = '';
   private $table = '';
   private $fields = array();
@@ -28,16 +30,58 @@ class database {
     if (!extension_loaded('PDO')) {
       exit('PDO Extension not found!');
     }
-    $this->name = BASE_DIR . config::get_value('database.name');
-    $dsn = 'sqlite:' . $this->name;
+  }
+
+  /**
+   * Connect using connection values from the config file or if set from the
+   * $values array.
+   *
+   * @param array $values
+   */
+  public function connect(array $values = array()) {
+    if ($values) {
+      $this->type       = $values['type'];
+      $sqlite3_filepath = $values['sqlite3_filepath'];
+      $database_name    = $values['database_name'];
+      $username         = $values['username'];
+      $password         = $values['password'];
+    } else {
+      $this->type       = config::get_value('database.type');
+      $sqlite3_filepath = config::get_value('database.sqlite3_filepath');
+      $database_name    = config::get_value('database.database_name');
+      $username         = config::get_value('database.username');
+      $password         = config::get_value('database.password');
+    }
+    $this->type = strtolower($this->type);
+
+    $uname = NULL;
+    $pword = NULL;
+    switch (strtolower($this->type)) {
+      case 'sqlite3';
+        $dsn = 'sqlite:' . $sqlite3_filepath;
+        break;
+      case 'mysql';
+        $dsn = 'mysql:dbname=' . $database_name;
+        $uname = $username;
+        $pword = $password;
+        break;
+      default:
+        exit(__LINE__ . ': Database type ' . $this->type . ' is not supported at this time.');
+    }
     try {
-      $this->pdo = new PDO($dsn);
+      $this->pdo = new PDO($dsn, $uname, $pword);
     } catch (PDOException $e) {
       echo 'Connection failed: ' . $e->getMessage() . '<br />';
-      echo $this->name . '<br />';
-//      exit;
+      echo $this->type . '<br />';
+      exit;
     }
+  }
 
+  /**
+   * @return bool
+   */
+  public function is_active() {
+    return ($this->pdo) ? TRUE : FALSE;
   }
 
   /**
@@ -210,7 +254,7 @@ class database {
       $sql .= implode(' AND ', $conditions);
     }
 
-    /** Add orderby to the query string. */
+    /** Add order by to the query string. */
     if ($this->orderby) {
       $sql .= ' ORDER BY ';
       $ordering = array();
@@ -318,15 +362,48 @@ class database {
    */
   private function field_type_to_sqlite($type) {
     switch ($type) {
-      case 'serial' : $sqlite = 'INTEGER PRIMARY KEY AUTOINCREMENT'; break;
-      case 'text'   : $sqlite = "TEXT"; break;
-      case 'varchar': $sqlite = "TEXT"; break;
-      case 'integer': $sqlite = 'INTEGER'; break;
-      case 'tinyint': $sqlite = 'TINYINT'; break;
-      case 'bool'   : $sqlite = 'BOOLEAN'; break;
-      default: $sqlite = '';
+      case 'serial' : $field_type = 'INTEGER PRIMARY KEY AUTOINCREMENT'; break;
+      case 'text'   : $field_type = "TEXT"; break;
+      case 'varchar': $field_type = "TEXT"; break;
+      case 'integer': $field_type = 'INTEGER'; break;
+      case 'tinyint': $field_type = 'TINYINT'; break;
+      case 'bool'   : $field_type = 'BOOLEAN'; break;
+      default: $field_type = '';
     }
-    return $sqlite;
+
+    return $field_type;
+  }
+
+  /**
+   * @param string $type
+   * @return string
+   */
+  private function field_type_to_mysql($type) {
+    switch ($type) {
+      case 'serial' : $field_type = 'BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE'; break;
+      case 'text'   : $field_type = "TEXT"; break;
+      case 'varchar': $field_type = "VARCHAR"; break;
+      case 'integer': $field_type = 'INTEGER'; break;
+      case 'tinyint': $field_type = 'TINYINT'; break;
+      case 'bool'   : $field_type = 'BOOLEAN'; break;
+      default: $field_type = '';
+    }
+
+    return $field_type;
+  }
+
+  /**
+   * @param array  $keys
+   * @param string $field
+   * @return bool|string
+   */
+  private function find_key(array $keys, $field) {
+    foreach ($keys as $key => $fields) {
+      if (in_array($field, $fields)) {
+        return $key;
+      }
+    }
+    return FALSE;
   }
 
   /**
@@ -335,30 +412,98 @@ class database {
    * @return bool
    */
   private function create_table($table_name, array $table_data) {
+
     $sql = "CREATE TABLE $table_name (";
     $a = array();
 
+    $sqlite3_serial = FALSE;
     foreach ($table_data['fields'] as $field_name => $field_data) {
       $field_data += array(
         'length' => 255,
         'not null' => FALSE,
         'unique' => FALSE,
       );
-      $sql2 = $field_name . ' ' . $this->field_type_to_sqlite($field_data['type']);
-      if ($field_data['unique']) $sql2 .= ' UNIQUE';
-      if ($field_data['not null']) $sql2 .= ' NOT NULL';
-      if (isset($field_data['default'])) $sql2 .= " DEFAULT '{$field_data['default']}'";
-      $a[] = $sql2;
+      switch ($this->type) {
+        case 'sqlite3':
+          $sqlite3_serial |= ($field_data['type'] == 'serial');
+          $sql2 = $field_name . ' ' . $this->field_type_to_sqlite($field_data['type']);
+          if ($field_data['not null']) $sql2 .= ' NOT NULL';
+          if (isset($field_data['default'])) $sql2 .= " DEFAULT '{$field_data['default']}'";
+
+          $a[] = $sql2;
+          break;
+
+        case 'mysql':
+          $sql2 = $field_name . ' ' . $this->field_type_to_mysql($field_data['type']);
+          if (in_array($field_data['type'], array('varchar', 'text'))) {
+            $sql2 .= '(' . $field_data['length'] . ')';
+          }
+          if (isset($field_data['unsigned']) && $field_data['unsigned']) {
+            $sql2 .= ' UNSIGNED';
+          }
+          if ($field_data['not null']) $sql2 .= ' NOT NULL';
+          if (isset($field_data['default'])) $sql2 .= " DEFAULT '{$field_data['default']}'";
+
+          $a[] = $sql2;
+          break;
+
+        default:
+          exit(__LINE__ . ': Database type ' . $this->type . ' is not supported at this time.');
+      }
     }
 
     $sql .= implode(',', $a);
-    if (isset($table_data['primary key'])) {
-      $pk = implode(',', $table_data['primary key']);
-      $sql .= ",PRIMARY KEY ($pk)";
+    switch ($this->type) {
+      case 'sqlite3':
+        if (!$sqlite3_serial && isset($table_data['primary key'])) {
+          $pk = implode(',', $table_data['primary key']);
+          $sql .= ",PRIMARY KEY ($pk)";
+        }
+        if (isset($table_data['unique keys'])) {
+          foreach ($table_data['unique keys'] as $key => $fields) {
+            $uk = implode(',', $fields);
+            $sql .= ",UNIQUE ($uk)";
+          }
+        }
+        break;
+
+      case 'mysql':
+        if (isset($table_data['primary key'])) {
+          $pk = implode(',', $table_data['primary key']);
+          $sql .= ",PRIMARY KEY ($pk)";
+        }
+        if (isset($table_data['unique keys'])) {
+          foreach ($table_data['unique keys'] as $key => $fields) {
+            $uk = implode(',', $fields);
+            $sql .= ",UNIQUE KEY $key ($uk)";
+          }
+        }
+        if (isset($table_data['indexes'])) {
+          foreach ($table_data['indexes'] as $key => $fields) {
+            $uk = implode(',', $fields);
+            $sql .= ",KEY $key ($uk)";
+          }
+        }
+        break;
+
+      default:
+        exit(__LINE__ . ': Database type ' . $this->type . ' is not supported at this time.');
     }
     $sql .= ')';
 
-    return $this->exec($sql);
+    $b = $this->exec($sql);
+
+
+    return $b;
+  }
+
+  /**
+   * @param string $table
+   * @return bool
+   */
+  private function drop_table($table) {
+    $r =  $this->pdo->query('DROP TABLE IF EXISTS ' . $table);
+    return $r;
   }
 
   /**
@@ -367,6 +512,7 @@ class database {
    */
   public function install_schema(array $schema) {
     foreach ($schema as $table_name => $table_data) {
+      $this->drop_table($table_name);
       $b = $this->create_table($table_name, $table_data);
       if ($b === FALSE) {
         return FALSE;
@@ -440,6 +586,13 @@ function get_dbase() {
     $dbase = new database();
   }
   return $dbase;
+}
+
+/**
+ * @return bool
+ */
+function db_is_active() {
+  return get_dbase()->is_active();
 }
 
 /**
