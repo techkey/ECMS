@@ -45,6 +45,12 @@ class smarty {
     $this->smarty->clearAllAssign();
     $this->smarty->assign($context, $nocache);
 
+    $this->smarty->assign(array(
+      'system' => array(
+        'install' => defined('INSTALL'),
+      )
+    ));
+
     $xdebug_scream = NULL;
     if (extension_loaded('xdebug')) {
       $xdebug_scream = ini_set('xdebug.scream', 0);
