@@ -46,6 +46,24 @@ class theme
    * </pre>
    */
   public function add_css($data, $options = NULL) {
+    // Check if the css must be included only on listed pages.
+    if (isset($options['pages'])) {
+      $request_path = request_path();
+      $found = FALSE;
+      foreach ($options['pages'] as $page) {
+        $pattern = str_replace('#', '\#', $page);
+        $pattern = '#^' . str_replace('*', '(.*)', $pattern) . '#';
+        if (preg_match($pattern, $request_path)) {
+          $found = TRUE;
+          break;
+        }
+      }
+      if (!$found) {
+        return;
+      }
+    }
+
+    // Set default values.
     if (is_array($options)) {
       $options += array(
         'weight' => 0,
