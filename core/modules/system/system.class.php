@@ -21,7 +21,7 @@ class system extends core_module {
    * Cache all variables.
    */
   public function __construct() {
-    if (!db_table_exists('variable')) {
+    if (!db_is_active() || !db_table_exists('variable')) {
       return;
     }
 
@@ -40,7 +40,7 @@ class system extends core_module {
    *
    * @return array
    */
-  public function schema() {
+  private function schema() {
     $schema['variable'] = array(
       'description' => 'The variable table.',
       'fields' => array(
@@ -58,6 +58,13 @@ class system extends core_module {
     );
 
     return $schema;
+  }
+
+  /**
+   * Hook install().
+   */
+  private function install() {
+    db_install_schema($this->schema());
   }
 
   /**
@@ -112,63 +119,53 @@ class system extends core_module {
    * Attempts to send a email.
    *
    * mail:
-   *    [from]
+   *    [from]      string - Default is the site name and email.
    *    [to]
    *    [subject]
    *    [body]
-   *    [html]      bool - default is TRUE
+   *    [html]      bool - Default is TRUE.
    *
    * @param array $mail
    * @return bool
    */
   private function mail_send(array $mail) {
     $mail += array(
+      'from' => variable_get('system_email', ''),
       'html' => TRUE,
       'action_function' => NULL,
     );
 
-    library_load('phpmailer');
-    $mailer = new \PHPMailer();
-
-    if ($mail['action_function']) {
-      $mailer->action_function = $mail['action_function'];
+    if ($mail['from'] == '') {
+      set_message('Cannot send mail because email <em>from</em> is empty.', 'error');
+      return FALSE;
     }
 
-//    $mailer->SMTPDebug = TRUE;
-    $mailer->Mailer = variable_get('system_mail_mailer', '');
-    if ($mailer->Mailer == 'smtp') {
-      $mailer->SMTPAuth = variable_get('system_mail_smtpauth', FALSE);
-      $mailer->SMTPSecure = variable_get('system_mail_smtpsecure', FALSE);
-      $mailer->Port = variable_get('system_mail_port', '');
-      $mailer->Host = variable_get('system_mail_host', '');
-      $mailer->Username = variable_get('system_mail_username', '');
-      $mailer->Password = variable_get('system_mail_password', '');
-    }
+    $headers = '';
+    $headers .= 'From: ' . $mail['from'] . "\r\n";
+    $headers .= 'To: ' . $mail['to'] . "\r\n";
+    $headers .= 'Return-Path: ' . $mail['from'] . "\r\n";
+    $headers .= 'MIME-Version: 1.0' ."\r\n";
+    $headers .= 'Content-Type: text/html; charset=utf-8' . "\r\n";
+    $headers .= 'Content-Transfer-Encoding: 8bit'. "\r\n";
 
-    $mailer->From = $mail['from'];
-    $mailer->AddAddress($mail['to']);
-    $mailer->Subject = $mail['subject'];
-    $mailer->Body = $mail['body'];
-
-    $mailer->IsHTML($mail['html']);
-
-    $b = $mailer->Send();
+    $b = mail($mail['to'], $mail['subject'], $mail['body'], $headers);
 
     return $b;
   }
 
   /**
-   * @param array $mail
+   * @param array  $mail
+   * @param string $password
    * @return bool
    */
-  public function mail_password_reset(array $mail) {
+  public function mail_password_reset(array $mail, $password) {
     $body = file_get_contents($this->get_dir() . 'mails/password_reset.html');
-    $body = str_replace('[PASSWORD]', generate_password(), $body);
+    $body = str_replace('[PASSWORD]', $password, $body);
 
-    $from = variable_get('system_email');
+//    $from = variable_get('system_email');
 
     $mail += array(
-      'from' => $from,
+//      'from' => $from,
       'subject' => 'Password reset',
       'body' => $body,
     );
@@ -342,11 +339,17 @@ class system extends core_module {
    *
    * @param array $page The final render array.
    */
-  public function page_alter(array &$page) {
-    $page['footer_bottom'] = '<span id="footer-left">&copy;2013 3dflat, all rights reserved.</span><span id="footer-right">&#097;&#100;&#109;&#105;&#110;&#064;&#051;&#100;&#102;&#108;&#097;&#116;&#046;&#116;&#107;</span>';
+  public function page_render(array &$page) {
+    $page['footer_bottom'] =  '<span id="footer-left">&copy;2013 3dflat, all rights reserved.</span>';
+    $page['footer_bottom'] .= '<span id="footer-center">';
+    $page['footer_bottom'] .= 'Page build time: ' . number_format(microtime(TRUE) - START_TIME, 3);
+    $page['footer_bottom'] .= ' Memory usage: ' . number_format(memory_get_usage());
+    $page['footer_bottom'] .= ' Memory peak usage: ' . number_format(memory_get_peak_usage());
+    $page['footer_bottom'] .= '</span>';
+    $page['footer_bottom'] .= '<span id="footer-right">&#097;&#100;&#109;&#105;&#110;&#064;&#051;&#100;&#102;&#108;&#097;&#116;&#046;&#116;&#107;</span>';
   }
 
-  /* Pivate routes ************************************************************/
+  /* Private routes ************************************************************/
 
   public function clear_cache() {
     get_theme()->clear_cache();
@@ -357,8 +360,13 @@ class system extends core_module {
    * @return string
    */
   public function mail() {
-    $out = '';
+    return get_module_form()->build('mail_form');
+  }
 
+  /**
+   * @return string
+   */
+  public function mail_form() {
     $form['to'] = array(
       '#type' => 'textfield',
       '#title' => 'To',
@@ -367,6 +375,7 @@ class system extends core_module {
     $form['from'] = array(
       '#type' => 'textfield',
       '#title' => 'From',
+      '#default_value' => variable_get('system_sitename', '') . ' <' . variable_get('system_email', '') . '>',
       '#required' => TRUE,
     );
     $form['subject'] = array(
@@ -381,20 +390,43 @@ class system extends core_module {
     );
     $form['submit'] = array(
       '#type' => 'submit',
+      '#value' => 'Send',
     );
 
-    $out .= get_module_form()->build($form);
+    return $form;
+  }
 
-    return $out;
+  /**
+   * @param array $form
+   * @param array $form_values
+   * @param array $form_errors
+   */
+  public function mail_form_validate(array $form, array $form_values, array &$form_errors) {
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form;
+
+    if ($form_values['to'] == '') {
+      $form_errors['to'] = 'Field <em>To</em> cannot be empty.';
+    }
+    if ($form_values['from'] == '') {
+      $form_errors['from'] = 'Field <em>From</em> cannot be empty.';
+    }
+    if ($form_values['subject'] == '') {
+      $form_errors['subject'] = 'Field <em>Subject</em> cannot be empty.';
+    }
+    if ($form_values['message'] == '') {
+      $form_errors['message'] = 'Field <em>Message</em> cannot be empty.';
+    }
   }
 
   /**
    * @param array $form
    * @param array $form_values
    */
-  public function mail_submit(array &$form, array $form_values) {
+  public function mail_form_submit(array &$form, array $form_values) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
+
     $mail = array(
       'to' => $form_values['to'],
       'from' => $form_values['from'],
@@ -403,17 +435,7 @@ class system extends core_module {
       'action_function' => array($this, 'action_function'),
     );
 
-    ini_set('sendmail_path', '/usr/sbin/sendmail -i -f admin@3dflat.tk');
-
-    $headers = 'From: admin@3dflat.tk' . "\r\n" .
-      'Reply-To: admin@3dflat.tk' . "\r\n" .
-      'Sender: admin@3dflat.tk' . "\r\n" .
-      'Return-Path: admin@3dflat.tk' . "\r\n" .
-      'X-Mailer: PHP/' . phpversion();
-
-    $b = mail($mail['to'], $mail['subject'], $mail['body'], $headers);
-
-//    $b = $this->mail_send($mail);
+    $b = $this->mail_send($mail);
 
     if ($b) {
       set_message('Mail sent.');
@@ -424,42 +446,36 @@ class system extends core_module {
     $form['#redirect'] = 'admin/mail';
   }
 
-  public function action_function() {
-    set_message(vardump(func_get_args(), TRUE));
-  }
-
   /**
    * Show PHP info.
    *
    * @return string
    */
   public function phpinfo() {
-//    ob_start();
-//    phpinfo();
-//    $out = ob_get_clean();
-    $js = <<<'JS'
-$(function () {
-  var $op = $('object#phpinfo');
-//  var doc = $op.get(0).document;
-//  var h = $('html', doc).height();
-  $op.css({
-    width: 940,
-    height: 24300
-  });
-});
-JS;
+    add_css($this->get_path() . 'css/phpinfo.css');
 
-    add_js($js, 'inline');
+    ob_start();
+    phpinfo();
+    $out = ob_get_clean();
 
-    $out = '<object id="phpinfo" data="/test2/info.php"></object>';
+    $out = preg_replace('/^.*<body.*?>/is', '', $out);
+    $out = preg_replace('/<\/body>.*/is', '', $out);
+    $out = preg_replace('/;/is', '; ', $out);
 
-    return $out;
+    return '<div id="phpinfo">' . $out . '</div>';
   }
 
   /**
    * @return string
    */
   public function setup() {
+    return get_module_form()->build('setup_form');
+  }
+
+  /**
+   * @return string
+   */
+  public function setup_form() {
     $form['system'] = array(
       '#type' => 'fieldset',
       '#title' => 'System Settings',
@@ -534,64 +550,6 @@ JS;
       '#options' => $themes,
       '#default_value' => variable_get('system_theme', 'darkstar'),
     );
-
-    $form['mail'] = array(
-      '#type' => 'fieldset',
-      '#title' => 'Mail Settings',
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
-    );
-    $form['mail']['mailer'] = array(
-      '#type' => 'select',
-      '#title' => 'Mailer',
-      '#options' => make_array_assoc(array('mail', 'sendmail', 'smtp')),
-      '#default_value' => variable_get('system_mail_mailer', 'mail'),
-    );
-
-    $form['mail']['smtp'] = array(
-      '#type' => 'fieldset',
-      '#title' => 'SMTP Settings',
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
-    );
-    $form['mail']['smtp']['smtpauth'] = array(
-      '#type' => 'checkbox',
-      '#title' => 'SMTP Authentication',
-      '#default_value' => variable_get('system_mail_smtpauth', FALSE),
-    );
-    $form['mail']['smtp']['smtpsecure'] = array(
-      '#type' => 'select',
-      '#title' => 'Connection Security',
-      '#options' => make_array_assoc(array('', 'tls', 'ssl')),
-      '#default_value' => variable_get('system_mail_smtpsecure', ''),
-    );
-    $form['mail']['smtp']['port'] = array(
-      '#type' => 'number',
-      '#title' => 'Port',
-      '#default_value' => variable_get('system_mail_port', 25),
-      '#attributes' => array(
-        'min' => 25,
-        'max' => 65535,
-      ),
-    );
-    $form['mail']['smtp']['host'] = array(
-      '#type' => 'textfield',
-      '#title' => 'Host',
-      '#default_value' => variable_get('system_mail_host', ''),
-      '#attributes' => array('autocomplete' => 'on'),
-    );
-    $form['mail']['smtp']['username'] = array(
-      '#type' => 'textfield',
-      '#title' => 'Username',
-      '#default_value' => variable_get('system_mail_username', ''),
-//      '#attributes' => array('autocomplete' => 'on'),
-    );
-    $form['mail']['smtp']['password'] = array(
-      '#type' => 'password',
-      '#title' => 'Password',
-      '#default_value' => variable_get('system_mail_password', ''),
-    );
-
     $form['#attributes'] = array('autocomplete' => 'off');
 
     $form['submit'] = array(
@@ -599,7 +557,7 @@ JS;
       '#value' => 'Save',
     );
 
-    return get_module_form()->build($form);
+    return $form;
   }
 
   /**
@@ -607,7 +565,7 @@ JS;
    * @param array $form_values
    * @param array $form_errors
    */
-  public function setup_validate(array $form, array $form_values, array &$form_errors) {
+  public function setup_form_validate(array $form, array $form_values, array &$form_errors) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
 
@@ -616,34 +574,13 @@ JS;
         $form_errors['maintainer_ip'] = 'Maintainer IP must be a valid IP or empty.';
       }
     }
-
-    if (($form_values['mailer'] == 'smtp') && $form_values['smtpauth']) {
-      $options = array(
-        'options' => array(
-          'min_range' => 25,
-          'max_range' => 65535,
-        ),
-      );
-      if (!filter_var($form_values['port'], FILTER_VALIDATE_INT, $options)) {
-        $form_errors['port'] = 'Port number must between 25 and 65535.';
-      }
-      if ($form_values['host'] == '') {
-        $form_errors['host'] = 'Field host is required.';
-      }
-      if ($form_values['username'] == '') {
-        $form_errors['username'] = 'Field username is required.';
-      }
-      if ($form_values['password'] == '') {
-        $form_errors['password'] = 'Field password is required.';
-      }
-    }
   }
 
   /**
    * @param array $form
    * @param array $form_values
    */
-  public function setup_submit(array $form, array $form_values) {
+  public function setup_form_submit(array $form, array $form_values) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
 
@@ -659,18 +596,12 @@ JS;
     variable_set('system_email',    $form_values['email']);
     variable_set('system_theme',    $form_values['theme']);
 
-    variable_set('system_mail_mailer',     $form_values['mailer']);
-    variable_set('system_mail_smtpauth',   $form_values['smtpauth']);
-    variable_set('system_mail_smtpsecure', $form_values['smtpsecure']);
-    variable_set('system_mail_port',       $form_values['port']);
-    variable_set('system_mail_host',       $form_values['host']);
-    variable_set('system_mail_username',   $form_values['username']);
-    variable_set('system_mail_password',   $form_values['password']);
-
     set_message('Settings saved.');
   }
 
   /**
+   * Shows a table list with all variables.
+   *
    * @return string
    */
   public function variables() {
@@ -718,12 +649,28 @@ JS;
    * @return array
    */
   public function variable_delete($name) {
-    $form['name'] = array(
-      '#type' => 'value',
-      '#value' => $name,
-    );
+    return get_module_form()->build('variable_delete_form', $name);
+  }
+
+  /**
+   * @param array  $form
+   * @param array  $form_values
+   * @param array  $form_errors
+   * @param string $name
+   * @return array
+   */
+  public function variable_delete_form(array $form, array $form_values, array $form_errors, $name) {
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form;
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_values;
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_errors;
+
+    $form = array();
+
     $form['markup'] = array(
-      '#value' => '<p>This action cannot be undone!</p>',
+      '#value' => '<p>Are you sure you want to deletes variable <em>' . $name . '</em>?</p><p>This action cannot be undone!</p>',
     );
     $form['submit'] = array(
       '#type' => 'submit',
@@ -731,20 +678,21 @@ JS;
       '#suffix' => ' ' . l('Cancel', 'admin/variables'),
     );
 
-    return array(
-      'page_title' => "Delete variable <em>$name</em>?",
-      'content' => get_module_form()->build($form),
-    );
+    return $form;
   }
 
   /**
-   * @param array $form
-   * @param array $form_values
+   * @param array  $form
+   * @param array  $form_values
+   * @param string $name
    */
-  public function variable_delete_submit(array &$form, array $form_values) {
-    variable_del($form_values['name']);
+  public function variable_delete_form_submit(array &$form, array $form_values, $name) {
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_values;
 
-    set_message('Variable deleted.');
+    variable_del($name);
+
+    set_message('Variable <em>' . $name . '</em> deleted.');
 
     $form['#redirect'] = 'admin/variables';
   }
