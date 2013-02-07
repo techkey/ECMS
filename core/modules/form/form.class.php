@@ -31,15 +31,19 @@ class form {
   private $form_errors = array();
 
   /**
-   * @param array $data The build array.
+   * @param string $form_name The name of the form method.
    * @return string
    */
-  public function build(array $data) {
+  public function build($form_name) {
+    $args = func_get_args();
+    array_shift($args);
 
     $this->form_info = get_module_session()->get_form_info();
 
     // The POST vars from the browser.
     $this->form_values = get_module_session()->get_form_data();
+
+    $saved_data = array();
 
     // Check if the form is submitted.
     if ($this->form_values) {
@@ -58,33 +62,49 @@ class form {
 
       $this->validate($saved_data);
       if (!$this->form_errors) {
+
         // Call the validate handler if exists.
         $class = get_module(basename(str_replace('\\', '/', $this->form_info['caller_class'])));
         $method = $this->form_info['caller_method'] . '_validate';
         if (method_exists($class, $method)) {
-          $class->$method($saved_data, $this->form_values, $this->form_errors);
+          $args_tmp = array();
+          $args_tmp[] = &$saved_data;
+          $args_tmp[] = &$this->form_values;
+          $args_tmp[] = &$this->form_errors;
+          $args_tmp = array_merge($args_tmp, $args);
+          call_user_func_array(array($class, $method), $args_tmp);
         }
         if (!$this->form_errors) {
+
           // Call the submit handler if exists.
           $method = $this->form_info['caller_method'] . '_submit';
           if (method_exists($class, $method)) {
+
             // Call the submit handler.
-            $return = $class->$method($saved_data, $this->form_values);
+            $args_tmp = array();
+            $args_tmp[] = &$saved_data;
+            $args_tmp[] = &$this->form_values;
+            $args_tmp = array_merge($args_tmp, $args);
+            $return = call_user_func_array(array($class, $method), $args_tmp);
+
             // Check if we have a message for the user.
             if ($return) {
               return $return;
             }
+
             // Check if a destination is set.
             if (isset($_GET['destination'])) {
               $_SESSION['keepflashvars'] = TRUE;
               go_to($_GET['destination']);
             }
+
             // Check if we must redirect.
             if (isset($saved_data['#redirect'])) {
               $_SESSION['keepflashvars'] = TRUE;
               go_to($saved_data['#redirect']);
             }
-            // Just go to the same page.
+
+            // Just stay on the same page.
 
           }
         }
@@ -97,14 +117,31 @@ class form {
       }
     }
 
-    $fields = $this->render_fields($data);
-
     // Get the caller.
     $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
     $caller = $trace[1];
     if (basename(str_replace('\\', '/', $caller['class'])) == 'form') {
       $caller = $trace[2];
     }
+    $caller['function'] = $form_name;
+
+    $caller['args'] = $args;
+
+    // Get the form data.
+    $class = get_module(basename(str_replace('\\', '/', $caller['class'])));
+    array_unshift($args, $saved_data, $this->form_values, $this->form_errors);
+    $data = call_user_func_array(array($class, $form_name), $args);
+
+    // Check for form attributes and description.
+    if (isset($data['#attributes'])) {
+      $this->form_attributes = $data['#attributes'];
+    }
+    if (isset($data['#description'])) {
+      $this->form_description = $data['#description'];
+    }
+
+    // Render the form fields.
+    $fields = $this->render_fields($data);
 
     // Set the default form attributes if form attributes are not set.
     if (!isset($this->form_attributes['id'])) {
@@ -153,6 +190,7 @@ class form {
    * </pre>
    * @return array|string
    */
+/*
   public function confirm(array $data) {
     $data += array(
       'title' => '',
@@ -190,6 +228,7 @@ class form {
 
     return $return;
   }
+*/
 
   /**
    * Render the fields recursive.
@@ -201,14 +240,6 @@ class form {
     $fields = array();
 
     foreach ($data as $name => &$field) {
-      if ($name == '#attributes') {
-        $this->form_attributes = $field;
-        continue;
-      }
-      if ($name == '#description') {
-        $this->form_description = $field;
-        continue;
-      }
       if ($name[0] == '#') continue;
 
       $str = '';
@@ -441,7 +472,7 @@ class form {
     }
 
     $group_id = $attributes['id'];
-    $group_name = $attributes['name'];
+//    $group_name = $attributes['name'];
 
     foreach ($field['#options'] as $key => $title) {
       $attributes['id'] = $group_id . '-' . $title;
@@ -514,7 +545,9 @@ class form {
     if (isset($field['#description'])) {
       $str .= '<div class="form-fieldset-description">' . $field['#description'] . '</div>';
     }
+
     $str2 = $this->render_fields($field);
+
     $str .= implode('', $str2);
     $str .= '</div>';
 
@@ -593,7 +626,7 @@ class form {
     }
 
     $group_id = $attributes['id'];
-    $group_name = $attributes['name'];
+//    $group_name = $attributes['name'];
 
     if ($field['#title']) {
       $element[] = "<label>{$field['#title']}</label>";
@@ -662,8 +695,9 @@ class form {
     $element[] = sprintf('<div id="form-element-%s" class="form-element">', $attributes['id']);
     $element[] = sprintf('<label %s>%s</label>', build_attribute_string($label_attribs), $field['#title']);
     $element[] = sprintf('<select %s>', build_attribute_string($attributes));
+    $form_value = isset($this->form_values[$name]) ? $this->form_values[$name] : $field['#default_value'];
     foreach ($field['#options'] as $key => $value) {
-      if ($key == $field['#default_value']) {
+      if ($key == $form_value) {
         $element[] = sprintf('<option selected="selected" value="%s">%s</option>', $key, $value);
       } else {
         $element[] = sprintf('<option value="%s">%s</option>', $key, $value);
@@ -770,9 +804,9 @@ class form {
       $attributes['class'][] = 'form-error';
     }
 
-    if ($type == 'password') {
-      $attributes['value'] = '';
-    }
+//    if ($type == 'password') {
+//      $attributes['value'] = '';
+//    }
 
     $label_attribs['for'] = $attributes['id'];
 
