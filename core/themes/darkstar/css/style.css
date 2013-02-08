@@ -462,7 +462,7 @@ ul.stats {
   position: absolute;
   right: 0;
 }
-
+/*
 .imagelink {
   opacity: 0.5;
 }
@@ -470,7 +470,7 @@ ul.stats {
 .imagelink:hover {
   opacity: 1;
 }
-
+*/
 .node-info {
   position: absolute;
   top: 0;
