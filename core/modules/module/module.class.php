@@ -12,7 +12,56 @@ use core\modules\core_module;
  */
 class module extends core_module {
 
+  private $system_modules = array('module', 'router', 'session', 'system', 'user');
+
   /* Hooks ********************************************************************/
+
+  public function schema() {
+    $schema['modules'] = array(
+      'description' => 'Keeps track of the install status of modules',
+      'fields'      => array(
+        'name'    => array(
+          'type'     => 'varchar',
+          'length'   => 255,
+          'not null' => TRUE,
+        ),
+        'installed' => array(
+          'type'     => 'tinyint',
+          'not null' => TRUE,
+        ),
+        'enabled'   => array(
+          'type'     => 'tinyint',
+          'not null' => TRUE,
+        ),
+      ),
+      'primary key' => array('name'),
+      'unique keys' => array(
+        'module' => array('name'),
+      ),
+    );
+
+    return $schema;
+  }
+
+  /**
+   * @return bool
+   */
+  private function install() {
+    $b = db_install_schema($this->schema());
+    if ($b) {
+      $this->update();
+      foreach ($this->system_modules as $module) {
+        $this->set_module_status($module, TRUE);
+        $this->_enable_module($module);
+      }
+    }
+
+    return $b;
+  }
+
+//  public function init() {
+//    $this->install();
+//  }
 
   /**
    * Hook menu().
@@ -20,35 +69,161 @@ class module extends core_module {
    * @return array
    */
   public function menu() {
-    $menu['admin/module/install/{module}'] = array(
-      'title' => 'Install Module',
-      'controller' => 'module:module_install',
+    $menu['admin/module/install/{module}']   = array(
+      'title'            => 'Install Module',
+      'controller'       => 'module:install_module',
       'access_arguments' => 'admin',
-      'type' => MENU_CALLBACK,
+      'type'             => MENU_CALLBACK,
     );
     $menu['admin/module/reinstall/{module}'] = array(
-      'title' => 'Reinstall Module',
-      'controller' => 'module:module_reinstall',
+      'title'            => 'Reinstall Module',
+      'controller'       => 'module:reinstall_module',
       'access_arguments' => 'admin',
-      'type' => MENU_CALLBACK,
+      'type'             => MENU_CALLBACK,
     );
     $menu['admin/module/uninstall/{module}'] = array(
-      'title' => 'Uninstall Module',
-      'controller' => 'module:module_uninstall',
+      'title'            => 'Uninstall Module',
+      'controller'       => 'module:uninstall_module',
       'access_arguments' => 'admin',
-      'type' => MENU_CALLBACK,
+      'type'             => MENU_CALLBACK,
+    );
+    $menu['admin/module/enable/{module}']   = array(
+      'title'            => 'Enable Module',
+      'controller'       => 'module:enable_module',
+      'access_arguments' => 'admin',
+      'type'             => MENU_CALLBACK,
+    );
+    $menu['admin/module/disable/{module}'] = array(
+      'title'            => 'Disable Module',
+      'controller'       => 'module:disable_module',
+      'access_arguments' => 'admin',
+      'type'             => MENU_CALLBACK,
     );
 
     $menu['admin/modules'] = array(
-      'title' => 'Modules',
-      'controller' => 'module:modules',
+      'title'            => 'Modules',
+      'controller'       => 'module:modules',
       'access_arguments' => 'admin',
-      'menu_name' => 'system',
+      'menu_name'        => 'system',
     );
 
     return $menu;
   }
 
+  private function update() {
+    $modules = get_module();
+    $modules = array_keys($modules);
+    $modules_in_db = $this->get_module_names();
+    $diff = array_diff($modules, $modules_in_db);
+    foreach ($diff as $module) {
+      db_insert('modules')
+        ->fields(array(
+          'name'    => $module,
+          'installed' => 0,
+          'enabled'   => 0,
+        ))
+        ->execute();
+    }
+  }
+
+  /**
+   * @param string $module
+   * @param bool   $installed
+   */
+  private function set_module_status($module, $installed) {
+    db_update('modules')
+      ->fields(array('installed' => (int)$installed))
+      ->condition('name', $module)
+      ->execute();
+  }
+
+  /**
+   * Enables or disables a module.
+   *
+   * @internal
+   *
+   * @param string $module
+   * @param bool   $enable [optional]
+   */
+  private function _enable_module($module, $enable = TRUE) {
+    db_update('modules')
+      ->fields(array('enabled' => (int)$enable))
+      ->condition('name', $module)
+      ->execute();
+  }
+
+  /**
+   * @return string[]
+   */
+  private function get_module_names() {
+    /** @var string[] $names */
+    $names = db_select('modules')
+      ->field('name')
+      ->execute()
+      ->fetchAll(\PDO::FETCH_COLUMN);
+
+    return $names;
+  }
+
+  /**
+   * Get all modules from the database.
+   *
+   * @return \MODULE[] Returns a associative array with module objects keyed
+   *                   with the module name.
+   */
+  private function get_modules() {
+    /** @var \MODULE[] $modules */
+    $modules = db_select('modules')
+      ->field('*')
+      ->execute()
+      ->fetchAll(\PDO::FETCH_OBJ);
+
+    return $modules;
+  }
+
+  /**
+   * Check if a module is enabled.
+   *
+   * @param string $module
+   * @return string Returns TRUE if the module is enabled or FALSE if not.
+   */
+  public function is_enabled($module) {
+    $b = db_select('modules')
+      ->field('enabled')
+      ->condition('name', $module)
+      ->execute()
+      ->fetchColumn();
+
+    return (bool)$b;
+  }
+
+  /**
+   * @return \MODULE[]
+   */
+  public function get_enabled_modules() {
+    /** @var \MODULE[] $modules */
+    $modules = db_select('modules')
+      ->field('*')
+      ->condition('enabled', 1)
+      ->execute()
+      ->fetchAll(\PDO::FETCH_OBJ);
+
+    return $modules;
+  }
+
+  /**
+   * @return string[]
+   */
+  public function get_enabled_module_names() {
+    /** @var string[] $modules */
+    $modules = db_select('modules')
+      ->field('name')
+      ->condition('enabled', 1)
+      ->execute()
+      ->fetchAll(\PDO::FETCH_COLUMN);
+
+    return $modules;
+  }
 
   /* Private routes ***********************************************************/
 
@@ -58,9 +233,9 @@ class module extends core_module {
    * This method runs the install() method of the module. The module itself
    * keeps responsible for the installation of itself.
    *
-   * @param string $module
-   *
    * @internal
+   *
+   * @param string $module
    */
   private function _module_install($module) {
     $class = get_module($module);
@@ -100,93 +275,23 @@ class module extends core_module {
     $form = array();
 
     $form['message'] = array(
-      '#value' => '<p>Are you sure you want to install module ' . $module . '?</p>',
+      '#value' => "<p>Are you sure you want to install module <em>$module</em>?</p>",
     );
     $form['submit'] = array(
-      '#type' => 'submit',
-      '#value' => 'Install',
-      '#suffix' => '&nbsp;&nbsp;' . l('Cancel', 'admin/modules'),
+      '#type'   => 'submit',
+      '#value'  => 'Install',
+      '#suffix' => '<span class="cancel-submit">' . l('Cancel', 'admin/modules') . '</span>',
     );
 
     return $form;
   }
 
   /**
-   * @param array  $form
-   * @param array  $form_values
    * @param string $module
-   */
-  public function module_install_form_submit(array &$form, array $form_values, $module) {
-    /** @noinspection PhpUnusedLocalVariableInspection */
-    $tmp = $form_values;
-
-    $this->_module_install($module);
-
-    $form['#redirect'] = 'admin/modules';
-  }
-
-  /**
-   * @param $module
    * @return string
    */
-  public function module_uninstall($module) {
-    return get_module_form()->build('module_uninstall_form', $module);
-  }
-
-  /**
-   * @param array $form
-   * @param array $form_values
-   * @param array $form_errors
-   * @param       $module
-   * @return array
-   */
-  public function module_uninstall_form(array $form, array $form_values, array $form_errors, $module) {
-    /** @noinspection PhpUnusedLocalVariableInspection */
-    $tmp = $form_values;
-    /** @noinspection PhpUnusedLocalVariableInspection */
-    $tmp = $form_errors;
-
-    $form['message'] = array(
-      '#value' => '<p>This will also uninstall any database tables and persistent variables of the module.</p><p>Are you sure you want to uninstall module ' . $module . '?</p>',
-    );
-    $form['submit'] = array(
-      '#type' => 'submit',
-      '#value' => 'Uninstall',
-      '#suffix' => '&nbsp;&nbsp;' . l('Cancel', 'admin/modules'),
-    );
-
-    return $form;
-  }
-
-  /**
-   * @param array  $form
-   * @param array  $form_values
-   * @param string $module
-   */
-  public function module_uninstall_form_submit(array &$form, array $form_values, $module) {
-    /** @noinspection PhpUnusedLocalVariableInspection */
-    $tmp = $form_values;
-
-//    $schema = get_module($form_values['extra']['module'])->schema();
-//    $table_name = key($schema);
-//    $b = db_query('DROP TABLE ' . $table_name);
-    $b = FALSE;
-
-    if ($b) {
-      set_message('Module <em>' . $module . '</em> is uninstalled. ');
-    } else {
-      set_message('Uninstall of module <em>' . $module . '</em> failed.', 'error');
-    }
-
-    $form['#redirect'] = 'admin/modules';
-  }
-
-  /**
-   * @param $module
-   * @return string
-   */
-  public function module_reinstall($module) {
-    return get_module_form()->build('module_reinstall_form', $module);
+  public function install_module($module) {
+    return get_module_form()->build('install_module_form', $module);
   }
 
   /**
@@ -196,7 +301,7 @@ class module extends core_module {
    * @param string $module
    * @return array
    */
-  public function module_reinstall_form(array $form, array $form_values, array $form_errors, $module) {
+  public function install_module_form(array $form, array $form_values, array $form_errors, $module) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
     /** @noinspection PhpUnusedLocalVariableInspection */
@@ -207,97 +312,200 @@ class module extends core_module {
     $form = array();
 
     $form['message'] = array(
-      '#value' => '<p>This will also reinstall any database tables and persistent variables of the module.</p><p>Are you sure you want to reinstall module ' . $module . '?</p>',
+      '#value' => "<p>Are you sure you want to install module <em>$module</em>?</p>",
     );
     $form['submit'] = array(
-      '#type' => 'submit',
-      '#value' => 'Reinstall',
-      '#suffix' => '&nbsp;&nbsp;' . l('Cancel', 'admin/modules'),
+      '#type'   => 'submit',
+      '#value'  => 'Install',
+      '#suffix' => '<span class="cancel-submit">' . l('Cancel', 'admin/modules') . '</span>',
     );
 
     return $form;
   }
 
   /**
-   * @param array $form
-   * @param array $form_values
+   * @param array  $form
+   * @param array  $form_values
    * @param string $module
    */
-  public function module_reinstall_submit(array &$form, array $form_values, $module) {
+  public function install_module_form_submit(array &$form, array $form_values, $module) {
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_values;
+
+    $class = get_module($module);
+    $method = new \ReflectionMethod($class, 'install');
+    $method->setAccessible(TRUE);
+    $b = $method->invoke($class);
+    if ($b) {
+      $this->set_module_status($module, TRUE);
+      set_message("Module <em>$module</em> is installed.");
+    } else {
+      $this->set_module_status($module, FALSE);
+      set_message("Installation of module <em>$module</em> failed.", 'error');
+    }
+    $form['#redirect'] = 'admin/modules';
+  }
+
+  /**
+   * @param string $module
+   * @return string
+   */
+  public function uninstall_module($module) {
+    return get_module_form()->build('uninstall_module_form', $module);
+  }
+
+  /**
+   * @param array  $form
+   * @param array  $form_values
+   * @param array  $form_errors
+   * @param string $module
+   * @return array
+   */
+  public function uninstall_module_form(array $form, array $form_values, array $form_errors, $module) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form_values;
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_errors;
 
-//    $schema = get_module($form_values['extra']['module'])->schema();
-//    $table_name = key($schema);
-//    db_query('DROP TABLE ' . $table_name);
-//
-//    $this->_module_install($form_values['extra']['module']);
-    set_message('Reinstall is not implemented yet.', 'warning');
+    $form = array();
 
+    $form['message'] = array(
+      '#value' => '<p>Are you sure you want to uninstall module ' . $module . '?</p>',
+    );
+    $form['submit'] = array(
+      '#type'   => 'submit',
+      '#value'  => 'Uninstall',
+      '#suffix' => '<span class="cancel-submit">' . l('Cancel', 'admin/modules') . '</span>',
+    );
+
+    return $form;
+  }
+
+  /**
+   * @param array  $form
+   * @param array  $form_values
+   * @param string $module
+   */
+  public function uninstall_module_form_submit(array &$form, array $form_values, $module) {
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_values;
+
+    $this->_enable_module($module, FALSE);
+
+    $class = get_module($module);
+    $method = new \ReflectionMethod($class, 'uninstall');
+    $method->setAccessible(TRUE);
+    $b = $method->invoke($class);
+    if ($b) {
+      set_message("Module <em>$module</em> is uninstalled.");
+    } else {
+      set_message("Uninstall of module <em>$module</em> failed.", 'error');
+    }
     $form['#redirect'] = 'admin/modules';
+  }
+
+  /**
+   * @param string $module
+   * @return array
+   */
+  public function enable_module($module) {
+    $this->_enable_module($module);
+
+    go_to('admin/modules');
+  }
+
+  /**
+   * @param string $module
+   * @return array
+   */
+  public function disable_module($module) {
+    $this->_enable_module($module, FALSE);
+
+    go_to('admin/modules');
   }
 
   /**
    * @return string
    */
   public function modules() {
+    $this->update();
+
     library_load('stupidtable');
     add_js('$(function(){$(".stupidtable").stupidtable()});', 'inline');
 
-    $modules = get_module();
+    // Get all modules.
+    $modules = $this->get_modules();
 
     $header = array(
       array('data' => 'Name',         'data-sort' => 'string'),
       array('data' => 'Namespace',    'data-sort' => 'string'),
-      array('data' => 'Used Hooks'),
-      array('data' => 'Has Install',  'data-sort' => 'string'),
-//      array('data' => 'Table Name',   'data-sort' => 'string'),
+      array('data' => 'Hooks'),
+      array('data' => 'Tables'),
 //      array('data' => 'Installed',    'data-sort' => 'string'),
 //      array('data' => 'Weight',   'data-sort' => 'int'),
 //      array('data' => 'Template', 'data-sort' => 'string'),
-//      array('data' => 'Actions',      'colspan' => 3),
+      array('data' => 'Actions',      'colspan' => 2),
     );
-
-    $skip_modules = array('system', 'user');
 
     $count = 0;
     $rows = array();
     foreach ($modules as $module) {
-      $module_name = get_class_name($module);
-      $can_install = method_exists($module, 'install');
-//      $table_name = '';
-//      $table_exists = '';
-      if ($can_install) {
+      $class = get_module($module->name);
+//      $module_name = get_class_name($module);
+      $schema_exists = method_exists($class, 'schema');
+      $install_exists = method_exists($class, 'install');
+      $uninstall_exists = method_exists($class, 'uninstall');
+
+//      if (in_array($module->name, $skip_modules)) {
+//        $install_exists = FALSE;
+//        $uninstall_exists = FALSE;
+//      }
+
+      $tables = '';
+      if ($schema_exists) {
         /** @noinspection PhpUndefinedMethodInspection */
-//        $schema = $module->schema();
-//        $table_name = key($schema);
-//        $table_exists = db_table_exists($table_name) ? 'Yes' : 'No';
+        $schema = $class->schema();
+        $tables = array_keys($schema);
+        $tables = implode(', ', $tables);
       }
 
       $hooks = array('__construct', 'init', 'menu', 'page_build', 'page_alter', 'shutdown');
       $used_hooks = array();
       foreach ($hooks as $hook) {
-        if (method_exists($module, $hook)) {
+        if (method_exists($class, $hook)) {
           $used_hooks[] = $hook;
         }
       }
       $used_hooks = implode(', ', $used_hooks);
 
-      $fqn = get_class($module);
+      $fqn = get_class($class);
+
+      if ($install_exists) {
+        if (in_array($module->name, $this->system_modules)) {
+          $install_links = ($module->installed) ? 'installed' : 'not installed';
+        } else {
+          $install_links = ($module->installed) ? l('uninstall', 'admin/module/uninstall/' . $module->name) : l('install', 'admin/module/install/' . $module->name);
+        }
+      } else {
+        $install_links = '';
+      }
+
+      if (in_array($module->name, $this->system_modules)) {
+        $enable_links = ($module->enabled) ? 'enabled' : 'disabled';
+      } else {
+        $enable_links = ($module->enabled) ? l('disable', 'admin/module/disable/' . $module->name) : l('enable', 'admin/module/enable/' . $module->name);
+      }
 
       $count++;
       $rows[] = array(
-        $module_name,
+        $module->name,
         substr($fqn, 0, strrpos($fqn, '\\')),
         $used_hooks,
-        ($can_install) ? 'Yes' : '',
-//        $table_name,
-//        $table_exists,
-//        ($can_install && ($table_exists != 'Yes')) ? l('install', 'admin/module/install/' . $module_name) : '',
-//        (($table_exists == 'Yes') && !in_array($module_name, $skip_modules)) ? l('reinstall', 'admin/module/reinstall/' . $module_name) : '',
-//        (($table_exists == 'Yes') && !in_array($module_name, $skip_modules)) ? l('uninstall', 'admin/module/uninstall/' . $module_name) : '',
+        $tables,
+        $install_links,
+        $enable_links,
       );
     }
 
