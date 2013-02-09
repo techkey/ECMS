@@ -493,8 +493,7 @@ class database {
 
     $b = $this->exec($sql);
 
-
-    return $b;
+    return ($b !== FALSE);
   }
 
   /**
@@ -507,8 +506,13 @@ class database {
   }
 
   /**
-   * @param array $schema
-   * @return bool
+   * Install a schema.
+   *
+   * For every table in the schema it first drops the table if exists, then it
+   * create a new empty table. It also create the keys if given in the schema.
+   *
+   * @param array $schema The schema to be installed.
+   * @return bool Returns TRUE on success and FALSE on failure.
    */
   public function install_schema(array $schema) {
     foreach ($schema as $table_name => $table_data) {
@@ -519,6 +523,22 @@ class database {
       }
     }
     return TRUE;
+  }
+
+  /**
+   * Uninstall a schema.
+   *
+   * Drop every table in the schema.
+   *
+   * @param array $schema The schema to be uninstalled.
+   * @return bool
+   */
+  public function uninstall_schema(array $schema) {
+    $failed = FALSE;
+    foreach ($schema as $table_name => $table_data) {
+      $failed |= !$this->drop_table($table_name);
+    }
+    return !$failed;
   }
 
   /**
@@ -645,11 +665,28 @@ function db_table_exists($table) {
 }
 
 /**
- * @param array $schema
- * @return bool
+ * Install a schema.
+ *
+ * For every table in the schema it first drops the table if exists, then it
+ * create a new empty table. It also create the keys if given in the schema.
+ *
+ * @param array $schema The schema to be installed.
+ * @return bool Returns TRUE on success and FALSE on failure.
  */
 function db_install_schema(array $schema) {
   return get_dbase()->install_schema($schema);
+}
+
+/**
+ * Uninstall a schema.
+ *
+ * Drop every table in the schema.
+ *
+ * @param array $schema The schema to be uninstalled.
+ * @return bool
+ */
+function db_uninstall_schema(array $schema) {
+  return get_dbase()->uninstall_schema($schema);
 }
 
 /**
