@@ -12,7 +12,7 @@ use core\modules\core_module;
  */
 class module extends core_module {
 
-  private $system_modules = array('module', 'router', 'session', 'system', 'user');
+  private $system_modules = array('form', 'menu', 'module', 'router', 'session', 'system', 'user');
 
   /* Hooks ********************************************************************/
 
@@ -408,22 +408,104 @@ class module extends core_module {
 
   /**
    * @param string $module
-   * @return array
+   * @return string
    */
   public function enable_module($module) {
-    $this->_enable_module($module);
+    return get_module_form()->build('enable_module_form', $module);
+  }
 
-    go_to('admin/modules');
+  /**
+   * @param array  $form
+   * @param array  $form_values
+   * @param array  $form_errors
+   * @param string $module
+   * @return array
+   */
+  public function enable_module_form(array $form, array $form_values, array $form_errors, $module) {
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form;
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_values;
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_errors;
+
+    $form = array();
+
+    $form['message'] = array(
+      '#value' => "<p>Are you sure you want to enable module <em>$module</em>?</p>",
+    );
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => 'Enable',
+      '#suffix' => '<span class="cancel-submit">' . l('Cancel', 'admin/modules') . '</span>',
+    );
+
+    return $form;
+  }
+
+  /**
+   * @param array  $form
+   * @param array  $form_values
+   * @param string $module
+   */
+  public function enable_module_form_submit(array &$form, array $form_values, $module) {
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_values;
+
+    $this->_enable_module($module);
+    set_message("Module <em>$module</em> is enabled.");
+    $form['#redirect'] = 'admin/modules';
   }
 
   /**
    * @param string $module
-   * @return array
+   * @return string
    */
   public function disable_module($module) {
-    $this->_enable_module($module, FALSE);
+    return get_module_form()->build('disable_module_form', $module);
+  }
 
-    go_to('admin/modules');
+  /**
+   * @param array  $form
+   * @param array  $form_values
+   * @param array  $form_errors
+   * @param string $module
+   * @return array
+   */
+  public function disable_module_form(array $form, array $form_values, array $form_errors, $module) {
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form;
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_values;
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_errors;
+
+    $form = array();
+
+    $form['message'] = array(
+      '#value' => "<p>Are you sure you want to disable module <em>$module</em>?</p>",
+    );
+    $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => 'Disable',
+      '#suffix' => '<span class="cancel-submit">' . l('Cancel', 'admin/modules') . '</span>',
+    );
+
+    return $form;
+  }
+
+  /**
+   * @param array  $form
+   * @param array  $form_values
+   * @param string $module
+   */
+  public function disable_module_form_submit(array &$form, array $form_values, $module) {
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_values;
+
+    $this->_enable_module($module, FALSE);
+    set_message("Module <em>$module</em> is disabled.");
+    $form['#redirect'] = 'admin/modules';
   }
 
   /**
@@ -432,8 +514,10 @@ class module extends core_module {
   public function modules() {
     $this->update();
 
-    library_load('stupidtable');
-    add_js('$(function(){$(".stupidtable").stupidtable()});', 'inline');
+    $b = library_load('stupidtable');
+    if ($b) {
+      add_js('$(function(){$(".stupidtable").stupidtable()});', 'inline');
+    }
 
     // Get all modules.
     $modules = $this->get_modules();
@@ -483,7 +567,7 @@ class module extends core_module {
       $fqn = get_class($class);
 
       if ($install_exists) {
-        if (in_array($module->name, $this->system_modules)) {
+        if ($module->enabled | in_array($module->name, $this->system_modules)) {
           $install_links = ($module->installed) ? 'installed' : 'not installed';
         } else {
           $install_links = ($module->installed) ? l('uninstall', 'admin/module/uninstall/' . $module->name) : l('install', 'admin/module/install/' . $module->name);
@@ -492,7 +576,7 @@ class module extends core_module {
         $install_links = '';
       }
 
-      if (in_array($module->name, $this->system_modules)) {
+      if (($install_exists && !$module->installed) || in_array($module->name, $this->system_modules)) {
         $enable_links = ($module->enabled) ? 'enabled' : 'disabled';
       } else {
         $enable_links = ($module->enabled) ? l('disable', 'admin/module/disable/' . $module->name) : l('enable', 'admin/module/enable/' . $module->name);
@@ -513,7 +597,7 @@ class module extends core_module {
       'template' => 'table',
       'vars'     => array(
         'caption'    => $count . ' modules',
-        'attributes' => array('class' => array('stupidtable', 'sticky')),
+        'attributes' => array('class' => array('table',  'stupidtable', 'sticky')),
         'header'     => $header,
         'rows'       => $rows,
       ),
