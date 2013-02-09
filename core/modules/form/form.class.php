@@ -134,6 +134,9 @@ class form {
     array_unshift($args, $saved_data, $this->form_values, $this->form_errors);
     $data = call_user_func_array(array($class, $form_name), $args);
 
+    // Hook form_FORM_ID_alter().
+    invoke("form_{$form_name}_alter", $data);
+
     // Check for form attributes and description.
     if (isset($data['#attributes'])) {
       $this->form_attributes = $data['#attributes'];
