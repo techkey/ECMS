@@ -194,7 +194,7 @@ class session
   public function menu() {
     $menu['admin/sessions'] = array(
       'title' => 'Sessions',
-      'controller' => 'session:sessions',
+      'controller' => 'session::sessions',
       'access_arguments' => 'admin',
       'menu_name' => 'system',
     );

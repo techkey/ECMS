@@ -127,7 +127,7 @@ class block {
   public function menu() {
     $menu['admin/blocks'] = array(
       'title'            => 'Blocks',
-      'controller'       => 'block:blocks',
+      'controller'       => 'block::blocks',
       'access_arguments' => 'admin',
       'menu_name'        => 'system',
     );

@@ -13,13 +13,13 @@ class router {
    * Associative array of routes keyed by the route name.
    *
    * <pre>
-   *  'admin/blocks' => (                     The path of the route, can have placeholders like 'account/{{id}'.
-   *    'access_arguments' => '',             Decides who has access.
-   *    'controller'       => 'block:blocks', The controller in the format class:method.
-   *    'menu_name'        => 'system',       Name of the menu.
-   *    'module'           => 'block',        The name of the module that assigned this route.
-   *    'title'            => 'Blocks',       The title.
-   *    'type'             => '6',            The type of the route.
+   *  'admin/blocks' => (                      The path of the route, can have placeholders like 'account/{{id}'.
+   *    'access_arguments' => '',              Decides who has access.
+   *    'controller'       => 'block::blocks', The controller in the format class:method.
+   *    'menu_name'        => 'system',        Name of the menu.
+   *    'module'           => 'block',         The name of the module that assigned this route.
+   *    'title'            => 'Blocks',        The title.
+   *    'type'             => '6',             The type of the route.
    *  ),
    *  ...
    * </pre>
@@ -36,13 +36,13 @@ class router {
    * If $route is a array then the following format is expected ($path and $controller are not used):
    * <pre>
    *  array(
-   *    'access_arguments' => '',             Decides who has access.
-   *    'controller'       => 'block:blocks', The controller in the format class:method.
-   *    'menu_name'        => 'system',       Name of the menu.
-   *    'module'           => 'block',        The name of the module that assigned this route.
-   *    'path'             => 'admin/blocks'  The path of the route, can have placeholders like 'account/{{id}'.
-   *    'title'            => 'Blocks',       The title.
-   *    'type'             => '6',            The type of the route.
+   *    'access_arguments' => '',              Decides who has access.
+   *    'controller'       => 'block::blocks', The controller in the format class:method.
+   *    'menu_name'        => 'system',        Name of the menu.
+   *    'module'           => 'block',         The name of the module that assigned this route.
+   *    'path'             => 'admin/blocks'   The path of the route, can have placeholders like 'account/{{id}'.
+   *    'title'            => 'Blocks',        The title.
+   *    'type'             => '6',             The type of the route.
    *  );
    * </pre>
    *
@@ -282,7 +282,7 @@ class router {
   public function menu() {
     $menu['admin/routes'] = array(
       'title'            => 'Routes',
-      'controller'       => 'router:routes',
+      'controller'       => 'router::routes',
       'access_arguments' => 'admin',
       'menu_name'        => 'system',
     );

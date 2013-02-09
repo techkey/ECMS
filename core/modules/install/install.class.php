@@ -28,12 +28,12 @@ class install {
   public function menu() {
     $menu['install'] = array(
       'title' => 'Install',
-      'controller' => 'install:install',
+      'controller' => 'install::install',
       'type' => MENU_CALLBACK,
     );
     $menu['install2'] = array(
       'title' => 'Install',
-      'controller' => 'install:install2',
+      'controller' => 'install::install2',
       'type' => MENU_CALLBACK,
     );
 

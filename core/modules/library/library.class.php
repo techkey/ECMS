@@ -238,7 +238,7 @@ class library {
   public function menu() {
     $menu['admin/libraries'] = array(
       'title' => 'Libraries',
-      'controller' => 'library:libraries',
+      'controller' => 'library::libraries',
       'access_arguments' => 'admin',
       'menu_name' => 'system',
     );

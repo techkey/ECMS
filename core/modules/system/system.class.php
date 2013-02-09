@@ -219,38 +219,38 @@ class system extends core_module {
   public function menu() {
     $menu['admin/theme/clear_cache'] = array(
       'title' => 'Clear theme cache',
-      'controller' => 'system:clear_cache',
+      'controller' => 'system::clear_cache',
       'access_arguments' => 'admin',
       'menu_name' => 'system',
     );
     $menu['admin/mail'] = array(
       'title' => 'Mail',
-      'controller' => 'system:mail',
+      'controller' => 'system::mail',
       'access_arguments' => 'admin',
       'menu_name' => 'system',
     );
     $menu['admin/phpinfo'] = array(
       'title' => 'PHP Info',
-      'controller' => 'system:phpinfo',
+      'controller' => 'system::phpinfo',
       'access_arguments' => 'admin',
       'menu_name' => 'system',
     );
     $menu['admin/setup'] = array(
       'title' => 'Setup',
-      'controller' => 'system:setup',
+      'controller' => 'system::setup',
       'access_arguments' => 'admin',
       'menu_name' => 'system',
     );
 
     $menu['admin/variables'] = array(
       'title' => 'Variables',
-      'controller' => 'system:variables',
+      'controller' => 'system::variables',
       'access_arguments' => 'admin',
       'menu_name' => 'system',
     );
     $menu['admin/variable/delete/{name}'] = array(
       'title' => 'Delete variable',
-      'controller' => 'system:variable_delete',
+      'controller' => 'system::variable_delete',
       'access_arguments' => 'admin',
       'type' => MENU_CALLBACK,
     );

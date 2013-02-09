@@ -35,13 +35,13 @@ class ckeditor extends module {
   public function menu() {
     $menu['admin/ckeditor'] = array(
       'title'            => 'CKEditor',
-      'controller'       => 'ckeditor:settings',
+      'controller'       => 'ckeditor::settings',
       'access_arguments' => 'admin',
       'menu_name'        => 'system'
     );
     $menu['admin/ckfinder'] = array(
       'title'            => 'CKFinder',
-      'controller'       => 'ckeditor:ckfinder',
+      'controller'       => 'ckeditor::ckfinder',
       'access_arguments' => 'admin',
       'menu_name'        => 'system'
     );

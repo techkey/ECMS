@@ -348,52 +348,52 @@ class user extends core_module
 
     $menu['admin/users'] = array(
       'title'            => 'Users',
-      'controller'       => 'user:list_users',
+      'controller'       => 'user::list_users',
       'access_arguments' => 'admin',
       'type'             => MENU_NORMAL_ITEM,
       'menu_name'        => 'system',
     );
     $menu['admin/user/edit/{uid}'] = array(
       'title'            => 'Edit User',
-      'controller'       => 'user:edit',
+      'controller'       => 'user::edit',
       'access_arguments' => 'admin',
       'type'             => MENU_CALLBACK,
     );
     $menu['admin/user/delete/{uid}'] = array(
       'title'            => 'Delete User',
-      'controller'       => 'user:delete',
+      'controller'       => 'user::delete',
       'access_arguments' => 'admin',
       'type'             => MENU_CALLBACK,
     );
 
     $menu['user/login'] = array(
       'title'            => 'Login',
-      'controller'       => 'user:login',
+      'controller'       => 'user::login',
       'type'             => MENU_CALLBACK,
     );
     $menu['user/logout'] = array(
       'title'            => 'Logout',
-      'controller'       => 'session:logout',
+      'controller'       => 'session::logout',
       'type'             => MENU_CALLBACK,
     );
     $menu['user/register'] = array(
       'title'            => 'Register',
-      'controller'       => 'user:register_user',
+      'controller'       => 'user::register_user',
       'type'             => MENU_CALLBACK,
     );
     $menu['user/edit'] = array(
       'title'            => ' My Account',
-      'controller'       => 'user:edit_user',
+      'controller'       => 'user::edit_user',
       'type'             => MENU_CALLBACK,
     );
     $menu['user/password_reset'] = array(
       'title'            => 'Password Reset',
-      'controller'       => 'user:password_reset',
+      'controller'       => 'user::password_reset',
       'type'             => MENU_CALLBACK,
     );
     $menu['user/email_confirm/{code}'] = array(
       'title'            => 'Email Confirmation',
-      'controller'       => 'user:email_confirm',
+      'controller'       => 'user::email_confirm',
       'type'             => MENU_CALLBACK,
     );
 

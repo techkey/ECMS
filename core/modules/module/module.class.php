@@ -71,38 +71,38 @@ class module extends core_module {
   public function menu() {
     $menu['admin/module/install/{module}']   = array(
       'title'            => 'Install Module',
-      'controller'       => 'module:install_module',
+      'controller'       => 'module::install_module',
       'access_arguments' => 'admin',
       'type'             => MENU_CALLBACK,
     );
     $menu['admin/module/reinstall/{module}'] = array(
       'title'            => 'Reinstall Module',
-      'controller'       => 'module:reinstall_module',
+      'controller'       => 'module::reinstall_module',
       'access_arguments' => 'admin',
       'type'             => MENU_CALLBACK,
     );
     $menu['admin/module/uninstall/{module}'] = array(
       'title'            => 'Uninstall Module',
-      'controller'       => 'module:uninstall_module',
+      'controller'       => 'module::uninstall_module',
       'access_arguments' => 'admin',
       'type'             => MENU_CALLBACK,
     );
     $menu['admin/module/enable/{module}']   = array(
       'title'            => 'Enable Module',
-      'controller'       => 'module:enable_module',
+      'controller'       => 'module::enable_module',
       'access_arguments' => 'admin',
       'type'             => MENU_CALLBACK,
     );
     $menu['admin/module/disable/{module}'] = array(
       'title'            => 'Disable Module',
-      'controller'       => 'module:disable_module',
+      'controller'       => 'module::disable_module',
       'access_arguments' => 'admin',
       'type'             => MENU_CALLBACK,
     );
 
     $menu['admin/modules'] = array(
       'title'            => 'Modules',
-      'controller'       => 'module:modules',
+      'controller'       => 'module::modules',
       'access_arguments' => 'admin',
       'menu_name'        => 'system',
     );

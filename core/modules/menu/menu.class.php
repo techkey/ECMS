@@ -197,7 +197,7 @@ class menu extends core_module {
   public function menu() {
     $menu['admin/menus'] = array(
       'title'            => 'Menus',
-      'controller'       => 'menu:menus',
+      'controller'       => 'menu::menus',
       'access_arguments' => 'admin',
       'menu_name'        => 'system',
     );
