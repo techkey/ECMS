@@ -200,16 +200,17 @@ class router
 
     if ($req_uri == 'home') {
       $return = array(
-        'page_title' => 'Welcome',
-        'content' => 'No home page is created yet.',
-        'status_code' => 200,
+        'page_title'    => 'Welcome',
+        'content_title' => 'Welcome',
+        'content'       => 'No home page is created yet.',
+        'status_code'   => 200,
       );
     } else {
       header('HTTP/1.1 404 Not Found');
 //      set_message("Route '$req_uri' not found.", 'error');
       $return = array(
-        'page_title' => 'Not Found',
-        'content' => '<h2 id="not_found">Sorry, we could not find the page you requested.</h2>',
+        'page_title'  => 'Not Found',
+        'content'     => '<h2 id="not_found">Sorry, we could not find the page you requested.</h2>',
         'status_code' => 404,
       );
     }
