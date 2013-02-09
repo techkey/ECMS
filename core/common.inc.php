@@ -33,6 +33,16 @@ function log_add() {
 }
 
 /**
+ * Check if a module is enabled.
+ *
+ * @param string $module
+ * @return bool Returns TRUE if the module is enabled or FALSE if not.
+ */
+function is_module_enabled($module) {
+  return get_module('module')->is_enabled($module);
+}
+
+/**
  * @return \core\modules\system\system Returns the object or FALSE.
  */
 function get_module_system() {
@@ -44,6 +54,13 @@ function get_module_system() {
  */
 function get_module_session() {
   return get_module('session');
+}
+
+/**
+ * @return \core\modules\module\module Returns the object or FALSE.
+ */
+function get_module_module() {
+  return get_module('module');
 }
 
 /**
