@@ -21,7 +21,7 @@ class session
   /**
    * The schema definition.
    */
-  private function schema() {
+  public function schema() {
     $schema['session'] = array(
       'fields' => array(
         'sid' => array(
