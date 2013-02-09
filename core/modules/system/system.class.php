@@ -40,7 +40,7 @@ class system extends core_module {
    *
    * @return array
    */
-  private function schema() {
+  public function schema() {
     $schema['variable'] = array(
       'description' => 'The variable table.',
       'fields' => array(
@@ -490,7 +490,7 @@ class system extends core_module {
       '#type' => 'textfield',
       '#title' => 'Maintainer IP',
       '#default_value' => variable_get('system_maintainer_ip', ''),
-      '#description' => 'This IP overrides maintanance mode. Current IP is: <em>' . $_SERVER['REMOTE_ADDR'] . '</em>',
+      '#description' => 'This IP overrides maintenance mode. Current IP is: <em>' . $_SERVER['REMOTE_ADDR'] . '</em>',
     );
 
     $form['system']['debug'] = array(
