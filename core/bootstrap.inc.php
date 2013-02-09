@@ -106,9 +106,14 @@ function load_modules() {
 }
 
 /**
- * @param string $module
- * @param bool   $add
- * @return bool|object Returns the object or FALSE.
+ * Get a module instance.
+ *
+ * If no module is given then all module instances will be returned as a
+ * associative array keyed with the module name.
+ *
+ * @param string $module [optional] The module name.
+ * @param bool   $add    [optional]
+ * @return bool|object|array Returns the object, all module instances or FALSE if module is not found.
  */
 function get_module($module = NULL, $add = FALSE) {
   static $modules = array();
@@ -156,10 +161,15 @@ function invoke($method, &$args = NULL) {
   $results = array();
 
   $modules = get_module();
+  $enabled_modules = get_module_module()->get_enabled_module_names();
 
-  foreach ($modules as $module) {
-    if (method_exists($module, $method)) {
-      $results[get_class_name($module)] = $module->$method($args);
+  foreach ($modules as $name => $class) {
+    // Skip disabled modules.
+    if (!in_array($name, $enabled_modules)) {
+      continue;
+    }
+    if (method_exists($class, $method)) {
+      $results[get_class_name($class)] = $class->$method($args);
     }
   }
 
