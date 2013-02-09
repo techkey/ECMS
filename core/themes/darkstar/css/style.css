@@ -144,13 +144,13 @@ body {
 
 #unauthorized {
   height: 28px;
-  padding: 100px 0 0 130px;
+  padding: 110px 0 0 130px;
   background: url(../../../misc/document-encrypt.png) no-repeat;
 }
 
 #not_found {
   height: 28px;
-  padding: 100px 0 0 130px;
+  padding: 110px 0 0 130px;
   background: url(../../../misc/help-faq.png) no-repeat;
 }
 
@@ -303,20 +303,20 @@ fieldset.collapsible > legend .fieldset-legend {
   display: block;
 }
 
-.list-table {
+.table {
   border-collapse: collapse;
  	margin: 0.5em;
 }
 
-.list-table thead, .list-table tfoot {
+.table thead, .list-table tfoot {
   background-color: #DDD;
 }
 
-.list-table th {
+.table th {
   text-align: left;
 }
 
-.list-table caption {
+.table caption {
   padding: 6px;
  	border-top: 1px solid #CCC;
  	border-right: 1px solid #CCC;
@@ -324,17 +324,17 @@ fieldset.collapsible > legend .fieldset-legend {
  	height: 1.5em;
 }
 
-.list-table th, .list-table td {
+.table th, .table td {
   padding: 6px;
  	border: 1px solid #CCC;
  	height: 1.5em;
 }
 
-.list-table tbody tr:hover {
+.table tbody tr:hover {
   background: #FFF5A0;
 }
 
-.list-table tr {
+.table tr {
   height: 1em;
 }
 
@@ -388,17 +388,7 @@ footer {
   padding: 10px 0;
   border-top: 1px solid #BACD00;
 }
-/*
-#footer-left {
-  float: left;
-}
-#footer-center {
-  text-align: center;
-}
-#footer-right {
-  float: right;
-}
-*/
+
 .footer-bottom span {
   display: inline-block;
   width: 33.33%;
@@ -462,15 +452,7 @@ ul.stats {
   position: absolute;
   right: 0;
 }
-/*
-.imagelink {
-  opacity: 0.5;
-}
 
-.imagelink:hover {
-  opacity: 1;
-}
-*/
 .node-info {
   position: absolute;
   top: 0;
