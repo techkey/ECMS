@@ -340,7 +340,6 @@ class module extends core_module {
       $this->set_module_status($module, TRUE);
       set_message("Module <em>$module</em> is installed.");
     } else {
-      $this->set_module_status($module, FALSE);
       set_message("Installation of module <em>$module</em> failed.", 'error');
     }
     $form['#redirect'] = 'admin/modules';
@@ -399,6 +398,7 @@ class module extends core_module {
     $method->setAccessible(TRUE);
     $b = $method->invoke($class);
     if ($b) {
+      $this->set_module_status($module, FALSE);
       set_message("Module <em>$module</em> is uninstalled.");
     } else {
       set_message("Uninstall of module <em>$module</em> failed.", 'error');
