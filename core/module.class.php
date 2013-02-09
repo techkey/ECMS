@@ -1,13 +1,14 @@
 <?php
-// module.class.php
+/*
+ * module.class.php
+*/
 
-namespace modules;
+namespace core;
 
 /**
- *
+ * A base class that user modules can extend to get extra functionality.
  */
-abstract class module
-{
+abstract class module {
 
   /**
    * Get relative path.
