@@ -8,22 +8,23 @@ use core\modules\config\config;
 /**
  * @author Cornelis Brouwers <cornelis_brouwers@hotmail.com>
  */
-class router
-{
+class router {
   /**
-   * Associative array keyed by the route name.
+   * Associative array of routes keyed by the route name.
+   *
    * <pre>
-   *  'home' => [                     The name of the route.
-   *    'path' => '',                 The path of the route, can have placeholders like 'account/{{id}'.
-   *    'controller' => 'test:home',  The controller in the format class:method.
-   *    'menu' => [                   [optional] Menu section is only valid if the path contains <b>NO</b> placeholders.
-   *        'name' => 'user',         Name of the menu.
-   *        'title' => 'Home',        Title of the menu.
-   *    ]
-   *  ]
+   *  'admin/blocks' => (                     The path of the route, can have placeholders like 'account/{{id}'.
+   *    'access_arguments' => '',             Decides who has access.
+   *    'controller'       => 'block:blocks', The controller in the format class:method.
+   *    'menu_name'        => 'system',       Name of the menu.
+   *    'module'           => 'block',        The name of the module that assigned this route.
+   *    'title'            => 'Blocks',       The title.
+   *    'type'             => '6',            The type of the route.
+   *  ),
+   *  ...
    * </pre>
    *
-   * @var array
+   * @var \ROUTE[]
    */
   private $routes = array();
 
@@ -34,12 +35,15 @@ class router
    *
    * If $route is a array then the following format is expected ($path and $controller are not used):
    * <pre>
-   *  'Home' => [                     The title of the route.
-   *    'module' => '',               The module that assigned the route.
-   *    'path' => '',                 The path of the route, can have placeholders like 'account/{{id}'.
-   *    'controller' => 'test:home',  The controller in the format class:method.
-   *    'access_arguments' => ''      The roles that have access.
-   *  ]
+   *  array(
+   *    'access_arguments' => '',             Decides who has access.
+   *    'controller'       => 'block:blocks', The controller in the format class:method.
+   *    'menu_name'        => 'system',       Name of the menu.
+   *    'module'           => 'block',        The name of the module that assigned this route.
+   *    'path'             => 'admin/blocks'  The path of the route, can have placeholders like 'account/{{id}'.
+   *    'title'            => 'Blocks',       The title.
+   *    'type'             => '6',            The type of the route.
+   *  );
    * </pre>
    *
    * @param string|array $path
@@ -52,8 +56,9 @@ class router
   public function add_route($path, $title = NULL, $controller = NULL, $access_arguments = NULL, $type = NULL, $comments = NULL) {
     $module = get_called_class();
     if (is_array($path)) {
-      $this->routes += $path;
-      $this->routes += array('module' => $module);
+      $path += array('module' => $module);
+      $this->routes += array($path['path'] => $path);
+      unset($this->routes[$path['path']]['path']);
     }
     else {
       $this->routes[$path] = array(
@@ -68,14 +73,16 @@ class router
   }
 
   /**
-   * @return array
+   * Get all routes.
+   *
+   * @return \ROUTE[]
    */
   public function get_routes() {
     return $this->routes;
   }
 
   /**
-   * @return array|bool
+   * @return \ROUTE|bool
    */
   public function get_current_route() {
     $req_uri = $_SERVER['REQUEST_URI'];
@@ -291,8 +298,10 @@ class router
    * @return string
    */
   public function routes() {
-    library_load('stupidtable');
-    add_js('$(function(){$(".stupidtable").stupidtable()});', 'inline');
+    $b = library_load('stupidtable');
+    if ($b) {
+      add_js('$(function(){$(".stupidtable").stupidtable()});', 'inline');
+    }
 
     $header = array(
       array('data' => 'Path',             'data-sort' => 'string'),
@@ -302,7 +311,11 @@ class router
       array('data' => 'Access arguments', 'data-sort' => 'string'),
       array('data' => 'Menu name',        'data-sort' => 'string'),
       array('data' => 'Type',             'data-sort' => 'int'),
-      array('data' => 'Comments',         'data-sort' => 'string'),
+    );
+
+    $types = array(
+      MENU_CALLBACK => 'MENU_CALLBACK',
+      MENU_NORMAL_ITEM => 'MENU_NORMAL_ITEM',
     );
 
     $rows = array();
@@ -314,8 +327,7 @@ class router
         $route['controller'],
         $route['access_arguments'],
         (isset($route['menu_name'])) ? $route['menu_name'] : '?',
-        (isset($route['type'])) ? $route['type'] : '?',
-        ($route['comments']) ? 'Yes' : '',
+        (isset($route['type'])) ? $types[$route['type']] : '?',
       );
     }
 
@@ -325,7 +337,7 @@ class router
         'caption' => count($this->routes) . ' routes',
         'header' => $header,
         'rows'   => $rows,
-        'attributes' => array('class' => array('stupidtable', 'sticky')),
+        'attributes' => array('class' => array('table', 'stupidtable', 'sticky')),
       ),
     );
 
