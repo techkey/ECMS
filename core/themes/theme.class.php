@@ -171,7 +171,7 @@ class theme
   }
 
   /**
-   * Sort all javascripts on weight and return them.
+   * Sort all javascript on weight and return them.
    *
    * @return array
    */
@@ -190,7 +190,7 @@ class theme
   }
 
   /**
-   * Sort all inline javascripts on weight and return them.
+   * Sort all inline javascript on weight and return them.
    *
    * @return string
    */
@@ -275,4 +275,58 @@ class theme
 
     return get_theme()->fetch('pager', array('page' => $page));
   }
+
+  /**
+   * @internal
+   *
+   * @param array $data
+   * @return string
+   */
+  private function _build_tree(array $data) {
+    $out = '<ul>';
+    foreach ($data as $path => $item) {
+      $out .= '<li>';
+//      $item = current($item);
+      $link = $item['#link'];
+      $out .= l($link['title'], $path);
+
+      if (count($item) > 1) {
+        unset($item['#link']);
+        $out .= $this->_build_tree($item);
+      }
+
+      $out .= '</li>';
+    }
+    $out .= '</ul>';
+
+    return $out;
+  }
+
+  /**
+   * Build HTML of a menu.
+   *
+   * @see core\modules\menu\menu::$menus
+   *
+   * @param array $menu The menu to build.
+   * @return string
+   */
+  public function theme_menu(array $menu) {
+    $out = '<ul class="sf-menu">';
+    foreach ($menu as $path => $data) {
+      $link = $data['#link'];
+      $out .= '<li>';
+      $out .= l($link['title'], $path);
+
+      if (count($data) > 1) {
+        unset($data['#link']);
+        $out .= $this->_build_tree($data);
+      }
+
+      $out .= '</li>';
+    }
+    $out .= '</ul>';
+
+    return $out;
+  }
 }
+
