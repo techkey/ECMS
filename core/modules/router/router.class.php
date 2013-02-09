@@ -202,7 +202,7 @@ class router
       $return = array(
         'page_title'    => 'Welcome',
         'content_title' => 'Welcome',
-        'content'       => 'No home page is created yet.',
+        'content'       => 'No front page is created and set yet.',
         'status_code'   => 200,
       );
     } else {
