@@ -82,6 +82,15 @@ class router {
   }
 
   /**
+   * Get all route paths.
+   *
+   * @return string[]
+   */
+  public function get_route_paths() {
+    return array_keys($this->routes);
+  }
+
+  /**
    * @return \ROUTE|bool
    */
   public function get_current_route() {
