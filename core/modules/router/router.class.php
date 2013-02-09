@@ -164,7 +164,7 @@ class router {
           );
         }
 
-        list($class, $method) = explode(':', $route['controller']);
+        list($class, $method) = explode('::', $route['controller']);
 
         $fcn = "\\core\\modules\\$class\\$class";
         if (!class_exists($fcn, FALSE)) {
