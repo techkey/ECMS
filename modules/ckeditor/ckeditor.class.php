@@ -5,7 +5,7 @@
 
 namespace modules\ckeditor;
 
-use core\modules\module\module;
+use core\module;
 
 /**
  *
@@ -34,16 +34,16 @@ class ckeditor extends module {
    */
   public function menu() {
     $menu['admin/ckeditor'] = array(
-      'title' => 'CKEditor',
-      'controller' => 'ckeditor:settings',
+      'title'            => 'CKEditor',
+      'controller'       => 'ckeditor:settings',
       'access_arguments' => 'admin',
-      'menu_name' => 'system'
+      'menu_name'        => 'system'
     );
     $menu['admin/ckfinder'] = array(
-      'title' => 'CKFinder',
-      'controller' => 'ckeditor:ckfinder',
+      'title'            => 'CKFinder',
+      'controller'       => 'ckeditor:ckfinder',
       'access_arguments' => 'admin',
-      'menu_name' => 'system'
+      'menu_name'        => 'system'
     );
 
     return $menu;
@@ -58,27 +58,27 @@ class ckeditor extends module {
     $out = '';
 
     $form['inline'] = array(
-      '#type' => 'fieldset',
+      '#type'  => 'fieldset',
       '#title' => 'Inline',
     );
     $form['inline']['enter_mode'] = array(
-      '#type' => 'radios',
-      '#title' => 'Enter mode',
-      '#description' => 'Sets the behavior of the <em>Enter</em> key.',
-      '#options' => array(1 => 'p', 2 => 'br', 3 => 'div'),
+      '#type'          => 'radios',
+      '#title'         => 'Enter mode',
+      '#description'   => 'Sets the behavior of the <em>Enter</em> key.',
+      '#options'       => array(1 => 'p', 2 => 'br', 3 => 'div'),
       '#default_value' => variable_get('ckeditor_enter_mode', 1),
-      '#field_prefix' => '<div>',
-      '#field_suffix' => '</div>',
+      '#field_prefix'  => '<div>',
+      '#field_suffix'  => '</div>',
     );
     $form['inline']['buttons'] = array(
-      '#type' => 'checkboxes',
-      '#title' => 'Buttons',
+      '#type'        => 'checkboxes',
+      '#title'       => 'Buttons',
       '#description' => 'Buttons to show.',
-      '#options' => make_array_assoc(array('htmlSource', 'Bold', 'Italic', 'Underline')),
+      '#options'     => make_array_assoc(array('htmlSource', 'Bold', 'Italic', 'Underline')),
     );
 
     $form['submit'] = array(
-      '#type' => 'submit',
+      '#type'  => 'submit',
       '#value' => 'Save',
     );
 
