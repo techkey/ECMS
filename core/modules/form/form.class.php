@@ -32,9 +32,11 @@ class form {
 
   /**
    * @param string $form_name The name of the form method.
+   * @param mixed  $arg [optional]
+   * $param mixed  $arg,... [optional]
    * @return string
    */
-  public function build($form_name) {
+  public function build($form_name, $arg = NULL) {
     $args = func_get_args();
     array_shift($args);
 
