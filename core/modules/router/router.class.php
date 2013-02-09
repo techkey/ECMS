@@ -14,8 +14,8 @@ class router
    * Associative array keyed by the route name.
    * <pre>
    *  'home' => [                     The name of the route.
-   *    'path' => '',                The path of the route, can have placeholders like 'account/{{id}'.
-   *    'controller' => 'teki:home',  The controller in the format class:method.
+   *    'path' => '',                 The path of the route, can have placeholders like 'account/{{id}'.
+   *    'controller' => 'test:home',  The controller in the format class:method.
    *    'menu' => [                   [optional] Menu section is only valid if the path contains <b>NO</b> placeholders.
    *        'name' => 'user',         Name of the menu.
    *        'title' => 'Home',        Title of the menu.
@@ -36,8 +36,8 @@ class router
    * <pre>
    *  'Home' => [                     The title of the route.
    *    'module' => '',               The module that assigned the route.
-   *    'path' => '',                The path of the route, can have placeholders like 'account/{{id}'.
-   *    'controller' => 'teki:home',  The controller in the format class:method.
+   *    'path' => '',                 The path of the route, can have placeholders like 'account/{{id}'.
+   *    'controller' => 'test:home',  The controller in the format class:method.
    *    'access_arguments' => ''      The roles that have access.
    *  ]
    * </pre>
@@ -209,7 +209,7 @@ class router
 //      set_message("Route '$req_uri' not found.", 'error');
       $return = array(
         'page_title' => 'Not Found',
-        'content' => '<h2 id="not_found">Sorry, we couldn\'t find the page you requested.</h2>',
+        'content' => '<h2 id="not_found">Sorry, we could not find the page you requested.</h2>',
         'status_code' => 404,
       );
     }
@@ -223,21 +223,6 @@ class router
    * Hook init();
    */
   public function init() {
-    $config = config::get_all_values();
-    foreach ($config as $path => $route) {
-      if ($path[0] != '#') {
-        continue;
-      }
-      $path = substr($path, 1);
-      $route += array(
-        'module' => 'config',
-        'access_arguments' => '',
-        'menu_name' => 'navigation',
-        'type' => MENU_NORMAL_ITEM,
-        'comments' => FALSE,
-      );
-      $this->routes[$path] = $route;
-    }
 
     $results = invoke('menu');
 
