@@ -113,9 +113,10 @@ function load_modules() {
  *
  * @param string $module [optional] The module name.
  * @param bool   $add    [optional]
- * @return bool|object|array Returns the object, all module instances or FALSE if module is not found.
+ * @return bool|object|object[] Returns the object, all module instances or FALSE if module is not found.
  */
 function get_module($module = NULL, $add = FALSE) {
+  /** @var object[] $modules */
   static $modules = array();
 
   if (!$modules) {
@@ -153,11 +154,12 @@ function get_theme() {
 /**
  * @api invoke().
  *
- * @param string $method
- * @param mixed $args
- * @return array
+ * @param string $method  The method name to call.
+ * @param ...             [optional] Variable number of arguments.
+ * @return array          Return a array with results keyed by module name.
  */
-function invoke($method, &$args = NULL) {
+function invoke($method, &$arg = NULL) {
+
   $results = array();
 
   $modules = get_module();
@@ -169,7 +171,7 @@ function invoke($method, &$args = NULL) {
       continue;
     }
     if (method_exists($class, $method)) {
-      $results[get_class_name($class)] = $class->$method($args);
+      $results[get_class_name($class)] = $class->$method($arg);
     }
   }
 
