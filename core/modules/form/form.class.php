@@ -64,17 +64,33 @@ class form {
       $this->validate($saved_data);
       if (!$this->form_errors) {
 
+        // Create temporary array with referenced arguments.
+        $args_tmp = array();
+        $args_tmp[] = &$saved_data;
+        $args_tmp[] = &$this->form_values;
+        $args_tmp[] = &$this->form_errors;
+        $args_tmp = array_merge($args_tmp, $args);
+
+        // Check for additional submit handlers.
+        if (isset($saved_data['#validate'])) {
+          foreach ($saved_data['#validate'] as $handler) {
+            list($handler_class_name, $handler_method_name) = explode('::', $handler);
+            $handler_class = get_module($handler_class_name);
+            if ($handler_class) {
+              if (method_exists($handler_class, $handler_method_name)) {
+                call_user_func_array(array($handler_class, $handler_method_name), $args_tmp);
+              }
+            }
+          }
+        }
+
         // Call the validate handler if exists.
         $class = get_module(basename(str_replace('\\', '/', $this->form_info['caller_class'])));
         $method = $this->form_info['caller_method'] . '_validate';
         if (method_exists($class, $method)) {
-          $args_tmp = array();
-          $args_tmp[] = &$saved_data;
-          $args_tmp[] = &$this->form_values;
-          $args_tmp[] = &$this->form_errors;
-          $args_tmp = array_merge($args_tmp, $args);
           call_user_func_array(array($class, $method), $args_tmp);
         }
+
         if (!$this->form_errors) {
 
           // Create temporary array with referenced arguments.
@@ -149,8 +165,8 @@ class form {
     $data = call_user_func_array(array($class, $form_name), $args);
 
     // Hook form_FORM_ID_alter().
-    $method = "form_{$form_name}_alter";
     $enabled_module_instances = get_module_module()->get_enabled_module_instances();
+    $method = "form_{$form_name}_alter";
 
     foreach ($enabled_module_instances as $name => $class) {
       if (method_exists($class, $method)) {
@@ -158,6 +174,14 @@ class form {
       }
     }
 
+    // Hook form_alter().
+    $method = "form_alter";
+
+    foreach ($enabled_module_instances as $name => $class) {
+      if (method_exists($class, $method)) {
+        $class->$method($data, $this->form_values, $form_name);
+      }
+    }
 
     // Check for form attributes and description.
     if (isset($data['#attributes'])) {
