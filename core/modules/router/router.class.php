@@ -142,15 +142,7 @@ class router {
       $req_uri = 'home';
     }
 
-    // todo Move aliasing node routes to the node module
-    $obj = get_module_node();
-    if ($obj) {
-      /** @noinspection PhpUndefinedMethodInspection */
-      $nid = $obj->get_node_id_by_route($req_uri);
-      if ($nid) {
-        $req_uri = 'node/' . $nid;
-      }
-    }
+    invoke('route_alter', $req_uri);
 
     /** @noinspection PhpUnusedLocalVariableInspection */
     foreach ($this->routes as $path => $route) {
@@ -223,11 +215,11 @@ class router {
       );
     } else {
       header('HTTP/1.1 404 Not Found');
-//      set_message("Route '$req_uri' not found.", 'error');
       $return = array(
-        'page_title'  => 'Not Found',
-        'content'     => '<h2 id="not_found">Sorry, we could not find the page you requested.</h2>',
-        'status_code' => 404,
+        'page_title'    => 'Page Not Found',
+        'content_title' => 'Page Not Found',
+        'content'       => '<h2 id="not_found">Sorry, we could not find the page you requested.</h2>',
+        'status_code'   => 404,
       );
     }
 
@@ -343,10 +335,12 @@ class router {
     $ra = array(
       'template' => 'table',
       'vars'     => array(
-        'caption' => count($this->routes) . ' routes',
-        'header' => $header,
-        'rows'   => $rows,
-        'attributes' => array('class' => array('table', 'stupidtable', 'sticky')),
+        'caption'    => count($this->routes) . ' routes',
+        'header'     => $header,
+        'rows'       => $rows,
+        'attributes' => array(
+          'class' => array('table', 'stupidtable', 'sticky'),
+        ),
       ),
     );
 
