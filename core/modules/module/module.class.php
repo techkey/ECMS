@@ -101,7 +101,7 @@ class module extends core_module {
     );
 
     $menu['admin/modules'] = array(
-      'title'            => 'Modules',
+      'title'            => 'List Modules',
       'controller'       => 'module::modules',
       'access_arguments' => 'admin',
       'menu_name'        => 'system',
@@ -198,7 +198,9 @@ class module extends core_module {
   }
 
   /**
-   * @return \MODULE[]
+   * Get all enabled module records from the database.
+   *
+   * @return \MODULE[] Returns a array of objects representing enabled modules.
    */
   public function get_enabled_modules() {
     /** @var \MODULE[] $modules */
@@ -212,7 +214,9 @@ class module extends core_module {
   }
 
   /**
-   * @return string[]
+   * Get all enabled module names.
+   *
+   * @return string[] Returns a array of strings presenting the names of enabled modules.
    */
   public function get_enabled_module_names() {
     /** @var string[] $modules */
@@ -223,6 +227,31 @@ class module extends core_module {
       ->fetchAll(\PDO::FETCH_COLUMN);
 
     return $modules;
+  }
+
+  /**
+   * Get all enabled module instances.
+   *
+   * @return object[] Returns a associative array of module instances keyed by the module name.
+   */
+  public function get_enabled_module_instances() {
+    /** @var object[] $instances */
+    static $instances = array();
+
+    if ($instances) {
+      return $instances;
+    }
+
+    // 'name' => object
+    $modules = get_module();
+    // 0 => 'name'
+    $enabled_modules = $this->get_enabled_module_names();
+
+    foreach ($enabled_modules as $module_name) {
+      $instances[$module_name] = $modules[$module_name];
+    }
+
+    return $instances;
   }
 
   /* Private routes ***********************************************************/
@@ -555,7 +584,10 @@ class module extends core_module {
         $tables = implode(', ', $tables);
       }
 
-      $hooks = array('__construct', 'init', 'menu', 'page_build', 'page_alter', 'shutdown');
+      $hooks = array(
+        '__construct', 'init', 'menu', 'page_build', 'page_alter', 'shutdown',
+        'route_alter', 'form_alter', 'menu_link_presave'
+      );
       $used_hooks = array();
       foreach ($hooks as $hook) {
         if (method_exists($class, $hook)) {
