@@ -64,14 +64,7 @@ class menu extends core_module {
   /**
    * Add a menu.
    *
-   * 'path' = array(
-   *   'access_arguments' => '',
-   *   'menu_name'        => 'navigation',
-   *   'module'           => '',
-   *   'parent'           => '',
-   *   'path'             => 'item1',
-   *   'title'            => 'Item 1',
-   * )
+   * @see menu::add_link()
    *
    * @param array $menu A associative array of links keyed by the link path.
    */
@@ -100,6 +93,19 @@ class menu extends core_module {
 
   /**
    * Add a menu link.
+   * <br /><br />
+   * The link structure:
+   * <pre>
+   * 'path' = array(
+   *   'access_arguments' => '',
+   *   'menu_name'        => 'navigation',
+   *   'module'           => '',
+   *   'parent'           => '',
+   *   'path'             => 'item1',
+   *   'title'            => 'Item 1',
+   * )
+   * </pre>
+   *
    * If menu exists the link will be added otherwise a new menu will be created for the link.
    *
    * @param mixed  $menu             The menu name or a link array.
@@ -125,7 +131,8 @@ class menu extends core_module {
     }
 
     if (user_has_access($m['access_arguments'])) {
-//      $this->menus[$m['menu_name']][] = $m;
+      invoke('menu_link_presave', $m);
+
       $this->add_menu(array($m['path'] => $m));
     }
   }
