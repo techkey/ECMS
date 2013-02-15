@@ -235,6 +235,13 @@ body {
   font-size: 12px;
 }
 
+/**
+ * Don't use margin in table cells.
+ */
+td div.form-element {
+  margin: 0;
+}
+
 .form-element select,
 .form-element input[type=number],
 .form-element input[type=text],
@@ -305,7 +312,7 @@ fieldset.collapsible > legend .fieldset-legend {
 
 .table {
   border-collapse: collapse;
- 	margin: 0.5em;
+ 	margin: 0.5em 0;
 }
 
 .table thead, .list-table tfoot {
