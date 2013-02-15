@@ -30,6 +30,8 @@ class router {
 
   public $router_path = '';
 
+  public $current_path = '';
+
   /**
    * Add a route.
    *
@@ -75,6 +77,8 @@ class router {
   /**
    * Get all routes.
    *
+   * @see router::$routes
+   *
    * @return \ROUTE[]
    */
   public function get_routes() {
@@ -84,7 +88,7 @@ class router {
   /**
    * Get all route paths.
    *
-   * @return string[]
+   * @return string[] Returns a array with all route paths.
    */
   public function get_route_paths() {
     return array_keys($this->routes);
@@ -143,6 +147,8 @@ class router {
     }
 
     invoke('route_alter', $req_uri);
+
+    $this->current_path = $req_uri;
 
     /** @noinspection PhpUnusedLocalVariableInspection */
     foreach ($this->routes as $path => $route) {
@@ -282,7 +288,7 @@ class router {
    */
   public function menu() {
     $menu['admin/routes'] = array(
-      'title'            => 'Routes',
+      'title'            => 'List Routes',
       'controller'       => 'router::routes',
       'access_arguments' => 'admin',
       'menu_name'        => 'system',
@@ -291,7 +297,7 @@ class router {
     return $menu;
   }
 
-/* Private route controllers **************************************************/
+  /* Private route controllers ************************************************/
 
   /**
    * List all routers.
