@@ -46,6 +46,19 @@ class theme
    * </pre>
    */
   public function add_css($data, $options = NULL) {
+    // Set default values.
+    if (is_array($options)) {
+      $options += array(
+        'weight' => 0,
+        'type' => 'file',
+      );
+    } else {
+      $options = array(
+        'weight' => 0,
+        'type' => ($options) ? $options : 'file',
+      );
+    }
+
     // Check if the css must be included only on listed pages.
     if (isset($options['pages'])) {
       $request_path = request_path();
@@ -61,19 +74,6 @@ class theme
       if (!$found) {
         return;
       }
-    }
-
-    // Set default values.
-    if (is_array($options)) {
-      $options += array(
-        'weight' => 0,
-        'type' => 'file',
-      );
-    } else {
-      $options = array(
-        'weight' => 0,
-        'type' => ($options) ? $options : 'file',
-      );
     }
 
     switch ($options['type']) {
