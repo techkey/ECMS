@@ -237,10 +237,10 @@ class library {
    */
   public function menu() {
     $menu['admin/libraries'] = array(
-      'title' => 'Libraries',
-      'controller' => 'library::libraries',
+      'title'            => 'List Libraries',
+      'controller'       => 'library::libraries',
       'access_arguments' => 'admin',
-      'menu_name' => 'system',
+      'menu_name'        => 'system',
     );
 
     return $menu;
@@ -263,7 +263,7 @@ class library {
 
     $extern = array(
       'attributes' => array(
-        'class' => array('external'),
+        'class'  => array('external'),
         'target' => '_blank',
       ),
     );
@@ -280,9 +280,9 @@ class library {
     $ra = array(
       'template' => 'table',
       'vars' => array(
-        'caption' => count($this->libraries) . ' libraries',
-        'header'  => $header,
-        'rows'    => $rows,
+        'caption'    => count($this->libraries) . ' libraries',
+        'header'     => $header,
+        'rows'       => $rows,
         'attributes' => array('class' => array('stupidtable')),
       ),
     );
