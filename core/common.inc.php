@@ -642,6 +642,30 @@ function request_path() {
 }
 
 /**
+ * Return the current URL path of the page being viewed.
+ *
+ * <br><br>Examples:
+ * <ul>
+ *  <li>http://example.com/node/306 returns "node/306".</li>
+ *  <li>http://example.com/ecms/node/306 returns "node/306" while base_path() returns "/ecms/".</li>
+ *  <li>http://example.com/path/alias (which is a path alias for node/306) returns "node/306" as opposed to the path alias.</li>
+ * </ul>
+ *
+ * @return string The requested ECMS URL path.
+ */
+function current_path() {
+  static $path;
+
+  if (isset($path)) {
+    return $path;
+  }
+
+  $path = get_module_router()->current_path;
+
+  return $path;
+}
+
+/**
  * Get the path the router took without variables and trailing slash.
  *
  * E.g. my/path/{id} returns my/path
@@ -689,3 +713,13 @@ function variable_set($name, $value) {
 function variable_del($name) {
   get_module_system()->variable_del($name);
 }
+
+/* Custom modules, candidates for core ****************************************/
+
+/**
+ * @return \modules\path\path Returns the object or FALSE.
+ */
+function get_module_path() {
+  return get_module('path');
+}
+
