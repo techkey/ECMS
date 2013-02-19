@@ -142,13 +142,22 @@ DBT
       $password = config::get_value('database.password', '');
     }
     if ($database != '') {
-      $pdo = new \PDO("mysql:dbname=$database", $username, $password);
-      $result = $pdo->query('SHOW TABLES FROM '. $database);
-      $a = $result->fetchAll();
-//      set_message(vardump($a, TRUE));
-      if ($a) {
+      try {
+        $flags = ini_get('error_reporting');
+        ini_set('error_reporting', $flags & ~E_WARNING);
+        $pdo    = new \PDO("mysql:dbname=$database", $username, $password);
+        ini_set('error_reporting', $flags);
+        $result = $pdo->query('SHOW TABLES FROM ' . $database);
+        $a      = $result->fetchAll();
+        //set_message(vardump($a, TRUE));
+        if ($a) {
+          $form['database']['mysql']['mysql_warning'] = array(
+            '#value' => '<ul class="warning-messages"><li>MySQL database is not empty, you might consider making a backup of the database.</li></ul>',
+          );
+        }
+      } catch (\Exception $e) {
         $form['database']['mysql']['mysql_warning'] = array(
-          '#value' => '<ul class="warning-messages"><li>MySQL database is not empty, you might consider making a backup of the database.</li></ul>',
+          '#value' => '<ul class="warning-messages"><li>' . $e->getMessage() . '</li></ul>',
         );
       }
     }
@@ -310,8 +319,7 @@ CFG;
     } else {
       copy('config/config.ini', 'config/config.ini.bak');
       file_put_contents('config/config.ini', $file);
-
-      $out = '<h3>ECMS is installed.</h3>';
+      $out = '<p>The config file is written.</p>';
     }
 
 
@@ -320,7 +328,8 @@ CFG;
 
     $this->install_modules();
 
-
+    $out .= '<h3>ECMS is installed.</h3>';
+    $out .= '<p>The core/install/install.ini file must be removed or renamed for the site to function!</p>';
     $out .= '<p>Visit the ' . l('site', '') . ' or ' . l('login', 'user/login') . '.</p>';
 
     return $out;
