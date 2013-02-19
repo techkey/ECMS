@@ -347,7 +347,7 @@ class user extends core_module
     }
 
     $menu['admin/users'] = array(
-      'title'            => 'Users',
+      'title'            => 'List Users',
       'controller'       => 'user::list_users',
       'access_arguments' => 'admin',
       'type'             => MENU_NORMAL_ITEM,
@@ -445,7 +445,6 @@ class user extends core_module
    */
   public function list_users() {
     library_load('stupidtable');
-    add_js('$(function(){$(".stupidtable").stupidtable()});', 'inline');
 
     $users  = $this->get_all_users();
     $header = array(
@@ -483,7 +482,7 @@ class user extends core_module
         'caption' => count($users) . ' users',
         'header' => $header,
         'rows'   => $rows,
-        'attributes' => array('class' => array('stupidtable')),
+        'attributes' => array('class' => array('table', 'sticky', 'stupidtable')),
       ),
     );
 
