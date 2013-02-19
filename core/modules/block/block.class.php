@@ -126,7 +126,7 @@ class block {
    */
   public function menu() {
     $menu['admin/blocks'] = array(
-      'title'            => 'Blocks',
+      'title'            => 'List Blocks',
       'controller'       => 'block::blocks',
       'access_arguments' => 'admin',
       'menu_name'        => 'system',
@@ -207,7 +207,6 @@ class block {
    */
   public function blocks() {
     library_load('stupidtable');
-    add_js('$(function(){$(".stupidtable").stupidtable()});', 'inline');
 
     if (!$this->blocks) {
       $this->get_all_blocks();
@@ -241,9 +240,8 @@ class block {
     $ra = array(
       'template' => 'table',
       'vars'     => array(
+        'attributes' => array('class' => array('table', 'stupidtable', 'sticky')),
         'caption'    => $count . ' blocks',
-//        'attributes' => array('class' => array('list-table blocks', 'stupidtable')),
-        'attributes' => array('class' => array('stupidtable', 'sticky')),
         'header'     => $header,
         'rows'       => $rows,
       ),
