@@ -243,7 +243,7 @@ class system extends core_module {
     );
 
     $menu['admin/variables'] = array(
-      'title' => 'Variables',
+      'title' => 'List Variables',
       'controller' => 'system::variables',
       'access_arguments' => 'admin',
       'menu_name' => 'system',
@@ -606,7 +606,6 @@ class system extends core_module {
    */
   public function variables() {
     library_load('stupidtable');
-    add_js('$(function(){$(".stupidtable").stupidtable()});', 'inline');
 
     $header = array(
       array('data' => 'Name',  'data-sort' => 'string'),
@@ -634,8 +633,8 @@ class system extends core_module {
     $ra = array(
       'template' => 'table',
       'vars'     => array(
+        'attributes' => array('class' => array('table', 'stupidtable', 'sticky')),
         'caption'    => $count . ' variables',
-        'attributes' => array('class' => array('stupidtable', 'sticky')),
         'header'     => $header,
         'rows'       => $rows,
       ),
