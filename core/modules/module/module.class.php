@@ -12,7 +12,7 @@ use core\modules\core_module;
  */
 class module extends core_module {
 
-  private $system_modules = array('form', 'menu', 'module', 'router', 'session', 'system', 'user');
+  private $system_modules = array('block', 'form', 'menu', 'module', 'router', 'session', 'system', 'user');
 
   /* Hooks ********************************************************************/
 
