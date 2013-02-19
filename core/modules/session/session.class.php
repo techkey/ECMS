@@ -193,7 +193,7 @@ class session
    */
   public function menu() {
     $menu['admin/sessions'] = array(
-      'title' => 'Sessions',
+      'title' => 'List Sessions',
       'controller' => 'session::sessions',
       'access_arguments' => 'admin',
       'menu_name' => 'system',
@@ -229,9 +229,10 @@ class session
     $ra = array(
       'template' => 'table',
       'vars'     => array(
-        'caption' => count($sessions) . ' sessions',
-        'header'  => $header,
-        'rows'    => $rows,
+        'attributes' => array('class' => array('table', 'sticky', 'stupidtable')),
+        'caption'    => count($sessions) . ' sessions',
+        'header'     => $header,
+        'rows'       => $rows,
       ),
     );
 
