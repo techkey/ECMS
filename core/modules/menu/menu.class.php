@@ -203,7 +203,7 @@ class menu extends core_module {
    */
   public function menu() {
     $menu['admin/menus'] = array(
-      'title'            => 'Menus',
+      'title'            => 'List Menus',
       'controller'       => 'menu::menus',
       'access_arguments' => 'admin',
       'menu_name'        => 'system',
@@ -218,15 +218,11 @@ class menu extends core_module {
    * @return string
    */
   public function menus() {
-    $b = library_load('stupidtable');
-    if ($b) {
-      add_js('$(function(){$(".stupidtable").stupidtable()});', 'inline');
-    }
+    library_load('stupidtable');
 
     $header = array(
       array('data' => 'Title',  'data-sort' => 'string'),
       array('data' => 'Path',   'data-sort' => 'string'),
-//      array('data' => 'Name',   'data-sort' => 'string'),
       array('data' => 'Module', 'data-sort' => 'string'),
     );
 
@@ -239,17 +235,16 @@ class menu extends core_module {
         $rows[] = array(
           $link['title'],
           $link['path'],
-//          $name,
           $link['module'],
         );
       }
       $ra = array(
         'template' => 'table',
         'vars'     => array(
-          'caption' => count($menu) . " links in menu <em>$name</em>",
-          'header'  => $header,
-          'rows'    => $rows,
-          'attributes' => array('class' => array('stupidtable', 'sticky')),
+          'attributes' => array('class' => array('table', 'stupidtable', 'sticky')),
+          'caption'    => count($menu) . " links in menu <em>$name</em>",
+          'header'     => $header,
+          'rows'       => $rows,
         ),
       );
       $out .= get_theme()->theme_table($ra);
