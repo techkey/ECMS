@@ -1,8 +1,10 @@
-DirectoryIndex index.php index.html
-
 <FilesMatch "\.(php|inc|info|yaml|sq3|tpl|twig|inc\.php|class\.php|info\.php)$">
   Order allow,deny
 </FilesMatch>
+
+Options -Indexes
+
+DirectoryIndex index.php index.html
 
 <FilesMatch "index\.php">
   Allow from all
