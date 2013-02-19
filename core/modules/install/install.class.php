@@ -149,7 +149,6 @@ DBT
         ini_set('error_reporting', $flags);
         $result = $pdo->query('SHOW TABLES FROM ' . $database);
         $a      = $result->fetchAll();
-        //set_message(vardump($a, TRUE));
         if ($a) {
           $form['database']['mysql']['mysql_warning'] = array(
             '#value' => '<ul class="warning-messages"><li>MySQL database is not empty, you might consider making a backup of the database.</li></ul>',
