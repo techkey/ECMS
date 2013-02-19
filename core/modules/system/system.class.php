@@ -550,7 +550,6 @@ class system extends core_module {
       '#options' => $themes,
       '#default_value' => variable_get('system_theme', 'darkstar'),
     );
-    $form['#attributes'] = array('autocomplete' => 'off');
 
     $form['submit'] = array(
       '#type' => 'submit',
