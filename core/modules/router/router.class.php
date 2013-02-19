@@ -127,7 +127,6 @@ class router {
     if (strlen($req_uri) > 1) {
       $count = count(explode('/', ltrim($req_uri, '/')));
     }
-//    var_dump($count);
     return $count;
   }
 
@@ -162,7 +161,6 @@ class router {
         // Check access.
         if (!user_has_access($route['access_arguments'])) {
           header('HTTP/1.1 403 Forbidden');
-//          set_message('Unauthorized!', 'error');
           return array(
             'page_title'    => 'Unauthorized',
             'content_title' => 'Unauthorized',
