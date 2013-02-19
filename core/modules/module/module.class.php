@@ -112,6 +112,7 @@ class module extends core_module {
 
   private function update() {
     $modules = get_module();
+    unset($modules['install']);
     $modules = array_keys($modules);
     $modules_in_db = $this->get_module_names();
     $diff = array_diff($modules, $modules_in_db);
@@ -185,7 +186,7 @@ class module extends core_module {
    * Check if a module is enabled.
    *
    * @param string $module
-   * @return string Returns TRUE if the module is enabled or FALSE if not.
+   * @return bool Returns TRUE if the module is enabled or FALSE if not.
    */
   public function is_enabled($module) {
     $b = db_select('modules')
@@ -216,13 +217,37 @@ class module extends core_module {
   /**
    * Get all enabled module names.
    *
-   * @return string[] Returns a array of strings presenting the names of enabled modules.
+   * @return string[] Returns a array of strings representing the names of enabled modules.
    */
   public function get_enabled_module_names() {
+    if (defined('INSTALL')) {
+      return array();
+    }
+
     /** @var string[] $modules */
     $modules = db_select('modules')
       ->field('name')
       ->condition('enabled', 1)
+      ->execute()
+      ->fetchAll(\PDO::FETCH_COLUMN);
+
+    return $modules;
+  }
+
+  /**
+   * Get all disabled module names.
+   *
+   * @return string[] Returns a array of strings representing the names of disabled modules.
+   */
+  public function get_disabled_module_names() {
+    if (defined('INSTALL')) {
+      return array();
+    }
+
+    /** @var string[] $modules */
+    $modules = db_select('modules')
+      ->field('name')
+      ->condition('enabled', 0)
       ->execute()
       ->fetchAll(\PDO::FETCH_COLUMN);
 
