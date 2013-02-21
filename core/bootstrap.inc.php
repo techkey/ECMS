@@ -171,7 +171,7 @@ function invoke($method, &$arg = NULL) {
 //    if (in_array($name, $disabled_modules)) {
 //      continue;
 //    }
-    if (in_array($name, $enabled_modules)) {
+    if (in_array($name, $enabled_modules) || defined('INSTALL')) {
       if (method_exists($class, $method)) {
         $results[get_class_name($class)] = $class->$method($arg);
       }
