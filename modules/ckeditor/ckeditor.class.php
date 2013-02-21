@@ -16,7 +16,7 @@ class ckeditor extends module {
   /* Hooks ********************************************************************/
 
   /**
-   * Hook init().
+   * Implements hook init().
    */
   public function init() {
     $setting = array(
@@ -28,7 +28,7 @@ class ckeditor extends module {
   }
 
   /**
-   * Hook menu().
+   * Implements hook menu().
    *
    * @return array
    */
@@ -55,8 +55,13 @@ class ckeditor extends module {
    * @return string
    */
   public function settings() {
-    $out = '';
+    return get_module_form()->build('settings_form');
+  }
 
+  /**
+   * @return string
+   */
+  public function settings_form() {
     $form['inline'] = array(
       '#type'  => 'fieldset',
       '#title' => 'Inline',
@@ -82,16 +87,14 @@ class ckeditor extends module {
       '#value' => 'Save',
     );
 
-    $out .= get_module_form()->build($form);
-
-    return $out;
+    return $form;
   }
 
   /**
    * @param array $form
    * @param array $form_values
    */
-  public function settings_submit(array $form, array $form_values) {
+  public function settings_form_submit(array $form, array $form_values) {
 //    $enter_modes = array('CKEDITOR.ENTER_P', 'CKEDITOR.ENTER_BR', 'CKEDITOR.ENTER_DIV');
 //    $enter_mode = $enter_modes[$form_values['enter_mode']];
     variable_set('ckeditor_enter_mode', $form_values['enter_mode']);
