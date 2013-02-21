@@ -75,6 +75,7 @@ class menu extends core_module {
         'menu_name' => 'navigation',
         'access_arguments' => '',
         'module' => '',
+        'title' => '',
       );
       if (isset($link['parent'])) {
 //        set_message('Searching for <b>' . $link['parent'] . '</b>');
@@ -171,13 +172,13 @@ class menu extends core_module {
   /**
    * Get menu links, sorted.
    *
-   * @param string $name
+   * @param string $menu_name
    * @return array Returns the sorted links.
    */
-  public function get_menu_links($name) {
+  public function get_menu_links($menu_name) {
     $links = array();
-    if (isset($this->menus[$name])) {
-      $menu = $this->get_menu($name);
+    if (isset($this->menus[$menu_name])) {
+      $menu = $this->get_menu($menu_name);
       foreach ($menu as $data) {
         $links[] = l($data['title'], $data['path']);
       }
@@ -188,7 +189,7 @@ class menu extends core_module {
 /* Hooks **********************************************************************/
 
   /**
-   * Hook init().
+   * Implements hook init().
    *
    * Initialize.
    */
@@ -197,7 +198,7 @@ class menu extends core_module {
   }
 
   /**
-   * Hook menu().
+   * Implements hook menu().
    *
    * @return array
    */
@@ -210,6 +211,38 @@ class menu extends core_module {
     );
 
     return $menu;
+  }
+
+  /**
+   * Implements hook block().
+   *
+   * @return array
+   */
+  public function block() {
+    $block = array();
+
+    $system_menus = array('main', 'navigation', 'system');
+    foreach ($this->menus as $menu_name => $menu) {
+      if (in_array($menu_name, $system_menus)) {
+        continue;
+      }
+
+      $vars['menu'] = array(
+        'attributes' => build_attribute_string(array('class' => array('menu', 'vertical'))),
+        'links' => $this->get_menu_links($menu_name)
+      );
+
+      $block[$menu_name] = array(
+        'title' => ucfirst($menu_name),
+        'template' => 'menu',
+        'vars' => $vars,
+        'region' => 'sidebar_first',
+      );
+    }
+
+    ksort($block);
+
+    return $block;
   }
 
 /* Private route controllers **************************************************/
