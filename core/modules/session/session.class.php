@@ -59,6 +59,8 @@ class session
    *
    */
   public static function start() {
+    ini_set('session.gc_divisor', 10);
+
     if (db_is_active() && db_table_exists('session')) {
       if (version_compare(PHP_VERSION, '5.4.0') >= 0) {
         self::$mysession = new mysession54();
@@ -208,12 +210,18 @@ class session
    * @return string
    */
   public function sessions() {
+    library_load('stupidtable');
+
     /** @var \SESSION[] $sessions */
-    $sessions = db_select('session')->field('*')->execute()->fetchAll(\PDO::FETCH_OBJ);
+    $sessions = db_select('session')
+      ->field('*')
+      ->orderby('created', 'DESC')
+      ->execute()
+      ->fetchAll(\PDO::FETCH_OBJ);
 
     $header = array(
-      'sid',
-      'created',
+      array('data' => 'SID', 'data-sort' => 'string'),
+      array('data' => 'Created', 'data-sort' => 'string'),
       'data',
     );
 
@@ -221,7 +229,7 @@ class session
     foreach ($sessions as $session) {
       $rows[] = array(
         $session->sid,
-        date('H:i:s d-m-Y', $session->created),
+        date('Y-m-d H:i:s', $session->created),
         $session->data,
       );
     }
