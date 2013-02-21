@@ -253,7 +253,6 @@ class library {
    */
   public function libraries() {
     library_load('stupidtable');
-    add_js('$(function(){$(".stupidtable").stupidtable()});', 'inline');
 
     $header = array(
       array('data' => 'Name', 'data-sort' => 'string'),
@@ -283,7 +282,7 @@ class library {
         'caption'    => count($this->libraries) . ' libraries',
         'header'     => $header,
         'rows'       => $rows,
-        'attributes' => array('class' => array('stupidtable')),
+        'attributes' => array('class' => array('table', 'sticky', 'stupidtable')),
       ),
     );
 
