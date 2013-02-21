@@ -32,7 +32,7 @@ class mysession53 {
    * @return bool
    */
   public function write($session_id, $session_data) {
-    if (!db_select('session')->field('*')->condition('sid', $session_id)->execute()->fetchObject()) {
+    if (!db_select('session')->field('sid')->condition('sid', $session_id)->execute()->fetchColumn()) {
       $return = (bool)db_insert('session')
         ->fields(array(
           'sid' => $session_id,
@@ -46,6 +46,7 @@ class mysession53 {
         ->condition('sid', $session_id)
         ->execute();
     }
+
     return $return;
   }
 

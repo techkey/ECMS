@@ -34,7 +34,7 @@ class mysession54 implements SessionHandlerInterface {
    * @return bool
    */
   public function write($session_id, $session_data) {
-    if (!db_select('session')->field('*')->condition('sid', $session_id)->execute()->fetchObject()) {
+    if (!db_select('session')->field('sid')->condition('sid', $session_id)->execute()->fetchColumn()) {
       $return = (bool)db_insert('session')
         ->fields(array(
           'sid' => $session_id,
