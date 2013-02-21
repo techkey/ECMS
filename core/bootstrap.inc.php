@@ -164,14 +164,17 @@ function invoke($method, &$arg = NULL) {
 
   $modules = get_module();
   $disabled_modules = get_module_module()->get_disabled_module_names();
+  $enabled_modules = get_module_module()->get_enabled_module_names();
 
   foreach ($modules as $name => $class) {
     // Skip disabled modules.
-    if (in_array($name, $disabled_modules)) {
-      continue;
-    }
-    if (method_exists($class, $method)) {
-      $results[get_class_name($class)] = $class->$method($arg);
+//    if (in_array($name, $disabled_modules)) {
+//      continue;
+//    }
+    if (in_array($name, $enabled_modules)) {
+      if (method_exists($class, $method)) {
+        $results[get_class_name($class)] = $class->$method($arg);
+      }
     }
   }
 
