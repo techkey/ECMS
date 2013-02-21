@@ -71,7 +71,7 @@ class form {
         $args_tmp[] = &$this->form_errors;
         $args_tmp = array_merge($args_tmp, $args);
 
-        // Check for additional submit handlers.
+        // Check for additional validate handlers.
         if (isset($saved_data['#validate'])) {
           foreach ($saved_data['#validate'] as $handler) {
             list($handler_class_name, $handler_method_name) = explode('::', $handler);
@@ -161,27 +161,13 @@ class form {
 
     // Get the form data.
     $class = get_module(basename(str_replace('\\', '/', $caller['class'])));
-    array_unshift($args, $saved_data, $this->form_values, $this->form_errors);
-    $data = call_user_func_array(array($class, $form_name), $args);
-
-    // Hook form_FORM_ID_alter().
-    $enabled_module_instances = get_module_module()->get_enabled_module_instances();
-    $method = "form_{$form_name}_alter";
-
-    foreach ($enabled_module_instances as $name => $class) {
-      if (method_exists($class, $method)) {
-        $class->$method($data, $this->form_values, $form_name);
-      }
-    }
-
-    // Hook form_alter().
-    $method = "form_alter";
-
-    foreach ($enabled_module_instances as $name => $class) {
-      if (method_exists($class, $method)) {
-        $class->$method($data, $this->form_values, $form_name);
-      }
-    }
+//    array_unshift($args, $saved_data, $this->form_values, $this->form_errors);
+//    $data = call_user_func_array(array($class, $form_name), $args);
+    $args_tmp = array();
+    $args_tmp[] = &$saved_data;
+    $args_tmp[] = &$this->form_values;
+    $args_tmp = array_merge($args_tmp, $args);
+    $data = call_user_func_array(array($class, $form_name), $args_tmp);
 
     // Check for form attributes and description.
     if (isset($data['#attributes'])) {
@@ -191,9 +177,6 @@ class form {
       $this->form_description = $data['#description'];
     }
 
-    // Render the form fields.
-    $fields = $this->render_fields($data);
-
     // Set the default form attributes if form attributes are not set.
     if (!isset($this->form_attributes['id'])) {
       $this->form_attributes['id'] = 'form-' . basename(str_replace('\\', '/', $caller['class'])) . '-' . $caller['function'];
@@ -202,6 +185,33 @@ class form {
       'action' => $_SERVER['REQUEST_URI'],
       'method' => 'post',
     );
+
+    // Hook form_alter().
+    $enabled_module_instances = get_module_module()->get_enabled_module_instances();
+    $method = "form_alter";
+
+    foreach ($enabled_module_instances as $name => $class) {
+      if (method_exists($class, $method)) {
+        $class->$method($data, $this->form_values, $this->form_attributes['id']);
+      }
+    }
+
+    // Hook form_FORM_ID_alter().
+    $method = "form_{$form_name}_alter";
+
+    foreach ($enabled_module_instances as $name => $class) {
+      if (method_exists($class, $method)) {
+        $class->$method($data, $this->form_values, $this->form_attributes['id']);
+      }
+    }
+
+    // Filter possible duplicates of validate handlers.
+    if (isset($data['#validate'])) {
+      $data['#validate'] = array_unique($data['#validate']);
+    }
+
+    // Render the form fields.
+    $fields = $this->render_fields($data);
 
     $this->form_info = $this->form_attributes;
 
