@@ -23,6 +23,8 @@ class database {
   private $limit = -1;
   private $offset = -1;
 
+  private $sqlite3_serial = FALSE;
+
   /**
    * Initialize the class.
    */
@@ -407,6 +409,44 @@ class database {
   }
 
   /**
+   * @param string $field_name
+   * @param array  $field_data
+   * @return string
+   */
+  private function build_field_sql($field_name, array $field_data) {
+    $field_data += array(
+      'length' => 255,
+      'not null' => FALSE,
+      'unique' => FALSE,
+    );
+    switch ($this->type) {
+      case 'sqlite3':
+        $this->sqlite3_serial |= ($field_data['type'] == 'serial');
+        $sql2 = $field_name . ' ' . $this->field_type_to_sqlite($field_data['type']);
+        if ($field_data['not null']) $sql2 .= ' NOT NULL';
+        if (isset($field_data['default'])) $sql2 .= " DEFAULT '{$field_data['default']}'";
+        break;
+
+      case 'mysql':
+        $sql2 = $field_name . ' ' . $this->field_type_to_mysql($field_data['type']);
+        if (in_array($field_data['type'], array('varchar', 'text'))) {
+          $sql2 .= '(' . $field_data['length'] . ')';
+        }
+        if (isset($field_data['unsigned']) && $field_data['unsigned']) {
+          $sql2 .= ' UNSIGNED';
+        }
+        if ($field_data['not null']) $sql2 .= ' NOT NULL';
+        if (isset($field_data['default'])) $sql2 .= " DEFAULT '{$field_data['default']}'";
+        break;
+
+      default:
+        exit(__LINE__ . ': Database type ' . $this->type . ' is not supported at this time.');
+    }
+
+    return $sql2;
+  }
+
+  /**
    * @param string $table_name
    * @param array $table_data
    * @return bool
@@ -416,46 +456,15 @@ class database {
     $sql = "CREATE TABLE $table_name (";
     $a = array();
 
-    $sqlite3_serial = FALSE;
+    $this->sqlite3_serial = FALSE;
     foreach ($table_data['fields'] as $field_name => $field_data) {
-      $field_data += array(
-        'length' => 255,
-        'not null' => FALSE,
-        'unique' => FALSE,
-      );
-      switch ($this->type) {
-        case 'sqlite3':
-          $sqlite3_serial |= ($field_data['type'] == 'serial');
-          $sql2 = $field_name . ' ' . $this->field_type_to_sqlite($field_data['type']);
-          if ($field_data['not null']) $sql2 .= ' NOT NULL';
-          if (isset($field_data['default'])) $sql2 .= " DEFAULT '{$field_data['default']}'";
-
-          $a[] = $sql2;
-          break;
-
-        case 'mysql':
-          $sql2 = $field_name . ' ' . $this->field_type_to_mysql($field_data['type']);
-          if (in_array($field_data['type'], array('varchar', 'text'))) {
-            $sql2 .= '(' . $field_data['length'] . ')';
-          }
-          if (isset($field_data['unsigned']) && $field_data['unsigned']) {
-            $sql2 .= ' UNSIGNED';
-          }
-          if ($field_data['not null']) $sql2 .= ' NOT NULL';
-          if (isset($field_data['default'])) $sql2 .= " DEFAULT '{$field_data['default']}'";
-
-          $a[] = $sql2;
-          break;
-
-        default:
-          exit(__LINE__ . ': Database type ' . $this->type . ' is not supported at this time.');
-      }
+      $a[] = $this->build_field_sql($field_name, $field_data);
     }
 
     $sql .= implode(',', $a);
     switch ($this->type) {
       case 'sqlite3':
-        if (!$sqlite3_serial && isset($table_data['primary key'])) {
+        if (!$this->sqlite3_serial && isset($table_data['primary key'])) {
           $pk = implode(',', $table_data['primary key']);
           $sql .= ",PRIMARY KEY ($pk)";
         }
