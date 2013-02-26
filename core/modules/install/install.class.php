@@ -44,8 +44,9 @@ class install {
    * @return string
    */
   public function install() {
-    if (is_writeable('config/config.ini')) {
-      set_message('OK, the config file is writable.');
+    $fname = 'config/config.ini';
+    if ((file_exists($fname) && is_writeable($fname)) || is_writeable('config/')) {
+      set_message('OK, the config file is writable or can be created.');
     } else {
       set_message('The config file is not writable. On successful install the content of the config file will be displayed so that you can copy and past that into the config file manual.', 'warning');
     }
@@ -200,9 +201,10 @@ DBT
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
 
-    if ($form_values['type'] == 'SQLite3') {
+    if ($form_values['type'] == 'sqlite3') {
       $filepath = $form_values['sqlite3_filepath'];
-      if (($filepath[0] != '/') || ($filepath[1] != ':')) {
+      if (($filepath[0] == '/') || ($filepath[1] == ':')) {
+      } else {
         $filepath = BASE_DIR . $filepath;
         $form_values['sqlite3_filepath'] = $filepath;
       }
@@ -316,13 +318,16 @@ CFG;
     $file = $_SESSION['config']['file'];
     unset($_SESSION['config']);
 
-    if (!is_writeable('config/config.ini')) {
+    $fname = 'config/config.ini';
+    if ((file_exists($fname) && is_writeable($fname)) || is_writeable('config/')) {
+      if (file_exists($fname)) {
+        copy($fname, $fname . '.bak');
+      }
+      file_put_contents($fname, $file);
+      $out = '<p>The config file is written.</p>';
+    } else {
       $out = '<pre style="background: #CCCCCC;">' . $file . '</pre>';
       $out .= '<p>Above is the config that you must copy and past into config/config.ini before visiting the site.</p>';
-    } else {
-      copy('config/config.ini', 'config/config.ini.bak');
-      file_put_contents('config/config.ini', $file);
-      $out = '<p>The config file is written.</p>';
     }
 
 
