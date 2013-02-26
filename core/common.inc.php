@@ -106,27 +106,6 @@ function get_module_block() {
 }
 
 /**
- * @return \modules\comment\comment Returns the object or FALSE.
- */
-function get_module_comment() {
-  return get_module('comment');
-}
-
-/**
- * @return \modules\node\node Returns the object or FALSE.
- */
-function get_module_node() {
-  return get_module('node');
-}
-
-/**
- * @return \modules\content\content Returns the object or FALSE.
- */
-function get_module_content() {
-  return get_module('content');
-}
-
-/**
  * @param $name
  * @param array $info
  * @return array
@@ -716,6 +695,35 @@ function variable_del($name) {
 
 /* Custom modules, candidates for core ****************************************/
 
+/** @noinspection PhpUndefinedClassInspection */
+/** @noinspection PhpUndefinedNamespaceInspection */
+/**
+ * @return \modules\comment\comment Returns the object or FALSE.
+ */
+function get_module_comment() {
+  return get_module('comment');
+}
+
+/** @noinspection PhpUndefinedClassInspection */
+/** @noinspection PhpUndefinedNamespaceInspection */
+/**
+ * @return \modules\node\node Returns the object or FALSE.
+ */
+function get_module_node() {
+  return get_module('node');
+}
+
+/** @noinspection PhpUndefinedClassInspection */
+/** @noinspection PhpUndefinedNamespaceInspection */
+/**
+ * @return \modules\content\content Returns the object or FALSE.
+ */
+function get_module_content() {
+  return get_module('content');
+}
+
+/** @noinspection PhpUndefinedClassInspection */
+/** @noinspection PhpUndefinedNamespaceInspection */
 /**
  * @return \modules\path\path Returns the object or FALSE.
  */
