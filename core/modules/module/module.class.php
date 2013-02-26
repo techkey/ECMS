@@ -537,17 +537,14 @@ class module extends core_module {
   /**
    * @param array  $form
    * @param array  $form_values
-   * @param array  $form_errors
    * @param string $module
    * @return array
    */
-  public function disable_module_form(array $form, array $form_values, array $form_errors, $module) {
+  public function disable_module_form(array $form, array $form_values, $module) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form_values;
-    /** @noinspection PhpUnusedLocalVariableInspection */
-    $tmp = $form_errors;
 
     $form = array();
 
