@@ -49,7 +49,7 @@ class module extends core_module {
   private function install() {
     $b = db_install_schema($this->schema());
     if ($b) {
-      $this->update();
+      $this->update_db();
       foreach ($this->system_modules as $module) {
         $this->set_module_status($module, TRUE);
         $this->_enable_module($module);
@@ -110,7 +110,7 @@ class module extends core_module {
     return $menu;
   }
 
-  private function update() {
+  private function update_db() {
     $modules = get_module();
     unset($modules['install']);
     $modules = array_keys($modules);
@@ -563,12 +563,9 @@ class module extends core_module {
    * @return string
    */
   public function modules() {
-    $this->update();
+    $this->update_db();
 
-    $b = library_load('stupidtable');
-    if ($b) {
-      add_js('$(function(){$(".stupidtable").stupidtable()});', 'inline');
-    }
+    library_load('stupidtable');
 
     // Get all modules.
     $modules = $this->get_modules();
@@ -578,25 +575,17 @@ class module extends core_module {
       array('data' => 'Namespace',    'data-sort' => 'string'),
       array('data' => 'Hooks'),
       array('data' => 'Tables'),
-//      array('data' => 'Installed',    'data-sort' => 'string'),
-//      array('data' => 'Weight',   'data-sort' => 'int'),
-//      array('data' => 'Template', 'data-sort' => 'string'),
-      array('data' => 'Actions',      'colspan' => 2),
+      array('data' => 'Actions',      'colspan' => 3),
     );
 
     $count = 0;
     $rows = array();
     foreach ($modules as $module) {
       $class = get_module($module->name);
-//      $module_name = get_class_name($module);
       $schema_exists = method_exists($class, 'schema');
       $install_exists = method_exists($class, 'install');
       $uninstall_exists = method_exists($class, 'uninstall');
-
-//      if (in_array($module->name, $skip_modules)) {
-//        $install_exists = FALSE;
-//        $uninstall_exists = FALSE;
-//      }
+      $update_exists = method_exists($class, 'update');
 
       $tables = '';
       if ($schema_exists) {
@@ -622,18 +611,24 @@ class module extends core_module {
 
       if ($install_exists) {
         if ($module->enabled | in_array($module->name, $this->system_modules)) {
-          $install_links = ($module->installed) ? 'installed' : 'not installed';
+          $install_link = ($module->installed) ? 'installed' : 'not installed';
         } else {
-          $install_links = ($module->installed) ? l('uninstall', 'admin/module/uninstall/' . $module->name) : l('install', 'admin/module/install/' . $module->name);
+          $install_link = ($module->installed) ? l('uninstall', 'admin/module/uninstall/' . $module->name) : l('install', 'admin/module/install/' . $module->name);
         }
       } else {
-        $install_links = '';
+        $install_link = '';
       }
 
       if (($install_exists && !$module->installed) || in_array($module->name, $this->system_modules)) {
-        $enable_links = ($module->enabled) ? 'enabled' : 'disabled';
+        $enable_link = ($module->enabled) ? 'enabled' : 'disabled';
       } else {
-        $enable_links = ($module->enabled) ? l('disable', 'admin/module/disable/' . $module->name) : l('enable', 'admin/module/enable/' . $module->name);
+        $enable_link = ($module->enabled) ? l('disable', 'admin/module/disable/' . $module->name) : l('enable', 'admin/module/enable/' . $module->name);
+      }
+
+      if ($update_exists && $module->installed) {
+        $update_link = l('update', 'admin/module/update/' . $module->name);
+      } else {
+        $update_link = '';
       }
 
       $count++;
@@ -642,8 +637,9 @@ class module extends core_module {
         substr($fqn, 0, strrpos($fqn, '\\')),
         $used_hooks,
         $tables,
-        $install_links,
-        $enable_links,
+        $install_link,
+        $enable_link,
+        $update_link,
       );
     }
 
