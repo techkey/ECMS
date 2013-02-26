@@ -48,7 +48,7 @@ class database {
       $username         = $values['username'];
       $password         = $values['password'];
     } else {
-      $this->type       = config::get_value('database.type');
+      $this->type       = config::get_value('database.type', 'sqlite3');
       $sqlite3_filepath = config::get_value('database.sqlite3_filepath');
       $database_name    = config::get_value('database.database_name');
       $username         = config::get_value('database.username');
@@ -330,8 +330,23 @@ class database {
    * @return array|bool
    */
   public function table_info($table) {
-    /** @var PDOStatement $st */
-    $st = $this->pdo->query("PRAGMA table_info($table)");
+
+    switch ($this->type) {
+      case 'sqlite3':
+        /** @var PDOStatement $st */
+        $st = $this->pdo->query("PRAGMA table_info($table)");
+        break;
+
+      case 'mysql':
+        /** @var PDOStatement $st */
+        $st = $this->pdo->query("DESCRIBE $table");
+        break;
+
+      default:
+        exit(__LINE__ . ': Database type ' . $this->type . ' is not supported at this time.');
+
+    }
+
     if ($st === FALSE) {
       $error_info = $this->pdo->errorInfo();
 //      wd_add('error', $error_info);
@@ -339,6 +354,8 @@ class database {
 //      return FALSE;
     }
     $r = $st->fetchAll(PDO::FETCH_ASSOC);
+
+
     return $r;
   }
 
@@ -554,6 +571,7 @@ class database {
    * @param string $table
    * @param string $field_name
    * @param array $field_data
+   * @return bool|int
    */
   public function add_field($table, $field_name, array $field_data) {
     $sql = "ALTER TABLE $table ADD ";
@@ -565,7 +583,8 @@ class database {
     $sql2 = $field_name . ' ' . $this->field_type_to_sqlite($field_data['type']);
     if ($field_data['not null']) $sql2 .= ' NOT NULL';
     if (isset($field_data['default'])) $sql2 .= " DEFAULT '{$field_data['default']}'";
-    $this->exec($sql . $sql2);
+
+    return $this->exec($sql . $sql2);
   }
 
   /**
@@ -574,12 +593,27 @@ class database {
    * @return bool
    */
   public function field_exists($table, $field) {
-    $info = $this->table_info($table);
-    if (!$info) return FALSE;
-    foreach ($info as $i) {
-      if ($i['name'] == $field) return TRUE;
+    $return = FALSE;
+    switch ($this->type) {
+      case 'sqlite3':
+        $info = $this->table_info($table);
+        if (!$info) return FALSE;
+        foreach ($info as $i) {
+          if ($i['name'] == $field) {
+            $return = TRUE;
+          }
+        }
+        break;
+
+      case 'mysql':
+        $st = $this->query("SHOW COLUMNS FROM $table WHERE Field=:field", array(':field' => $field));
+        $result = $st->fetchColumn();
+        $return = (bool)$result;
+        break;
+
     }
-    return FALSE;
+
+    return $return;
   }
 }
 
@@ -702,9 +736,10 @@ function db_uninstall_schema(array $schema) {
  * @param string $table
  * @param string $field_name
  * @param array $field_data
+ * @return bool
  */
 function db_add_field($table, $field_name, array $field_data) {
-  get_dbase()->add_field($table, $field_name, $field_data);
+  return (bool)get_dbase()->add_field($table, $field_name, $field_data);
 }
 
 /**
