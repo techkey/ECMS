@@ -155,7 +155,7 @@ class user extends core_module
    * @param bool   $blocked
    * @param string $role
    */
-  private function update($uid, $password = NULL, $email = NULL, $activated = NULL, $blocked = NULL, $role = NULL) {
+  private function update_user($uid, $password = NULL, $email = NULL, $activated = NULL, $blocked = NULL, $role = NULL) {
 
     $db = db_update('users');
     if ($password  !== NULL) {
@@ -281,7 +281,7 @@ class user extends core_module
    * @param bool $activate
    */
   private function activate($uid, $activate = TRUE) {
-    $this->update($uid, NULL, NULL, $activate);
+    $this->update_user($uid, NULL, NULL, $activate);
   }
 
   /**
@@ -307,7 +307,7 @@ class user extends core_module
    * @param bool $block
    */
   private function block_account($uid, $block = TRUE) {
-    $this->update($uid, NULL, NULL, NULL, $block);
+    $this->update_user($uid, NULL, NULL, NULL, $block);
   }
 
   /**
@@ -710,9 +710,9 @@ class user extends core_module
     if ($uid != 1) {
       $activated = $form_values['activated'];
       $blocked = $form_values['blocked'];
-      $this->update($uid, $password, $form_values['email'], $activated, $blocked, $form_values['role']);
+      $this->update_user($uid, $password, $form_values['email'], $activated, $blocked, $form_values['role']);
     } else {
-      $this->update($uid, $password, $form_values['email']);
+      $this->update_user($uid, $password, $form_values['email']);
     }
     $name = $this->get_user_by_uid($uid)->username;
     set_message('User record for <em>' . $name . '</em> is updated.');
@@ -1011,7 +1011,7 @@ class user extends core_module
   public function edit_user_form_submit(array &$form, array $form_values) {
     $password = ($form_values['password']) ? $form_values['password'] : NULL;
     if ($password) {
-      $this->update($form['uid']['#value'], $password);
+      $this->update_user($form['uid']['#value'], $password);
       set_message('Your account is updated.');
     } else {
       set_message('There was nothing that needed a update.');
@@ -1192,7 +1192,7 @@ class user extends core_module
     $password = generate_password();
 
     // Update the user record with a new password.
-    $this->update($this->get_user_by_email($email)->uid, $password);
+    $this->update_user($this->get_user_by_email($email)->uid, $password);
 
     // Send email with the new password to the user.
     get_module_system()->mail_password_reset(array('to' => $email), $password);
