@@ -471,7 +471,6 @@ class module extends core_module {
     $method->setAccessible(TRUE);
     $b = $method->invoke($class);
     if ($b) {
-      $this->set_module_status($module, FALSE);
       set_message("Module <em>$module</em> is updated.");
     } else {
       set_message("Update of module <em>$module</em> failed.", 'error');
