@@ -19,7 +19,12 @@ use core\modules\session\session;
 
 config::load();
 
-define('BASE_PATH', config::get_value('system.basepath', '/'));
+if (!config::get_value('system.basepath')) {
+  define('BASE_PATH', str_replace('index.php', '', $_SERVER['SCRIPT_NAME']));
+} else {
+  define('BASE_PATH', config::get_value('system.basepath'));
+}
+
 define('BASE_URL',
     strtolower(substr($_SERVER['SERVER_PROTOCOL'], 0, strpos($_SERVER['SERVER_PROTOCOL'], '/'))) .
     '://' .
@@ -47,7 +52,7 @@ define('MENU_NORMAL_ITEM', MENU_VISIBLE_IN_TREE | MENU_VISIBLE_IN_BREADCRUMB);
 
 require_once BASE_DIR . 'core/database.class.php';
 // Check if install module is enabled.
-if (!file_exists('/core/modules/install/install.ini')) {
+if (!file_exists(BASE_DIR . 'core/modules/install/install.ini')) {
   get_dbase()->connect();
 }
 
