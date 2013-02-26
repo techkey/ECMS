@@ -281,18 +281,18 @@ form .cancel-submit {
   margin-left: 10px;
 }
 
-fieldset {
+form[id^=form-] fieldset {
   border: 1px solid #CCCCCC;
   margin: 15px 0;
   position: relative;
   padding: 30px 0 0 0;
 }
 
-.fieldset-wrapper {
+form[id^=form-] .fieldset-wrapper {
   margin: 10px;
 }
 
-legend {
+form[id^=form-] legend {
   background-color: #DDDDDD;
   height: 30px;
   line-height: 30px;
@@ -305,7 +305,7 @@ legend {
   text-indent: 10px;
 }
 
-fieldset.collapsible > legend .fieldset-legend {
+form[id^=form-] fieldset.collapsible > legend .fieldset-legend {
   padding-left: 15px;
   display: block;
 }
