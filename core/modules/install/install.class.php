@@ -60,10 +60,9 @@ class install {
   /**
    * @param array $form
    * @param array $form_values
-   * @param array $form_errors
    * @return array
    */
-  public function install_form(array $form, array $form_values, array $form_errors) {
+  public function install_form(array $form, array $form_values) {
     $form['#attributes'] = array(
       'autocomplete' => 'off',
     );
@@ -96,7 +95,7 @@ DBT
       '#description' => <<<DBT
         The file to use as database may be a absolute or a relative path.
         A absolute path must begin with a / (slash for *nix) or a drive letter (e.g d:\\ or d:/ for Windows).
-        Relative paths are relative from where the index.php file of ECMS is located.
+        A relative path is relative from where the index.php file of ECMS is located and is automaticly converted to a absolute path.
 DBT
     );
 
@@ -132,7 +131,7 @@ DBT
 DBT
     );
 
-    if (isset($form_values['database_name']) && $form_values && !$form_errors) {
+    if (isset($form_values['database_name']) && $form_values) {
       $database = $form_values['database_name'];
       $username = $form_values['username'];
       $password = $form_values['password'];
@@ -197,12 +196,17 @@ DBT
    * @param array $form_values
    * @param array $form_errors
    */
-  public function install_form_validate(array $form, array $form_values, array &$form_errors) {
+  public function install_form_validate(array $form, array &$form_values, array &$form_errors) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
 
     if ($form_values['type'] == 'SQLite3') {
       $filepath = $form_values['sqlite3_filepath'];
+      if (($filepath[0] != '/') || ($filepath[1] != ':')) {
+        $filepath = BASE_DIR . $filepath;
+        $form_values['sqlite3_filepath'] = $filepath;
+      }
+
       if ($filepath == '') {
         $form_errors['sqlite3_filepath'] = 'File path to the SQLite3 database cannot be empty.';
       } else {
@@ -263,7 +267,7 @@ basepath = $BASE_PATH
 
 [database]
 type = '{$form_values['type']}'
-; for sqlite3
+; for sqlite3, this must be a absolute filepath
 sqlite3_filepath = '{$form_values['sqlite3_filepath']}'
 ; for others
 database_name = '{$form_values['database_name']}'
