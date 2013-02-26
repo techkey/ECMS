@@ -439,7 +439,14 @@ class form {
         case 'value':
           break;
 
+        /** @noinspection PhpMissingBreakStatementInspection */
         case 'select':
+          if (isset($field['#multiple']) && ($field['#multiple'] == 'multiple')) {
+            if (!isset($this->form_values[$name])) {
+              $this->form_values[$name] = array();
+            }
+            break;
+          }
         case 'textarea':
           $field += array(
             '#required' => FALSE,
@@ -753,12 +760,24 @@ class form {
       }
     }
 
+    if (isset($field['#multiple']) && ($field['#multiple'] == 'multiple')) {
+      $attributes += array('multiple' => 'multiple');
+      $attributes['name'] .= '[]';
+    }
+
+    if (isset($field['#size'])) {
+      $attributes += array('size' => $field['#size']);
+    }
+
     $element[] = sprintf('<div id="form-element-%s" class="form-element">', $attributes['id']);
     $element[] = sprintf('<label %s>%s</label>', build_attribute_string($label_attribs), $field['#title']);
     $element[] = sprintf('<select %s>', build_attribute_string($attributes));
     $form_value = isset($this->form_values[$name]) ? $this->form_values[$name] : $field['#default_value'];
+    if (!is_array($form_value)) {
+      $form_value = array($form_value);
+    }
     foreach ($field['#options'] as $key => $value) {
-      if ($key == $form_value) {
+      if (in_array($key, $form_value)) {
         $element[] = sprintf('<option selected="selected" value="%s">%s</option>', $key, $value);
       } else {
         $element[] = sprintf('<option value="%s">%s</option>', $key, $value);
