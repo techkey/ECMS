@@ -87,6 +87,12 @@ class module extends core_module {
       'access_arguments' => 'admin',
       'type'             => MENU_CALLBACK,
     );
+    $menu['admin/module/update/{module}'] = array(
+      'title'            => 'Update Module',
+      'controller'       => 'module::update_module',
+      'access_arguments' => 'admin',
+      'type'             => MENU_CALLBACK,
+    );
     $menu['admin/module/enable/{module}']   = array(
       'title'            => 'Enable Module',
       'controller'       => 'module::enable_module',
@@ -304,43 +310,6 @@ class module extends core_module {
   }
 
   /**
-   * @param $module
-   * @return string
-   */
-  public function module_install($module) {
-    return get_module_form()->build('module_install_form', $module);
-  }
-
-  /**
-   * @param array  $form
-   * @param array  $form_values
-   * @param array  $form_errors
-   * @param string $module
-   * @return array
-   */
-  public function module_install_form(array $form, array $form_values, array $form_errors, $module) {
-    /** @noinspection PhpUnusedLocalVariableInspection */
-    $tmp = $form;
-    /** @noinspection PhpUnusedLocalVariableInspection */
-    $tmp = $form_values;
-    /** @noinspection PhpUnusedLocalVariableInspection */
-    $tmp = $form_errors;
-
-    $form = array();
-
-    $form['message'] = array(
-      '#value' => "<p>Are you sure you want to install module <em>$module</em>?</p>",
-    );
-    $form['submit'] = array(
-      '#type'   => 'submit',
-      '#value'  => 'Install',
-      '#suffix' => '<span class="cancel-submit">' . l('Cancel', 'admin/modules') . '</span>',
-    );
-
-    return $form;
-  }
-
-  /**
    * @param string $module
    * @return string
    */
@@ -351,17 +320,14 @@ class module extends core_module {
   /**
    * @param array  $form
    * @param array  $form_values
-   * @param array  $form_errors
    * @param string $module
    * @return array
    */
-  public function install_module_form(array $form, array $form_values, array $form_errors, $module) {
+  public function install_module_form(array $form, array $form_values, $module) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form_values;
-    /** @noinspection PhpUnusedLocalVariableInspection */
-    $tmp = $form_errors;
 
     $form = array();
 
@@ -410,17 +376,14 @@ class module extends core_module {
   /**
    * @param array  $form
    * @param array  $form_values
-   * @param array  $form_errors
    * @param string $module
    * @return array
    */
-  public function uninstall_module_form(array $form, array $form_values, array $form_errors, $module) {
+  public function uninstall_module_form(array $form, array $form_values, $module) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form;
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form_values;
-    /** @noinspection PhpUnusedLocalVariableInspection */
-    $tmp = $form_errors;
 
     $form = array();
 
@@ -456,6 +419,62 @@ class module extends core_module {
       set_message("Module <em>$module</em> is uninstalled.");
     } else {
       set_message("Uninstall of module <em>$module</em> failed.", 'error');
+    }
+    $form['#redirect'] = 'admin/modules';
+  }
+
+  /**
+   * @param string $module
+   * @return string
+   */
+  public function update_module($module) {
+    return get_module_form()->build('update_module_form', $module);
+  }
+
+  /**
+   * @param array  $form
+   * @param array  $form_values
+   * @param string $module
+   * @return array
+   */
+  public function update_module_form(array $form, array $form_values, $module) {
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form;
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_values;
+
+    $form = array();
+
+    $form['message'] = array(
+      '#value' => '<p>Are you sure you want to update module ' . $module . '?</p>',
+    );
+    $form['submit'] = array(
+      '#type'   => 'submit',
+      '#value'  => 'Update',
+      '#suffix' => '<span class="cancel-submit">' . l('Cancel', 'admin/modules') . '</span>',
+    );
+
+    return $form;
+  }
+
+  /**
+   * @param array  $form
+   * @param array  $form_values
+   * @param string $module
+   */
+  public function update_module_form_submit(array &$form, array $form_values, $module) {
+    /** @noinspection PhpUnusedLocalVariableInspection */
+    $tmp = $form_values;
+
+    $class = get_module($module);
+    $method = new \ReflectionMethod($class, 'update');
+    $method->setAccessible(TRUE);
+    $b = $method->invoke($class);
+    if ($b) {
+      $this->set_module_status($module, FALSE);
+      set_message("Module <em>$module</em> is updated.");
+    } else {
+      set_message("Update of module <em>$module</em> failed.", 'error');
     }
     $form['#redirect'] = 'admin/modules';
   }
