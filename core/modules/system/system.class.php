@@ -36,7 +36,7 @@ class system extends core_module {
   }
 
   /**
-   * Hook schema().
+   * Implements hook schema().
    *
    * @return array
    */
@@ -61,7 +61,7 @@ class system extends core_module {
   }
 
   /**
-   * Hook install().
+   * Implements hook install().
    */
   private function install() {
     db_install_schema($this->schema());
@@ -200,10 +200,9 @@ class system extends core_module {
 /* Hooks **********************************************************************/
 
   /**
-   * Hook init();
+   * Implements hook init();
    */
   public function init() {
-    library_load('jquery', -10);
     add_js(array(
       'basePath' => BASE_PATH,
       'libraryPath' => LIBRARY_PATH,
@@ -212,7 +211,7 @@ class system extends core_module {
   }
 
   /**
-   * Hook menu().
+   * Implements hook menu().
    *
    * @return array
    */
@@ -259,7 +258,7 @@ class system extends core_module {
   }
 
   /**
-   * Hook block().
+   * Implements hook block().
    *
    * @return array
    */
@@ -335,7 +334,7 @@ class system extends core_module {
   }
 
   /**
-   * Hook page_alter().
+   * Implements hook page_alter().
    *
    * @param array $page The final render array.
    */
