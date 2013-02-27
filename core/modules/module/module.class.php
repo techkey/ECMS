@@ -590,7 +590,7 @@ class module extends core_module {
       array('data' => 'Namespace',    'data-sort' => 'string'),
       array('data' => 'Hooks'),
       array('data' => 'Tables'),
-      array('data' => 'Actions',      'colspan' => 3),
+      array('data' => 'Actions',      'colspan' => 4),
     );
 
     $count = 0;
@@ -601,6 +601,7 @@ class module extends core_module {
       $install_exists = method_exists($class, 'install');
       $uninstall_exists = method_exists($class, 'uninstall');
       $update_exists = method_exists($class, 'update');
+      $settings_exists = method_exists($class, 'settings');
 
       $tables = '';
       if ($schema_exists) {
@@ -659,6 +660,12 @@ class module extends core_module {
         $update_link = '';
       }
 
+      if ($settings_exists && $module->enabled) {
+        $settings_link = l('settings', 'admin/' . $module->name . '/settings?destination=admin/modules');
+      } else {
+        $settings_link = '';
+      }
+
       $count++;
       $rows[] = array(
         $module->name,
@@ -668,6 +675,7 @@ class module extends core_module {
         $install_link,
         $enable_link,
         $update_link,
+        $settings_link,
       );
     }
 
