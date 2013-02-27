@@ -17,12 +17,14 @@ function get_class_name($class) {
 }
 
 /**
- * @param string $type
+ * Add a entry into the watchdog table.
+ *
  * @param string|array $data
+ * @param string       $type The type, can be 'error', 'warning' or 'status'.
  * @return bool
  */
-function watchdog_add($type, $data) {
-  return get_module('watchdog')->add($type, $data);
+function watchdog_add($data, $type = 'error') {
+  return get_module('watchdog')->add($data, $type);
 }
 
 /**
