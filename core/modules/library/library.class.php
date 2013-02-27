@@ -86,6 +86,9 @@ class library {
     if (!isset($this->libraries[$name])) {
       $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
       $caller = $trace[1];
+      if ($caller['function'] == 'load') {
+        $caller = $trace[2];
+      }
       $file = $caller['file'] . ':' . $caller['line'];
       if (!file_exists(LIBRARY_DIR . $name)) {
         watchdog_add("Load library <em>$name</em> failed because it do not exists in <em>$file</em>.", 'warning');
