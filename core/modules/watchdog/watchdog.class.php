@@ -151,13 +151,14 @@ class watchdog {
   public function page_alter(array $page) {
     if (variable_get('watchdog_notify', TRUE)) {
       $count = db_select('watchdog')
-        ->field('COUNT(*)')
+        ->field('SUM(count)')
         ->condition('type', 'status', '!=')
         ->execute()
         ->fetchColumn();
 
       if ($count) {
-        set_message("There are $count watchdog error/warning messages.", 'warning');
+        $link = l('watchdog', 'admin/watchdog');
+        set_message("There are $count $link error/warning messages.", 'warning');
       }
     }
   }
