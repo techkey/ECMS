@@ -12,7 +12,7 @@ use core\modules\core_module;
  */
 class module extends core_module {
 
-  private $system_modules = array('block', 'form', 'menu', 'module', 'router', 'session', 'system', 'user');
+  private $system_modules = array('block', 'form', 'menu', 'module', 'router', 'session', 'system', 'user', 'watchdog');
 
   /* Hooks ********************************************************************/
 
@@ -625,7 +625,7 @@ class module extends core_module {
       $fqn = get_class($class);
 
       if ($install_exists) {
-        if ($module->enabled | in_array($module->name, $this->system_modules)) {
+        if ($module->enabled || in_array($module->name, $this->system_modules)) {
           $install_link = ($module->installed) ? 'installed' : 'not installed';
         } else {
           $install_link = ($module->installed) ? l('uninstall', 'admin/module/uninstall/' . $module->name) : l('install', 'admin/module/install/' . $module->name);
