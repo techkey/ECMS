@@ -12,8 +12,8 @@
   </thead>
   <tbody>
     {foreach $rows as $row}
-    <tr>
-    {foreach $row as $cell}
+    <tr {$row.attributes}>
+    {foreach $row.data as $cell}
       <td {$cell.attributes}>{$cell.data}</td>
     {/foreach}
     </tr>

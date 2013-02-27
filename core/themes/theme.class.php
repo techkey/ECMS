@@ -250,7 +250,14 @@ class theme
 
     $rows = array();
     foreach ($ra['vars']['rows'] as $row) {
+      $row_attributes = '';
       $cells = array();
+      if (isset($row['data']) && (is_array($row['data']))) {
+        $data = $row['data'];
+        unset($row['data']);
+        $row_attributes = build_attribute_string($row);
+        $row = $data;
+      }
       foreach ($row as $cell) {
         if (is_array($cell)) {
           $data = $cell['data'];
@@ -260,7 +267,10 @@ class theme
           $cells[] = array('data' => $cell, 'attributes' => '');
         }
       }
-      $rows[] = $cells;
+      $rows[] = array(
+        'attributes' => $row_attributes,
+        'data' => $cells,
+      );
     }
     $ra['vars']['rows'] = $rows;
 

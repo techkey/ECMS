@@ -1,5 +1,3 @@
-/*jslint node: true, plusplus: true */
-/*global jQuery */
 "use strict";
 // Stupid jQuery table plugin.
 
