@@ -624,20 +624,33 @@ class module extends core_module {
 
       $fqn = get_class($class);
 
-      if ($install_exists) {
-        if ($module->enabled || in_array($module->name, $this->system_modules)) {
-          $install_link = ($module->installed) ? 'installed' : 'not installed';
+      $install_link = '';
+
+      if (in_array($module->name, $this->system_modules)) {
+        if (!$module->installed && $install_exists) {
+          $install_link = l('install', 'admin/module/install/' . $module->name);
+          $enable_link = 'disabled';
+        } elseif (!$module->enabled) {
+          $install_link = 'installed';
+          $enable_link = l('enable', 'admin/module/enable/' . $module->name);
         } else {
-          $install_link = ($module->installed) ? l('uninstall', 'admin/module/uninstall/' . $module->name) : l('install', 'admin/module/install/' . $module->name);
+          $install_link = 'installed';
+          $enable_link = 'enabled';
         }
       } else {
-        $install_link = '';
-      }
+        if ($install_exists) {
+          if ($module->enabled) {
+            $install_link = ($module->installed) ? 'installed' : 'not installed';
+          } else {
+            $install_link = ($module->installed) ? l('uninstall', 'admin/module/uninstall/' . $module->name) : l('install', 'admin/module/install/' . $module->name);
+          }
+        }
 
-      if (($install_exists && !$module->installed) || in_array($module->name, $this->system_modules)) {
-        $enable_link = ($module->enabled) ? 'enabled' : 'disabled';
-      } else {
-        $enable_link = ($module->enabled) ? l('disable', 'admin/module/disable/' . $module->name) : l('enable', 'admin/module/enable/' . $module->name);
+        if ($install_exists && !$module->installed) {
+          $enable_link = ($module->enabled) ? 'enabled' : 'disabled';
+        } else {
+          $enable_link = ($module->enabled) ? l('disable', 'admin/module/disable/' . $module->name) : l('enable', 'admin/module/enable/' . $module->name);
+        }
       }
 
       if ($update_exists && $module->installed) {
