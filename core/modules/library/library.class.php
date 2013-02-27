@@ -48,8 +48,8 @@ class library {
    *  version_num_chars: maximum characters per line to scan for version
    *
    * Filled in by the class:
-   * fname: full directory + filename of the file to be included (useful for .php files)
-   * fpath: full path + filename of the file to be included (useful for .js files)
+   * filename: full directory + filename of the file to be included (useful for .php files)
+   * file_path: full path + filename of the file to be included (useful for .js files)
    * loaded: TRUE if loaded, else FALSE
    * </pre>
    * @param string $name
@@ -84,6 +84,17 @@ class library {
    */
   public function load($name, $weight = 0) {
     if (!isset($this->libraries[$name])) {
+      $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+      $caller = $trace[1];
+      $file = $caller['file'] . ':' . $caller['line'];
+      if (!file_exists(LIBRARY_DIR . $name)) {
+        watchdog_add("Load library <em>$name</em> failed because it do not exists in <em>$file</em>.", 'warning');
+      } elseif (!file_exists(LIBRARY_DIR . $name . '/' . $name . '.lib.ini')) {
+        watchdog_add("Load library <em>$name</em> failed because it is not enabled in <em>$file</em>.", 'warning');
+      } else {
+        watchdog_add("Load library <em>$name</em> failed to load in <em>$file</em>.", 'error');
+      }
+
       return FALSE;
     }
 
@@ -122,13 +133,13 @@ class library {
     if (isset($info['css'])) {
       $weight_offset = 0;
       foreach ($info['css'] as $css) {
-        $fname = BASE_DIR . 'library/' . $name . '/' . $css;
-        if (!file_exists($fname)) {
-          watchdog_add('error', 'Library: cannot find ' . $fname);
+        $filename = BASE_DIR . 'library/' . $name . '/' . $css;
+        if (!file_exists($filename)) {
+          watchdog_add('error', 'Library: cannot find ' . $filename);
           return FALSE;
         }
-        $fpath = BASE_PATH . 'library/' . $name . '/' . $css;
-        get_theme()->add_css($fpath, array('weight' => $weight + $weight_offset++));
+        $file_path = BASE_PATH . 'library/' . $name . '/' . $css;
+        get_theme()->add_css($file_path, array('weight' => $weight + $weight_offset++));
       }
     }
 
@@ -136,26 +147,26 @@ class library {
     if (isset($info['js'])) {
       $weight_offset = 0;
       foreach ($info['js'] as $js) {
-        $fname = BASE_DIR . 'library/' . $name . '/' . $js;
-        if (!file_exists($fname)) {
-          watchdog_add('error', 'Library: cannot find ' . $fname);
+        $filename = BASE_DIR . 'library/' . $name . '/' . $js;
+        if (!file_exists($filename)) {
+          watchdog_add('error', 'Library: cannot find ' . $filename);
           return FALSE;
         }
-        $fpath = BASE_PATH . 'library/' . $name . '/' . $js;
-        get_theme()->add_js($fpath, array('weight' => $weight + $weight_offset++));
+        $file_path = BASE_PATH . 'library/' . $name . '/' . $js;
+        get_theme()->add_js($file_path, array('weight' => $weight + $weight_offset++));
       }
     }
 
     // Load php files.
     if (isset($info['php'])) {
       foreach ($info['php'] as $php) {
-        $fname = BASE_DIR . 'library/' . $name . '/' . $php;
-        if (!file_exists($fname)) {
-          watchdog_add('error', 'Library: cannot find ' . $fname);
+        $filename = BASE_DIR . 'library/' . $name . '/' . $php;
+        if (!file_exists($filename)) {
+          watchdog_add('error', 'Library: cannot find ' . $filename);
           return FALSE;
         }
         /** @noinspection PhpIncludeInspection */
-        require_once $fname;
+        require_once $filename;
       }
     }
 
@@ -221,9 +232,9 @@ class library {
     $libs = glob(LIBRARY_DIR . '*', GLOB_ONLYDIR);
     if ($libs) {
       foreach ($libs as $lib) {
-        $fname = $lib . '/' . basename($lib) . '.lib.ini';
-        if (file_exists($fname)) {
-          $info = parse_ini_file($fname, TRUE);
+        $filename = $lib . '/' . basename($lib) . '.lib.ini';
+        if (file_exists($filename)) {
+          $info = parse_ini_file($filename, TRUE);
           $this->add(basename($lib), $info);
         }
       }
@@ -260,7 +271,7 @@ class library {
       'Home URL',
       'Download URL');
 
-    $extern = array(
+    $external = array(
       'attributes' => array(
         'class'  => array('external'),
         'target' => '_blank',
@@ -271,8 +282,8 @@ class library {
       $rows[] = array(
         $name,
         $library['version'],
-        ($library['home_url']) ? l($library['home_url'], $library['home_url'], $extern) : '',
-        ($library['download_url']) ? l($library['download_url'], $library['download_url'], $extern) : '',
+        ($library['home_url']) ? l($library['home_url'], $library['home_url'], $external) : '',
+        ($library['download_url']) ? l($library['download_url'], $library['download_url'], $external) : '',
       );
     }
 
