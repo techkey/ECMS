@@ -31,6 +31,7 @@ define('BASE_URL',
     $_SERVER['HTTP_HOST'] .
     rtrim(BASE_PATH, '/')
 );
+
 define('LIBRARY_PATH', BASE_PATH . 'library/');
 
 define('MENU_CALLBACK',               0x0000);
