@@ -295,11 +295,13 @@ class theme
   private function _build_tree(array $data) {
     $out = '<ul>';
     foreach ($data as $path => $item) {
-      $out .= '<li>';
       $link = $item['#link'];
+      $count = count($item) - 1;
+
+      $out .= ($count) ? '<li class="has-subs">' : '<li>';
       $out .= l($link['title'], $path);
 
-      if (count($item) > 1) {
+      if ($count) {
         unset($item['#link']);
         $out .= $this->_build_tree($item);
       }
@@ -337,10 +339,12 @@ class theme
     }
     foreach ($ra['menu'] as $path => $data) {
       $link = $data['#link'];
-      $out .= '<li>';
+      $count = count($data) - 1;
+
+      $out .= ($count) ? '<li class="has-subs">' : '<li>';
       $out .= l($link['title'], $path);
 
-      if (count($data) > 1) {
+      if ($count) {
         unset($data['#link']);
         $out .= $this->_build_tree($data);
       }
