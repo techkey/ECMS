@@ -4,10 +4,11 @@
 config/config.ini
 core/db/*
 core/engines/smarty/compile/*
+core/modules/install/install.ini*
 files/*
 library/*
 modules/*
 test2
 test2/*
 .htfreewha
-googlef826e0eb7a7ff468.html
+google*
