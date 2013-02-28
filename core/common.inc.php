@@ -171,19 +171,7 @@ function set_message($message, $status = 'status') {
 /**
  * Add js to the page.
  *
- * @param string|array $data The file path or the inline js string.
- * @param string|array $options An string or array of options:
- * <pre>
- * string:
- *  'file': Adds a reference to a JavaScript file to the page.
- *  'inline': Executes a piece of JavaScript code on the current page by placing the code directly in the page.
- *  'setting': Adds settings to the global storage of JavaScript settings.
- * </pre>
- * <pre>
- * array:
- *  'weight': Default is 0.
- *  'type': Can be 'file', 'inline' or 'setting'. Default is 'file'.
- * </pre>
+ * @see theme::add_js()
  */
 function add_js($data, $options = NULL) {
   get_theme()->add_js($data, $options);
@@ -193,18 +181,7 @@ function add_js($data, $options = NULL) {
 /**
  * Add css to the page.
  *
- * @param string|array $data The file path or the inline js string.
- * @param string|array $options An string or array of options:
- * <pre>
- * string:
- *  'file': Adds a reference to a stylesheet file to the page.
- *  'inline': Executes a piece of stylesheet code on the current page by placing the code directly in the page.
- * </pre>
- * <pre>
- * array:
- *  'weight': Default is 0.
- *  'type': Can be 'file' or 'setting'. Default is 'file'.
- * </pre>
+ * @see theme::add_css()
  */
 function add_css($data, $options = NULL) {
   get_theme()->add_css($data, $options);

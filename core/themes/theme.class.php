@@ -32,7 +32,7 @@ class theme
   /**
    * Add css to the page.
    *
-   * @param string|array $data The file path or the inline js string.
+   * @param string       $data The file path or the inline js string.
    * @param string|array $options An string or array of options:
    * <pre>
    * string:
@@ -90,7 +90,7 @@ class theme
   /**
    * Add js to the page.
    *
-   * @param string|array $data The file path or the inline js string.
+   * @param string       $data The file path or the inline js string.
    * @param string|array $options An string or array of options:
    * <pre>
    * string:
