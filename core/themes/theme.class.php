@@ -90,7 +90,7 @@ class theme
   /**
    * Add js to the page.
    *
-   * @param string       $data The file path or the inline js string.
+   * @param string|array $data The file path, the inline js string or a array of settings.
    * @param string|array $options An string or array of options:
    * <pre>
    * string:
