@@ -330,10 +330,11 @@ class theme
    * @return string
    */
   public function theme_menu(array $ra) {
-    $ra += array('attributes' => array());
-    $attributes = build_attribute_string($ra['attributes']);
-
-    $out = '<ul ' . $attributes . '>';
+    if (isset($ra['attributes'])) {
+      $out = '<ul ' . build_attribute_string($ra['attributes']) . '>';
+    } else {
+      $out = '<ul>';
+    }
     foreach ($ra['menu'] as $path => $data) {
       $link = $data['#link'];
       $out .= '<li>';
