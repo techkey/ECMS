@@ -48,12 +48,16 @@ class database {
       $username         = $values['username'];
       $password         = $values['password'];
     } else {
-      $this->type       = config::get_value('database.type', 'sqlite3');
+      $this->type       = config::get_value('database.type');
       $sqlite3_filepath = config::get_value('database.sqlite3_filepath');
       $database_name    = config::get_value('database.database_name');
       $username         = config::get_value('database.username');
       $password         = config::get_value('database.password');
     }
+    if (!$this->type) {
+      return;
+    }
+
     $this->type = strtolower($this->type);
 
     $uname = NULL;
