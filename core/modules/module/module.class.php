@@ -226,7 +226,7 @@ class module extends core_module {
    * @return string[] Returns a array of strings representing the names of enabled modules.
    */
   public function get_enabled_module_names() {
-    if (defined('INSTALL')) {
+    if (defined('INSTALL') || !db_is_active()) {
       return array();
     }
 
@@ -246,7 +246,7 @@ class module extends core_module {
    * @return string[] Returns a array of strings representing the names of disabled modules.
    */
   public function get_disabled_module_names() {
-    if (defined('INSTALL')) {
+    if (defined('INSTALL') || !db_is_active()) {
       return array();
     }
 
