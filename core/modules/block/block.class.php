@@ -19,7 +19,7 @@ class block {
    *     [weight]
    *   ...
    * </pre>
-   * @var array
+   * @type array
    */
   private $blocks = array();
 
@@ -156,7 +156,6 @@ class block {
             'class' => 'block',
           )),
         );
-//        $vars[$region] .= get_theme()->fetch('block', $context);
         $page[$region][] = array(
           'name' => $block['name'],
           'template' => 'block',
