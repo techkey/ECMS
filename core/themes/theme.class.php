@@ -296,7 +296,6 @@ class theme
     $out = '<ul>';
     foreach ($data as $path => $item) {
       $out .= '<li>';
-//      $item = current($item);
       $link = $item['#link'];
       $out .= l($link['title'], $path);
 
@@ -304,7 +303,6 @@ class theme
         unset($item['#link']);
         $out .= $this->_build_tree($item);
       }
-
       $out .= '</li>';
     }
     $out .= '</ul>';
@@ -315,14 +313,28 @@ class theme
   /**
    * Build HTML of a menu.
    *
+   * <pre>
+   * The render array has the following keys:
+   *  'attributes' => array(
+   *    'class' => array('sf-menu'),
+   *    ...
+   *  ),
+   *  'menu' => array(
+   *    ...
+   *  )
+   * </pre>
+   *
    * @see core\modules\menu\menu::$menus
    *
-   * @param array $menu The menu to build.
+   * @param array $ra The render array to build.
    * @return string
    */
-  public function theme_menu(array $menu) {
-    $out = '<ul class="sf-menu">';
-    foreach ($menu as $path => $data) {
+  public function theme_menu(array $ra) {
+    $ra += array('attributes' => array());
+    $attributes = build_attribute_string($ra['attributes']);
+
+    $out = '<ul ' . $attributes . '>';
+    foreach ($ra['menu'] as $path => $data) {
       $link = $data['#link'];
       $out .= '<li>';
       $out .= l($link['title'], $path);
@@ -331,7 +343,6 @@ class theme
         unset($data['#link']);
         $out .= $this->_build_tree($data);
       }
-
       $out .= '</li>';
     }
     $out .= '</ul>';
