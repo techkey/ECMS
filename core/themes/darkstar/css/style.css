@@ -90,14 +90,16 @@ body {
   margin-bottom: 10px;
 }
 
-.block {
+.page .block {
   margin: 0 0 10px 0;
+  padding: 10px;
+  background-color: #EEEEEE;
 }
 
-.block h3 {
+.page .block h3 {
   margin: 0 0 5px 0;
   padding: 0 0 5px 0;
-  border-bottom: 1px solid #888888;
+  border-bottom: 1px solid #AAAAAA;
 }
 
 .error-messages,
