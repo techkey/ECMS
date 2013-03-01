@@ -260,9 +260,16 @@ function check_plain($text) {
 }
 
 /**
- * @param string $text
- * @param string $path
- * @param array  $options
+ * Build a link.
+ *
+ * <pre>
+ * $options is a associative array that can have the following keys:
+ *  'attributes' - Associative array of attributes of the &lt;a&gt; tag, e.g. 'class' => array('external').
+ * </pre>
+ *
+ * @param string $text    The text to display as title.
+ * @param string $path    The path to follow.
+ * @param array  $options [optional] Associative array.
  * @return string
  */
 function l($text, $path, array $options = array()) {
