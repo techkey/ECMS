@@ -165,7 +165,7 @@ class library {
       foreach ($info['php'] as $php) {
         $filename = BASE_DIR . 'library/' . $name . '/' . $php;
         if (!file_exists($filename)) {
-          watchdog_add('error', 'Library: cannot find ' . $filename);
+          watchdog_add('Library: cannot find <em>' . $filename . '</em> in file <em>' . __FILE__ . ':' . __LINE__ . '</em>.', 'error');
           return FALSE;
         }
         /** @noinspection PhpIncludeInspection */
