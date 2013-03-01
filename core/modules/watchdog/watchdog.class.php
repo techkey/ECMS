@@ -149,7 +149,7 @@ class watchdog {
    * @param array $page
    */
   public function page_alter(array $page) {
-    if (variable_get('watchdog_notify', TRUE)) {
+    if (variable_get('watchdog_notify', TRUE) && db_is_active()) {
       $count = db_select('watchdog')
         ->field('SUM(count)')
         ->condition('type', 'status', '!=')
