@@ -142,7 +142,7 @@ class router {
   public function route() {
     $req_uri = request_path();
     if ($req_uri == '') {
-      $req_uri = 'home';
+      $req_uri = variable_get('system_front_page', 'home');
     }
 
     invoke('route_alter', $req_uri);

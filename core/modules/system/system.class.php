@@ -476,67 +476,67 @@ class system extends core_module {
    */
   public function setup_form() {
     $form['system'] = array(
-      '#type' => 'fieldset',
-      '#title' => 'System Settings',
+      '#type'        => 'fieldset',
+      '#title'       => 'System Settings',
       '#collapsible' => TRUE,
     );
     $form['system']['maintenance'] = array(
-      '#type' => 'checkbox',
-      '#title' => 'Maintenance',
+      '#type'          => 'checkbox',
+      '#title'         => 'Maintenance',
       '#default_value' => variable_get('system_maintenance', TRUE),
     );
     $form['system']['maintainer_ip'] = array(
-      '#type' => 'textfield',
-      '#title' => 'Maintainer IP',
+      '#type'          => 'textfield',
+      '#title'         => 'Maintainer IP',
       '#default_value' => variable_get('system_maintainer_ip', ''),
-      '#description' => 'This IP overrides maintenance mode. Current IP is: <em>' . $_SERVER['REMOTE_ADDR'] . '</em>',
+      '#description'   => 'This IP overrides maintenance mode. Current IP is: <em>' . $_SERVER['REMOTE_ADDR'] . '</em>',
     );
 
     $form['system']['debug'] = array(
-      '#type' => 'checkbox',
-      '#title' => 'Debug',
+      '#type'          => 'checkbox',
+      '#title'         => 'Debug',
       '#default_value' => variable_get('system_debug', FALSE),
     );
     $form['system']['password_crypt'] = array(
-      '#type' => 'checkbox',
-      '#title' => 'Encrypt Password',
+      '#type'          => 'checkbox',
+      '#title'         => 'Encrypt Password',
       '#default_value' => variable_get('system_password_crypt', TRUE),
     );
     $form['system']['password_minlength'] = array(
-      '#type' => 'number',
-      '#title' => 'Minimum Length Password',
+      '#type'          => 'number',
+      '#title'         => 'Minimum Length Password',
       '#default_value' => variable_get('system_password_minlength', 8),
-      '#size' => 4,
-      '#attributes' => array(
+      '#size'          => 4,
+      '#attributes'    => array(
         'min' => 4,
         'max' => 32,
       ),
     );
     $form['system']['password_maxlength'] = array(
-      '#type' => 'number',
-      '#title' => 'Maximum Length Password',
+      '#type'          => 'number',
+      '#title'         => 'Maximum Length Password',
       '#default_value' => variable_get('system_password_maxlength', 32),
-      '#size' => 4,
-      '#attributes' => array(
+      '#size'          => 4,
+      '#attributes'    => array(
         'min' => 4,
         'max' => 32,
       ),
     );
 
     $form['site'] = array(
-      '#type' => 'fieldset',
-      '#title' => 'Site Settings',
+      '#type'        => 'fieldset',
+      '#title'       => 'Site Settings',
       '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
+      '#collapsed'   => TRUE,
     );
     $form['site']['name'] = array(
-      '#type' => 'textfield',
-      '#title' => 'Name',
+      '#type'          => 'textfield',
+      '#title'         => 'Name',
       '#default_value' => variable_get('system_sitename', 'ECMS'),
     );
     $form['site']['email'] = array(
-      '#type' => 'textfield',
-      '#title' => 'Email',
+      '#type'          => 'textfield',
+      '#title'         => 'Email',
       '#default_value' => variable_get('system_email', 'mail@example.com'),
     );
 
@@ -544,14 +544,20 @@ class system extends core_module {
     $themes = array_map('basename', $themes);
     $themes = make_array_assoc($themes);
     $form['site']['theme'] = array(
-      '#type' => 'select',
-      '#title' => 'Theme',
-      '#options' => $themes,
+      '#type'          => 'select',
+      '#title'         => 'Theme',
+      '#options'       => $themes,
       '#default_value' => variable_get('system_theme', 'darkstar'),
+    );
+    $form['site']['front_page'] = array(
+      '#type'          => 'textfield',
+      '#title'         => 'Front Page',
+      '#default_value' => variable_get('system_front_page', ''),
+      '#description'   => 'The <em>path</em> that will be used as <em>front page</em>.',
     );
 
     $form['submit'] = array(
-      '#type' => 'submit',
+      '#type'  => 'submit',
       '#value' => 'Save',
     );
 
@@ -590,9 +596,10 @@ class system extends core_module {
     variable_set('system_password_minlength', $form_values['password_minlength']);
     variable_set('system_password_maxlength', $form_values['password_maxlength']);
 
-    variable_set('system_sitename', $form_values['name']);
-    variable_set('system_email',    $form_values['email']);
-    variable_set('system_theme',    $form_values['theme']);
+    variable_set('system_sitename',   $form_values['name']);
+    variable_set('system_email',      $form_values['email']);
+    variable_set('system_theme',      $form_values['theme']);
+    variable_set('system_front_page', $form_values['front_page']);
 
     set_message('Settings saved.');
   }
