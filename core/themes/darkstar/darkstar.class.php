@@ -13,7 +13,7 @@ class darkstar extends theme
 {
   private $smarty;
 
-  private  $regions = array(
+  private $regions = array(
     'header' => 'Header',
     'page_top' => 'Page top',
     'page_bottom' => 'Page bottom',
@@ -69,6 +69,7 @@ class darkstar extends theme
     $context['theme_path'] = $this->get_path() . 'core/themes/darkstar';
 
     $this->add_js(BASE_PATH . 'core/misc/jquery.js', array('weight' => -10));
+    $this->add_js(BASE_PATH . 'core/misc/jquery.cookie.js', array('weight' => -10));
 //    library_load('jquery', -10);
     $this->add_js($this->get_path() . 'js/main.js');
     $this->add_css($this->get_path() . 'css/1200_15-20_col.css', array('weight' => -10));

@@ -94,6 +94,27 @@
         $('.fieldset-legend', this).click();
       }
     });
+
+    /**
+     * Collapsible admin menu block.
+     */
+    var bShowAdminMenu = $.cookie('bShowAdminMenu') || 'true';
+    bShowAdminMenu = (bShowAdminMenu === 'true');
+
+    $('#block-system-admin_menu > div').css({
+      display: bShowAdminMenu ? 'block' : 'none'
+    });
+
+    $('#block-system-admin_menu h3').css({
+      cursor: 'pointer'
+    });
+
+    $('#block-system-admin_menu h3').click(function () {
+      bShowAdminMenu = !bShowAdminMenu;
+      $.cookie('bShowAdminMenu', bShowAdminMenu, {expires: 356});
+      $('#block-system-admin_menu > div').toggle(bShowAdminMenu);
+    });
+
   });
 })(jQuery);
 

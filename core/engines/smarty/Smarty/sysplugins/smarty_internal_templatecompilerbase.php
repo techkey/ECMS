@@ -107,6 +107,12 @@ abstract class Smarty_Internal_TemplateCompilerBase {
     public $suppressTemplatePropertyHeader = false;
 
     /**
+     * suppress pre and post filter
+     * @var bool
+     */
+    public $suppressFilter = false;
+
+    /**
      * flag if compiled template file shall we written
      * @var bool
      */
@@ -143,6 +149,7 @@ abstract class Smarty_Internal_TemplateCompilerBase {
      * @return bool true if compiling succeeded, false if it failed
      */
     abstract protected function doCompile($_content);
+
     /**
      * Initialize compiler
      */
@@ -183,7 +190,7 @@ abstract class Smarty_Internal_TemplateCompilerBase {
             // get template source
             $_content = $template->source->content;
             // run prefilter if required
-            if (isset($this->smarty->autoload_filters['pre']) || isset($this->smarty->registered_filters['pre'])) {
+            if ((isset($this->smarty->autoload_filters['pre']) || isset($this->smarty->registered_filters['pre'])) && !$this->suppressFilter) {
                 $_content = Smarty_Internal_Filter_Handler::runFilter('pre', $_content, $template);
             }
             // on empty template just return header
@@ -208,13 +215,9 @@ abstract class Smarty_Internal_TemplateCompilerBase {
             foreach ($this->merged_templates as $code) {
                 $merged_code .= $code;
             }
-            // run postfilter if required on merged code
-            if (isset($this->smarty->autoload_filters['post']) || isset($this->smarty->registered_filters['post'])) {
-                $merged_code = Smarty_Internal_Filter_Handler::runFilter('post', $merged_code, $template);
-            }
         }
         // run postfilter if required on compiled template code
-        if (isset($this->smarty->autoload_filters['post']) || isset($this->smarty->registered_filters['post'])) {
+        if ((isset($this->smarty->autoload_filters['post']) || isset($this->smarty->registered_filters['post'])) && !$this->suppressFilter) {
             $_compiled_code = Smarty_Internal_Filter_Handler::runFilter('post', $_compiled_code, $template);
         }
         if ($this->suppressTemplatePropertyHeader) {
@@ -640,7 +643,7 @@ abstract class Smarty_Internal_TemplateCompilerBase {
             $line = $this->lex->line;
         }
         $match = preg_split("/\n/", $this->lex->data);
-        $error_text = 'Syntax Error in template "' . $this->template->source->filepath . '"  on line ' . $line . ' "' . htmlspecialchars(trim(preg_replace('![\t\r\n]+!', ' ', $match[$line - 1]))) . '" ';
+        $error_text = 'Syntax Error in template "' . $this->template->source->filepath . '"  on line ' . $line . ' "' . trim(preg_replace('![\t\r\n]+!', ' ', $match[$line - 1])) . '" ';
         if (isset($args)) {
             // individual error message
             $error_text .= $args;
