@@ -5,6 +5,22 @@
  * @api
  */
 
+/**
+ * variables:
+ *
+ * system_maintenance        - default TRUE
+ * system_maintainer_ip      - default ''
+ * system_debug              - default FALSE
+ * system_password_crypt     - default TRUE
+ * system_password_minlength - default 8
+ * system_password_maxlength - default 32
+ * system_sitename           - default ECMS
+ * system_email              - default mail@example.com
+ */
+
+/**
+ * Class ecms_api
+ */
 class ecms_api {
 
   /**
