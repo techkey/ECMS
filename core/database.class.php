@@ -1,6 +1,6 @@
 <?php
 /**
- * @file database.class.php
+ * @file Database.class.php
  */
 
 use core\modules\config\config;
@@ -8,7 +8,7 @@ use core\modules\config\config;
 /**
  * The main database class.
  */
-class database {
+class Database {
 
   /** @var PDO */
   private $pdo = NULL;
@@ -39,6 +39,7 @@ class database {
    * $values array.
    *
    * @param array $values
+   * @throws DatabaseException
    */
   public function connect(array $values = array()) {
     if ($values) {
@@ -64,6 +65,9 @@ class database {
     $pword = NULL;
     switch (strtolower($this->type)) {
       case 'sqlite3';
+        if (!is_file($sqlite3_filepath)) {
+          throw new DatabaseException('SQLite database file does not exists.');
+        }
         $dsn = 'sqlite:' . $sqlite3_filepath;
         break;
       case 'mysql';
@@ -77,9 +81,10 @@ class database {
     try {
       $this->pdo = new PDO($dsn, $uname, $pword);
     } catch (PDOException $e) {
-      echo 'Connection failed: ' . $e->getMessage() . '<br />';
-      echo $this->type . '<br />';
-      exit;
+//      echo 'Connection failed: ' . $e->getMessage() . '<br />';
+//      echo $this->type . '<br />';
+//      exit;
+      throw new DatabaseException('Connection failed: ' . $e->getMessage());
     }
   }
 
@@ -105,7 +110,7 @@ class database {
 
   /**
    * @param string $table
-   * @return database
+   * @return Database
    */
   public function select($table) {
     $this->reset();
@@ -116,7 +121,7 @@ class database {
 
   /**
    * @param string $table
-   * @return database
+   * @return Database
    */
   public function insert($table) {
     $this->reset();
@@ -127,7 +132,7 @@ class database {
 
   /**
    * @param string $table
-   * @return database
+   * @return Database
    */
   public function update($table) {
     $this->reset();
@@ -138,7 +143,7 @@ class database {
 
   /**
    * @param string $table
-   * @return database
+   * @return Database
    */
   public function delete($table) {
     $this->reset();
@@ -149,7 +154,7 @@ class database {
 
   /**
    * @param string $field
-   * @return database
+   * @return Database
    */
   public function field($field) {
     $this->fields = array($field);
@@ -158,7 +163,7 @@ class database {
 
   /**
    * @param array $fields
-   * @return database
+   * @return Database
    */
   public function fields(array $fields) {
     $this->fields += $fields;
@@ -168,7 +173,7 @@ class database {
   /**
    * @param string $field
    * @param string $direction
-   * @return database
+   * @return Database
    */
   public function orderby($field, $direction = 'ASC') {
     $this->orderby[$field] = $direction;
@@ -179,7 +184,7 @@ class database {
    * @param string $field
    * @param mixed $value
    * @param string $operator
-   * @return database
+   * @return Database
    */
   public function condition($field, $value, $operator = '=') {
     $this->conditions[] = array(
@@ -192,7 +197,7 @@ class database {
 
   /**
    * @param int $limit
-   * @return database
+   * @return Database
    */
   public function pager($limit) {
     $this->limit = $limit;
@@ -292,7 +297,7 @@ class database {
   /**
    * @param string $sql
    * @param array  $params
-   * @throws DBException
+   * @throws DatabaseException
    * @return bool|int
    */
   private function prepare($sql, array $params) {
@@ -301,7 +306,7 @@ class database {
     if (!$pdo) {
       $error_info = $this->pdo->errorInfo();
 //      wd_add('error', $error_info);
-      throw new DBException(print_r($error_info, TRUE));
+      throw new DatabaseException(print_r($error_info, TRUE));
 //      return FALSE;
     }
     $b = $pdo->execute($params);
@@ -323,14 +328,14 @@ class database {
     } else {
       $error_info = $pdo->errorInfo();
 //      wd_add('error', $error_info);
-      throw new DBException(print_r($error_info, TRUE));
+      throw new DatabaseException(print_r($error_info, TRUE));
 //      return FALSE;
     }
   }
 
   /**
    * @param string $table
-   * @throws DBException
+   * @throws DatabaseException
    * @return array|bool
    */
   public function table_info($table) {
@@ -354,7 +359,7 @@ class database {
     if ($st === FALSE) {
       $error_info = $this->pdo->errorInfo();
 //      wd_add('error', $error_info);
-      throw new DBException(print_r($error_info, TRUE));
+      throw new DatabaseException(print_r($error_info, TRUE));
 //      return FALSE;
     }
     $r = $st->fetchAll(PDO::FETCH_ASSOC);
@@ -365,7 +370,7 @@ class database {
 
   /**
    * @param string $sql
-   * @throws DBException
+   * @throws DatabaseException
    * @return bool|int
    */
   private function exec($sql) {
@@ -373,7 +378,7 @@ class database {
     if ($result === FALSE) {
       $error_info = $this->pdo->errorInfo();
 //      wd_add('error', $error_info);
-      throw new DBException(print_r($error_info, TRUE));
+      throw new DatabaseException(print_r($error_info, TRUE));
 //      return FALSE;
     }
     return $result;
@@ -624,7 +629,7 @@ class database {
 /**
  *
  */
-class DBException extends Exception {
+class DatabaseException extends Exception {
 
   /**
    * @param string    $message
@@ -634,10 +639,10 @@ class DBException extends Exception {
   public function __construct($message = '', $code = 0, Exception $previous = NULL) {
     parent::__construct($message, $code, $previous);
 
-//    vardump($message);
-//    vardump(debug_backtrace());
+    echo $message;
     echo '<pre>';
     debug_print_backtrace();
+
     exit;
   }
 
@@ -645,12 +650,12 @@ class DBException extends Exception {
 
 
 /**
- * @return database
+ * @return Database
  */
 function get_dbase() {
   static $dbase = NULL;
   if ($dbase == NULL) {
-    $dbase = new database();
+    $dbase = new Database();
   }
   return $dbase;
 }
@@ -673,7 +678,7 @@ function db_query($query, array $args = array()) {
 
 /**
  * @param string $table
- * @return database
+ * @return Database
  */
 function db_select($table) {
   return get_dbase()->select($table);
@@ -681,7 +686,7 @@ function db_select($table) {
 
 /**
  * @param string $table
- * @return database
+ * @return Database
  */
 function db_insert($table) {
   return get_dbase()->insert($table);
@@ -689,7 +694,7 @@ function db_insert($table) {
 
 /**
  * @param string $table
- * @return database
+ * @return Database
  */
 function db_update($table) {
   return get_dbase()->update($table);
@@ -697,7 +702,7 @@ function db_update($table) {
 
 /**
  * @param string $table
- * @return database
+ * @return Database
  */
 function db_delete($table) {
   return get_dbase()->delete($table);
