@@ -334,18 +334,32 @@ class system extends core_module {
   }
 
   /**
-   * Implements hook page_alter().
+   * Implements hook page_render().
    *
    * @param array $page The final render array.
    */
   public function page_render(array &$page) {
-    $page['footer_bottom'] =  '<span id="footer-left">&copy;2013 3dflat, all rights reserved.</span>';
+    $sitename= variable_get('system_sitename', '');
+    if ($sitename != '') {
+      $copy = '&copy;' . date('Y') . ' ' . $site_name = $sitename . ', all rights reserved.';
+    } else {
+      $copy = '';
+    }
+
+    //$tmp = variable_get('system_email', 'mail@example.com');
+    $tmp = variable_get('system_email', '');
+    $email = '';
+    for ($i = 0; $i < strlen($tmp); $i++) {
+      $email .= '&#' . str_pad(ord($tmp[$i]), 3, '0', STR_PAD_LEFT) . ';';
+    }
+
+    $page['footer_bottom'] =  '<span id="footer-left">' . $copy . '</span>';
     $page['footer_bottom'] .= '<span id="footer-center">';
     $page['footer_bottom'] .= 'Page build time: ' . number_format(microtime(TRUE) - START_TIME, 3);
     $page['footer_bottom'] .= ' Memory usage: ' . number_format(memory_get_usage());
     $page['footer_bottom'] .= ' Memory peak usage: ' . number_format(memory_get_peak_usage());
     $page['footer_bottom'] .= '</span>';
-    $page['footer_bottom'] .= '<span id="footer-right">&#097;&#100;&#109;&#105;&#110;&#064;&#051;&#100;&#102;&#108;&#097;&#116;&#046;&#116;&#107;</span>';
+    $page['footer_bottom'] .= '<span id="footer-right">' . $email . '</span>';
   }
 
   /* Private routes ************************************************************/
