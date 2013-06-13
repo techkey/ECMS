@@ -149,7 +149,6 @@ class router {
 
     $this->current_path = $req_uri;
 
-    /** @noinspection PhpUnusedLocalVariableInspection */
     foreach ($this->routes as $path => $route) {
       if ($this->get_part_count($req_uri) != $this->get_part_count($path)) {
         continue;
