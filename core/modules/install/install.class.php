@@ -278,6 +278,10 @@ password = '{$form_values['password']}'
 
 CFG;
 
+    if ($form_values['type'] == 'sqlite3') {
+      touch($form_values['sqlite3_filepath']);
+    }
+
     $form['#redirect'] = 'install2';
   }
 
