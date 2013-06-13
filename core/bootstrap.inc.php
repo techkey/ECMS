@@ -51,9 +51,9 @@ define('MENU_NORMAL_ITEM', MENU_VISIBLE_IN_TREE | MENU_VISIBLE_IN_BREADCRUMB);
 //define('MENU_CONTEXT_INLINE',         0x0002);
 
 
-require_once BASE_DIR . 'core/database.class.php';
+require_once BASE_DIR . 'core/Database.class.php';
 // Check if install module is enabled.
-if (!file_exists(BASE_DIR . 'core/modules/install/install.ini')) {
+if (!is_file(BASE_DIR . 'core/modules/install/install.ini')) {
   get_dbase()->connect();
 }
 
@@ -76,7 +76,7 @@ function load_core_modules() {
   $core_modules = glob(BASE_DIR . 'core/modules/*', GLOB_ONLYDIR);
   foreach ($core_modules as $core_module) {
     $name = basename($core_module);
-    if (file_exists($core_module . '/' . $name . '.ini')) {
+    if (is_file($core_module . '/' . $name . '.ini')) {
       $class = "\\core\\modules\\$name\\$name";
       if (class_exists($class)) {
         $a[$name] = new $class();
@@ -101,7 +101,7 @@ function load_modules() {
   $modules = glob(BASE_DIR . 'modules/*', GLOB_ONLYDIR);
   foreach ($modules as $module) {
     $name = basename($module);
-    if (file_exists($module . '/' . $name . '.ini')) {
+    if (is_file($module . '/' . $name . '.ini')) {
       $class = "\\modules\\$name\\$name";
       if (class_exists($class)) {
         $a[$name] = new $class();
@@ -217,6 +217,9 @@ function run() {
       $page['site']['name'] = variable_get('system_sitename', 'ECMS');
       $page['base_path'] = BASE_PATH;
       $page['content'] = get_theme()->fetch('maintenance');
+
+      invoke('page_render', $page);
+
       $echo = get_theme()->render('layout', $page);
       echo $echo;
 
