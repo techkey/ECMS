@@ -32,10 +32,10 @@ class form {
 
   /**
    * @param string $form_name The name of the form method.
-   * @param ...               [optional] Variable number of arguments.
+   * @param mixed  $args,...  [optional] Variable number of arguments.
    * @return string
    */
-  public function build($form_name, $arg = NULL) {
+  public function build($form_name, $args = NULL) {
     $args = func_get_args();
     array_shift($args);
 
@@ -190,7 +190,7 @@ class form {
     $enabled_module_instances = get_module_module()->get_enabled_module_instances();
     $method = "form_alter";
 
-    foreach ($enabled_module_instances as $name => $class) {
+    foreach ($enabled_module_instances as $class) {
       if (method_exists($class, $method)) {
         $class->$method($data, $this->form_values, $this->form_attributes['id']);
       }
@@ -199,7 +199,7 @@ class form {
     // Hook form_FORM_ID_alter().
     $method = "form_{$form_name}_alter";
 
-    foreach ($enabled_module_instances as $name => $class) {
+    foreach ($enabled_module_instances as $class) {
       if (method_exists($class, $method)) {
         $class->$method($data, $this->form_values, $this->form_attributes['id']);
       }
@@ -489,7 +489,7 @@ class form {
 
   /**
    * @param string $name
-   * @param array $field
+   * @param array  $field
    * @return string
    */
   private function render_checkbox($name, array $field) {
@@ -523,7 +523,7 @@ class form {
 
   /**
    * @param string $name
-   * @param array $field
+   * @param array  $field
    * @return string
    */
   private function render_checkboxes($name, array $field) {
@@ -578,7 +578,7 @@ class form {
 
   /**
    * @param string $name
-   * @param array $field
+   * @param array  $field
    * @return string
    */
   private function render_email($name, array $field) {
@@ -587,7 +587,7 @@ class form {
 
   /**
    * @param string $name
-   * @param array $field
+   * @param array  $field
    * @return string
    */
   private function render_fieldset($name, array $field) {
@@ -624,7 +624,7 @@ class form {
 
   /**
    * @param string $name
-   * @param array $field
+   * @param array  $field
    * @return string
    */
   private function render_number($name, array $field) {
@@ -633,7 +633,7 @@ class form {
 
   /**
    * @param string $name
-   * @param array $field
+   * @param array  $field
    * @return string
    */
   private function render_password($name, array $field) {
@@ -642,7 +642,7 @@ class form {
 
   /**
    * @param string $name
-   * @param array $field
+   * @param array  $field
    * @return string
    */
   private function render_radio($name, array $field) {
@@ -677,7 +677,7 @@ class form {
 
   /**
    * @param string $name
-   * @param array $field
+   * @param array  $field
    * @return string
    */
   private function render_radios($name, array $field) {
@@ -794,7 +794,7 @@ class form {
 
   /**
    * @param string $name
-   * @param array $field
+   * @param array  $field
    * @return string
    */
   private function render_submit($name, array $field) {
@@ -812,7 +812,7 @@ class form {
 
   /**
    * @param string $name
-   * @param array $field
+   * @param array  $field
    * @return string
    */
   private function render_textarea($name, array $field) {
@@ -857,7 +857,7 @@ class form {
 
   /**
    * @param string $name
-   * @param array $field
+   * @param array  $field
    * @param string $type
    * @return string
    */

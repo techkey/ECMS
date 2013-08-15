@@ -5,7 +5,31 @@
  * @api
  */
 
+/**
+ * Form creation and processing.
+ *
+ * Class form_api
+ */
 class form_api {
+
+  /**
+   * Validate handler.
+   *
+   * @param array $form
+   * @param array $form_values
+   * @param array $form_errors
+   * @param mixed $args,...    [optional]
+   */
+  public function FORM_ID_validate(array &$form, array &$form_values, array &$form_errors, $args = NULL) {}
+
+  /**
+   * Submit handler.
+   *
+   * @param array $form
+   * @param array $form_values
+   * @param mixed $args,...    [optional]
+   */
+  public function FORM_ID_submit(array $form, array $form_values, $args = NULL) {}
 
   /**
    * Hook form_FORM_ID_alter().

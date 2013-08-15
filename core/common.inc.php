@@ -482,29 +482,40 @@ function vardump($var, $return = FALSE, $pre = TRUE, $font_size = '') {
     }
 //*/
     $reflect = new ReflectionObject($var);
-    $props = $reflect->getProperties();
-    if (count($props)) {
-      foreach ($props as $prop) {
+    $constants = $reflect->getConstants();
+    $properties = $reflect->getProperties();
+
+    if (count($constants) || count($properties)) {
+
+      foreach ($constants as $name => $value) {
+        $type = '<i>const</i>';
+        $name = "'$name'";
+        $out .= "$t$type {$name} <span style='color: #888a85'>=&gt;</span> ";
+        $fn = __FUNCTION__;
+        $fn($value);
+      }
+
+      foreach ($properties as $property) {
         $type = array();
-        if ($prop->isPrivate()) {
+        if ($property->isPrivate()) {
           $type[] = 'private';
         }
-        if ($prop->isProtected()) {
+        if ($property->isProtected()) {
           $type[] .= 'protected';
         }
-        if ($prop->isPublic()) {
+        if ($property->isPublic()) {
           $type[] = 'public';
         }
-        if ($prop->isStatic()) {
+        if ($property->isStatic()) {
           $type[] = 'static';
         }
         $type = '<i>' . implode('</i> <i>', $type) . '</i>';
-        $name = $prop->name;
+        $name = $property->name;
         if (is_string($name)) $name = "'$name'";
         $out .= "$t$type {$name} <span style='color: #888a85'>=&gt;</span> ";
         $fn = __FUNCTION__;
-        $prop->setAccessible(TRUE);
-        $fn($prop->getValue($var));
+        $property->setAccessible(TRUE);
+        $fn($property->getValue($var));
       }
     } else {
       $out .= "$t<em><span style='color: #888a85'>empty</span></em>$n";

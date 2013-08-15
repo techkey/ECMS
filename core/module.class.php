@@ -13,6 +13,8 @@ abstract class module {
   /**
    * Get relative path.
    *
+   * NOTE: A slash is appended.
+   *
    * @return string
    */
   public function get_path() {
@@ -21,7 +23,11 @@ abstract class module {
   }
 
   /**
-   * @return string
+   * Get the module directory.
+   *
+   * NOTE: A slash is appended.
+   *
+   * @return string Returns the module directory.
    */
   public function get_dir() {
     return BASE_DIR . '/modules/' . basename(str_replace('\\', '/', get_called_class())) . '/';

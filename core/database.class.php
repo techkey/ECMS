@@ -495,7 +495,7 @@ class Database {
           $sql .= ",PRIMARY KEY ($pk)";
         }
         if (isset($table_data['unique keys'])) {
-          foreach ($table_data['unique keys'] as $key => $fields) {
+          foreach ($table_data['unique keys'] as /*$key =>*/ $fields) {
             $uk = implode(',', $fields);
             $sql .= ",UNIQUE ($uk)";
           }

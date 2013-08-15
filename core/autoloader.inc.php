@@ -19,14 +19,19 @@ class autoloader
    * @param string $class
    */
   private function loader($class) {
-//    var_dump($class);
-    if (strpos($class, 'Twig_') === 0) {
-      return;
-    }
-    if (strpos($class, 'Smarty_') === 0) {
-      return;
-    }
+//    if (strpos($class, 'Twig_') === 0) {
+//      return;
+//    }
+//    if (strpos($class, 'Smarty_') === 0) {
+//      return;
+//    }
+
     $parts = explode('\\', $class);
+
+    if (!in_array($parts[0], array('core', 'modules'))) {
+      return;
+    }
+
     foreach ($this->namespaces as /* $namespace => */ $directory) {
       for ($i = 1; $i <= count($parts); $i++) {
         $dir = $directory;
@@ -41,7 +46,6 @@ class autoloader
         }
       }
     }
-//    exit("Class $class not found.");
     echo("Class '$class' not found.<br>");
   }
 
