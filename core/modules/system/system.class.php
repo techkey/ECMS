@@ -673,17 +673,12 @@ class system extends core_module {
   /**
    * @param array  $form
    * @param array  $form_values
-   * @param array  $form_errors
    * @param string $name
    * @return array
    */
-  public function variable_delete_form(array $form, array $form_values, array $form_errors, $name) {
-    /** @noinspection PhpUnusedLocalVariableInspection */
-    $tmp = $form;
+  public function variable_delete_form(array $form, array $form_values, $name) {
     /** @noinspection PhpUnusedLocalVariableInspection */
     $tmp = $form_values;
-    /** @noinspection PhpUnusedLocalVariableInspection */
-    $tmp = $form_errors;
 
     $form = array();
 
