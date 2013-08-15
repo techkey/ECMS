@@ -15,8 +15,8 @@
  * @package Smarty
  * @subpackage Debug
  */
-class Smarty_Internal_Debug extends Smarty_Internal_Data {
-
+class Smarty_Internal_Debug extends Smarty_Internal_Data
+{
     /**
      * template data
      *
@@ -115,6 +115,7 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data {
         $smarty->left_delimiter = '{';
         $smarty->right_delimiter = '}';
         $smarty->debugging = false;
+        $smarty->debugging_ctrl = 'NONE';
         $smarty->force_compile = false;
         $_template = new Smarty_Internal_Template($smarty->debug_tpl, $smarty);
         $_template->caching = false;
@@ -138,7 +139,7 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data {
     /**
      * Recursively gets variables from all template/data scopes
      *
-     * @param Smarty_Internal_Template|Smarty_Data $obj object to debug
+     * @param  Smarty_Internal_Template|Smarty_Data $obj object to debug
      * @return StdClass
      */
     public static function get_debug_vars($obj)
@@ -169,14 +170,15 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data {
                 }
             }
         }
+
         return (object) array('tpl_vars' => $tpl_vars, 'config_vars' => $config_vars);
     }
 
     /**
      * Return key into $template_data for template
      *
-     * @param object $template  template object
-     * @return string   key into $template_data
+     * @param  object $template template object
+     * @return string key into $template_data
      */
     private static function get_key($template)
     {
@@ -197,10 +199,9 @@ class Smarty_Internal_Debug extends Smarty_Internal_Data {
             self::$template_data[$key]['compile_time'] = 0;
             self::$template_data[$key]['render_time'] = 0;
             self::$template_data[$key]['cache_time'] = 0;
+
             return $key;
         }
     }
 
 }
-
-?>
