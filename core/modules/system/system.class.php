@@ -204,6 +204,7 @@ class system extends core_module {
    */
   public function init() {
     add_js(array(
+      'baseURL' => BASE_URL,
       'basePath' => BASE_PATH,
       'libraryPath' => LIBRARY_PATH,
     ), 'setting');

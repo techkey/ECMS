@@ -19,12 +19,6 @@ class autoloader
    * @param string $class
    */
   private function loader($class) {
-//    if (strpos($class, 'Twig_') === 0) {
-//      return;
-//    }
-//    if (strpos($class, 'Smarty_') === 0) {
-//      return;
-//    }
 
     $parts = explode('\\', $class);
 
@@ -38,8 +32,12 @@ class autoloader
         for ($j = 0; $j < $i; $j++) {
           $dir .=  '/' . $parts[$j];
         }
-//        var_dump($dir . '.class.php');
-        if (file_exists($dir . '.class.php')) {
+        if (file_exists($dir . '.php')) {
+          /** @noinspection PhpIncludeInspection */
+          include $dir . '.php';
+          return;
+        }
+        elseif (file_exists($dir . '.class.php')) {
           /** @noinspection PhpIncludeInspection */
           include $dir . '.class.php';
           return;

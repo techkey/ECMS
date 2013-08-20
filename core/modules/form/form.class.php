@@ -16,13 +16,13 @@ class form {
   private $form_description = '';
 
   /**
-   * <ul>
-   *  <li><id - The id in the format form_'class'_'method'.</li>
-   *  <li>key - The generated UUID.</li>
-   *  <li>method - get or post.</li>
-   *  <li>caller_class - The caller class.</li>
-   *  <li>caller_method - The caller method.</li>
-   * </ul>
+   * <pre>
+   *  id            - The id in the format form_'class'_'method'.
+   *  key           - The generated UUID.
+   *  method        - get or post.
+   *  caller_class  - The caller class.
+   *  caller_method - The caller method.
+   * </pre>
    *
    * @var array
    */
@@ -313,6 +313,9 @@ class form {
       // Render the fields.
       switch ($field['#type']) {
 
+        case 'button':
+          $str = $this->render_button($name, $field);
+          break;
         case 'checkbox':
           $str = $this->render_checkbox($name, $field);
           break;
@@ -430,6 +433,8 @@ class form {
            }
           break;
 
+        // Elements that doesn't need to be validated.
+        case 'button':
         case 'checkboxes':
         case 'fieldset':
         case 'markup':
@@ -486,6 +491,24 @@ class form {
     }
   }
 
+
+  /**
+   * @param string $name
+   * @param array  $field
+   * @return string
+   */
+  private function render_button($name, array $field) {
+    $attributes = (isset($field['#attributes'])) ? $field['#attributes'] : array();
+    $attributes += array(
+      'id' => $name,
+      'name' => $name,
+      'value' => '',
+    );
+    if (isset($field['#value'])) {
+      $attributes['value'] = $field['#value'];
+    }
+    return sprintf('<button %s>%s</button>', build_attribute_string($attributes), $attributes['value']);
+  }
 
   /**
    * @param string $name
